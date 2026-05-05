@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daouda Togola — CTF Writeups</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080b0d;
+    --bg2: #0d1117;
+    --bg3: #111820;
+    --green: #00ff88;
+    --green2: #00cc66;
+    --red: #ff3b6b;
+    --blue: #00b4ff;
+    --yellow: #ffd600;
+    --orange: #ff6b35;
+    --purple: #bf5fff;
+    --text: #c8d6e5;
+    --text-dim: #4a6a7a;
+    --border: #1a2535;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Scanlines */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px);
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* Grid bg */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,136,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,136,0.025) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ═══ HERO ═══ */
+  .hero {
+    position: relative;
+    z-index: 1;
+    padding: 5rem 2rem 4rem;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .hero-glow {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 700px; height: 400px;
+    background: radial-gradient(ellipse, rgba(0,255,136,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    display: inline-block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--green);
+    text-transform: uppercase;
+    border: 1px solid rgba(0,255,136,0.3);
+    padding: 5px 16px;
+    margin-bottom: 2rem;
+    background: rgba(0,255,136,0.05);
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .hero-name {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(2.5rem, 8vw, 6rem);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -1px;
+    color: #fff;
+    animation: fadeDown 0.7s ease 0.1s both;
+  }
+
+  .hero-name span {
+    display: block;
+    background: linear-gradient(90deg, var(--green), var(--blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 25px rgba(0,255,136,0.35));
+  }
+
+  .hero-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--text-dim);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 1rem;
+    animation: fadeDown 0.8s ease 0.2s both;
+  }
+
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    margin: 3rem 0 2rem;
+    flex-wrap: wrap;
+    animation: fadeUp 0.8s ease 0.3s both;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .stat-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--green);
+    line-height: 1;
+    filter: drop-shadow(0 0 15px rgba(0,255,136,0.4));
+  }
+
+  .stat-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .stat-divider {
+    width: 1px;
+    height: 50px;
+    background: var(--border);
+    align-self: center;
+  }
+
+  /* ═══ FILTERS ═══ */
+  .filters {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 0 2rem 3rem;
+    animation: fadeUp 0.8s ease 0.4s both;
+  }
+
+  .filter-btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 7px 16px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 2px;
+  }
+
+  .filter-btn:hover,
+  .filter-btn.active {
+    border-color: var(--green);
+    color: var(--green);
+    background: rgba(0,255,136,0.06);
+  }
+
+  /* ═══ GRID ═══ */
+  .grid-container {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+  }
+
+  .grid-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .grid-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .grid-count {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    color: var(--green);
+  }
+
+  .writeups-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.5rem;
+  }
+
+  /* ═══ CARD ═══ */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(0,255,136,0.3);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,255,136,0.1);
+  }
+
+  .card-accent {
+    height: 3px;
+    width: 100%;
+  }
+
+  .card-inner { padding: 1.5rem; }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  .card-platform {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  .card-date {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  .card-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #fff;
+    margin-bottom: 0.3rem;
+    letter-spacing: 1px;
+  }
+
+  .card-tagline {
+    font-size: 13px;
+    color: var(--text-dim);
+    font-weight: 300;
+    line-height: 1.5;
+    margin-bottom: 1.2rem;
+  }
+
+  .card-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 1.2rem;
+  }
+
+  .badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    padding: 3px 10px;
+    border: 1px solid;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-radius: 2px;
+  }
+
+  .badge-os-win { border-color: rgba(0,180,255,0.4); color: var(--blue); background: rgba(0,180,255,0.05); }
+  .badge-os-lin { border-color: rgba(255,214,0,0.4); color: var(--yellow); background: rgba(255,214,0,0.05); }
+  .badge-diff-easy { border-color: rgba(0,255,136,0.4); color: var(--green); background: rgba(0,255,136,0.05); }
+  .badge-diff-med { border-color: rgba(255,107,53,0.4); color: var(--orange); background: rgba(255,107,53,0.05); }
+  .badge-diff-hard { border-color: rgba(255,59,107,0.4); color: var(--red); background: rgba(255,59,107,0.05); }
+  .badge-tech { border-color: rgba(100,100,100,0.4); color: #aaa; background: rgba(100,100,100,0.05); }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .card-pwned {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .card-arrow {
+    font-size: 18px;
+    color: var(--text-dim);
+    transition: color 0.2s, transform 0.2s;
+  }
+
+  .card:hover .card-arrow {
+    color: var(--green);
+    transform: translateX(4px);
+  }
+
+  /* Difficulty corner */
+  .diff-corner {
+    position: absolute;
+    top: 12px; right: 12px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  /* ═══ COMING SOON CARD ═══ */
+  .card-soon {
+    border-style: dashed;
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  .card-soon:hover {
+    transform: none;
+    border-color: var(--border);
+    box-shadow: none;
+  }
+
+  .card-soon .card-name {
+    color: var(--text-dim);
+  }
+
+  /* ═══ FOOTER ═══ */
+  footer {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .footer-left {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+  }
+
+  .footer-right {
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  .footer-link {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    text-decoration: none;
+    letter-spacing: 1px;
+    transition: color 0.2s;
+  }
+
+  .footer-link:hover { color: var(--green); }
+
+  /* ═══ ANIMATIONS ═══ */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-15px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card { animation: fadeUp 0.5s ease both; }
+  .card:nth-child(1) { animation-delay: 0.1s; }
+  .card:nth-child(2) { animation-delay: 0.15s; }
+  .card:nth-child(3) { animation-delay: 0.2s; }
+  .card:nth-child(4) { animation-delay: 0.25s; }
+  .card:nth-child(5) { animation-delay: 0.3s; }
+
+  /* ═══ RESPONSIVE ═══ */
+  @media (max-width: 600px) {
+    .writeups-grid { grid-template-columns: 1fr; }
+    .hero-stats { gap: 1.5rem; }
+    .stat-divider { display: none; }
+    footer { flex-direction: column; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-eyebrow">CTF Writeups Portfolio</div>
+  <h1 class="hero-name">
+    Daouda<span>Togola</span>
+  </h1>
+  <p class="hero-title">Master 2 Cyberdéfense · INSA · HackTheBox Player</p>
+
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-num">4</span>
+      <span class="stat-label">Machines Pwned</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <span class="stat-num">3</span>
+      <span class="stat-label">Windows</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <span class="stat-num">1</span>
+      <span class="stat-label">Linux</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <span class="stat-num">2</span>
+      <span class="stat-label">Medium</span>
+    </div>
+  </div>
+</header>
+
+<!-- FILTERS -->
+<div class="filters">
+  <button class="filter-btn active" onclick="filterCards('all', this)">All</button>
+  <button class="filter-btn" onclick="filterCards('windows', this)">Windows</button>
+  <button class="filter-btn" onclick="filterCards('linux', this)">Linux</button>
+  <button class="filter-btn" onclick="filterCards('easy', this)">Easy</button>
+  <button class="filter-btn" onclick="filterCards('medium', this)">Medium</button>
+  <button class="filter-btn" onclick="filterCards('ad', this)">Active Directory</button>
+</div>
+
+<!-- GRID -->
+<main class="grid-container">
+  <div class="grid-header">
+    <span class="grid-title">// writeups</span>
+    <span class="grid-count" id="count">4 machines</span>
+  </div>
+
+  <div class="writeups-grid" id="grid">
+
+    <!-- VulnCicada -->
+    <a href="vulncicada-writeup.html" class="card" data-os="windows" data-diff="medium" data-tags="ad kerberos adcs">
+      <div class="card-accent" style="background: linear-gradient(90deg, #00ff88, #00b4ff);"></div>
+      <div class="card-inner">
+        <div class="card-top">
+          <span class="card-platform">HackTheBox</span>
+          <span class="card-date">2025</span>
+        </div>
+        <div class="card-name">VulnCicada</div>
+        <p class="card-tagline">ESC8 + Kerberos Relay pour compromettre un domaine Active Directory. NTLM désactivé, certificat DC obtenu via krbrelayx.</p>
+        <div class="card-badges">
+          <span class="badge badge-os-win">Windows</span>
+          <span class="badge badge-diff-med">Medium</span>
+          <span class="badge badge-tech">ADCS / ESC8</span>
+          <span class="badge badge-tech">Kerberos Relay</span>
+          <span class="badge badge-tech">NFS</span>
+        </div>
+        <div class="card-footer">
+          <span class="card-pwned" style="color:var(--green);">✓ Pwned</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- POV -->
+    <a href="powwriteup.html" class="card" data-os="windows" data-diff="medium" data-tags="iis viewstate rce">
+      <div class="card-accent" style="background: linear-gradient(90deg, #ff3b6b, #ff6b35);"></div>
+      <div class="card-inner">
+        <div class="card-top">
+          <span class="card-platform">HackTheBox</span>
+          <span class="card-date">23/02/2026</span>
+        </div>
+        <div class="card-name">POV</div>
+        <p class="card-tagline">LFI sur web.config expose les MachineKeys IIS → désérialisation ViewState malveillante → RCE, puis SeDebugPrivilege pour SYSTEM.</p>
+        <div class="card-badges">
+          <span class="badge badge-os-win">Windows</span>
+          <span class="badge badge-diff-med">Medium</span>
+          <span class="badge badge-tech">ViewState RCE</span>
+          <span class="badge badge-tech">SeDebug</span>
+          <span class="badge badge-tech">Chisel</span>
+        </div>
+        <div class="card-footer">
+          <span class="card-pwned" style="color:var(--green);">✓ Pwned</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- MEDIA -->
+    <a href="media-writeup.html" class="card" data-os="windows" data-diff="medium" data-tags="ntlm smb upload">
+      <div class="card-accent" style="background: linear-gradient(90deg, #bf5fff, #00b4ff);"></div>
+      <div class="card-inner">
+        <div class="card-top">
+          <span class="card-platform">HackTheBox CPTS</span>
+          <span class="card-date">2026</span>
+        </div>
+        <div class="card-name">MEDIA</div>
+        <p class="card-tagline">Upload d'un fichier .asx déclenche une connexion SMB → capture NTLMv2 → accès. Junction attack + Potato pour élévation SYSTEM.</p>
+        <div class="card-badges">
+          <span class="badge badge-os-win">Windows</span>
+          <span class="badge badge-diff-med">Medium</span>
+          <span class="badge badge-tech">NTLMv2 Capture</span>
+          <span class="badge badge-tech">Junction Attack</span>
+          <span class="badge badge-tech">XAMPP</span>
+        </div>
+        <div class="card-footer">
+          <span class="card-pwned" style="color:var(--green);">✓ Pwned</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- TRICK -->
+    <a href="trick-writeup.html" class="card" data-os="linux" data-diff="easy" data-tags="dns sqli lfi">
+      <div class="card-accent" style="background: linear-gradient(90deg, #ffd600, #ff6b35);"></div>
+      <div class="card-inner">
+        <div class="card-top">
+          <span class="card-platform">HackTheBox</span>
+          <span class="card-date">2026</span>
+        </div>
+        <div class="card-name">Trick</div>
+        <p class="card-tagline">Zone transfer DNS révèle un vhost caché → SQLi pour lire nginx config → nouveau vhost → LFI + SMTP log poisoning → RCE → Fail2ban privesc.</p>
+        <div class="card-badges">
+          <span class="badge badge-os-lin">Linux</span>
+          <span class="badge badge-diff-easy">Easy</span>
+          <span class="badge badge-tech">DNS Zone Transfer</span>
+          <span class="badge badge-tech">SQLi / LFI</span>
+          <span class="badge badge-tech">Fail2ban</span>
+        </div>
+        <div class="card-footer">
+          <span class="card-pwned" style="color:var(--green);">✓ Pwned</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- COMING SOON -->
+    <div class="card card-soon" data-os="" data-diff="" data-tags="">
+      <div class="card-accent" style="background: var(--border);"></div>
+      <div class="card-inner">
+        <div class="card-top">
+          <span class="card-platform">HackTheBox</span>
+          <span class="card-date">Soon</span>
+        </div>
+        <div class="card-name">???</div>
+        <p class="card-tagline">Prochain writeup en cours de rédaction...</p>
+        <div class="card-badges">
+          <span class="badge badge-tech">Coming Soon</span>
+        </div>
+        <div class="card-footer">
+          <span class="card-pwned" style="color:var(--text-dim);">In Progress</span>
+          <span class="card-arrow" style="color:var(--text-dim);">→</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-left">
+    Daouda Togola &nbsp;·&nbsp; M2 Cyberdéfense INSA &nbsp;·&nbsp; 2026
+  </div>
+  <div class="footer-right">
+    <a href="https://app.hackthebox.com" class="footer-link" target="_blank">HackTheBox ↗</a>
+    <a href="https://github.com" class="footer-link" target="_blank">GitHub ↗</a>
+    <a href="https://linkedin.com" class="footer-link" target="_blank">LinkedIn ↗</a>
+  </div>
+</footer>
+
+<script>
+  function filterCards(filter, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const cards = document.querySelectorAll('#grid .card');
+    let visible = 0;
+
+    cards.forEach(card => {
+      if (card.classList.contains('card-soon')) {
+        card.style.display = filter === 'all' ? 'block' : 'none';
+        return;
+      }
+
+      const os = card.dataset.os || '';
+      const diff = card.dataset.diff || '';
+      const tags = card.dataset.tags || '';
+
+      let show = false;
+      if (filter === 'all') show = true;
+      else if (filter === 'windows' && os === 'windows') show = true;
+      else if (filter === 'linux' && os === 'linux') show = true;
+      else if (filter === 'easy' && diff === 'easy') show = true;
+      else if (filter === 'medium' && diff === 'medium') show = true;
+      else if (filter === 'ad' && tags.includes('ad')) show = true;
+
+      card.style.display = show ? 'block' : 'none';
+      if (show) visible++;
+    });
+
+    const total = filter === 'all'
+      ? document.querySelectorAll('#grid .card:not(.card-soon)').length
+      : visible;
+    document.getElementById('count').textContent = total + ' machine' + (total > 1 ? 's' : '');
+  }
+</script>
+
+</body>
+</html>

