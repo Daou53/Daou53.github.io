@@ -3,651 +3,661 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Daouda Togola — CTF Writeups</title>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<title>Daouda Togola — Ingénieur Cybersécurité</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #080b0d;
-    --bg2: #0d1117;
-    --bg3: #111820;
-    --green: #00ff88;
-    --green2: #00cc66;
-    --red: #ff3b6b;
-    --blue: #00b4ff;
-    --yellow: #ffd600;
-    --orange: #ff6b35;
-    --purple: #bf5fff;
-    --text: #c8d6e5;
-    --text-dim: #4a6a7a;
-    --border: #1a2535;
-  }
+:root {
+  --bg:#05070a; --bg2:#090d12; --bg3:#0e141c;
+  --green:#00e87a; --gdim:rgba(0,232,122,0.07);
+  --blue:#38bdf8; --red:#f43f5e; --orange:#fb923c;
+  --yellow:#fbbf24; --purple:#a78bfa;
+  --text:#c8d5e0; --dim:#3d5468; --bright:#f0f4f8;
+  --border:#131f2e; --blight:#1e2f42;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.7;overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,232,122,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(0,232,122,0.018) 1px,transparent 1px);background-size:55px 55px;pointer-events:none;z-index:0;}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:.9rem 3rem;background:rgba(5,7,10,.92);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--green);letter-spacing:2px;text-decoration:none;}
+.nav-links{display:flex;gap:2rem;list-style:none;}
+.nav-links a{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim);text-decoration:none;letter-spacing:2px;text-transform:uppercase;transition:color .2s;}
+.nav-links a:hover{color:var(--green);}
+.nav-cta{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--green) !important;border:1px solid rgba(0,232,122,.35);padding:6px 14px;letter-spacing:2px;text-transform:uppercase;text-decoration:none;transition:background .2s;}
+.nav-cta:hover{background:var(--gdim);}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Rajdhani', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+/* HERO */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;padding:7rem 3rem 4rem;overflow:hidden;z-index:1;}
+.hero-glow{position:absolute;top:30%;left:-10%;width:700px;height:700px;background:radial-gradient(circle,rgba(0,232,122,0.055) 0%,transparent 65%);pointer-events:none;}
+.hero-glow2{position:absolute;bottom:10%;right:-5%;width:400px;height:400px;background:radial-gradient(circle,rgba(56,189,248,0.04) 0%,transparent 65%);pointer-events:none;}
+.hero-content{position:relative;z-index:1;max-width:820px;}
+.hero-available{display:inline-flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--green);letter-spacing:3px;text-transform:uppercase;margin-bottom:1.5rem;animation:fadeUp .6s ease both;}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--green);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.hero-name{font-family:'Syne',sans-serif;font-size:clamp(3rem,8vw,6rem);font-weight:800;line-height:1;color:var(--bright);animation:fadeUp .7s ease .1s both;}
+.hero-name em{font-style:normal;color:var(--green);}
+.hero-role{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--dim);letter-spacing:3px;text-transform:uppercase;margin:.6rem 0 1.5rem;animation:fadeUp .7s ease .2s both;}
+.hero-desc{font-size:15px;color:var(--text);font-weight:300;line-height:1.9;max-width:620px;border-left:2px solid var(--green);padding-left:1.2rem;margin-bottom:2.5rem;animation:fadeUp .8s ease .3s both;}
+.hero-desc strong{color:var(--green);font-weight:500;}
 
-  /* Scanlines */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px);
-    pointer-events: none;
-    z-index: 9999;
-  }
+/* PROFILE PILLS */
+.profile-pills{display:flex;gap:.8rem;flex-wrap:wrap;margin-bottom:2.5rem;animation:fadeUp .8s ease .4s both;}
+.pill{display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:8px 16px;border:1px solid;border-radius:2px;cursor:default;}
+.pill-soc{border-color:rgba(56,189,248,.35);color:var(--blue);background:rgba(56,189,248,.05);}
+.pill-net{border-color:rgba(251,146,60,.35);color:var(--orange);background:rgba(251,146,60,.05);}
+.pill-sec{border-color:rgba(0,232,122,.35);color:var(--green);background:var(--gdim);}
+.pill-dot{width:6px;height:6px;border-radius:50%;}
+.pill-soc .pill-dot{background:var(--blue);}
+.pill-net .pill-dot{background:var(--orange);}
+.pill-sec .pill-dot{background:var(--green);}
 
-  /* Grid bg */
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(0,255,136,0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,255,136,0.025) 1px, transparent 1px);
-    background-size: 50px 50px;
-    pointer-events: none;
-    z-index: 0;
-  }
+.hero-actions{display:flex;gap:1rem;flex-wrap:wrap;animation:fadeUp .8s ease .5s both;}
+.btn-p{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:12px 28px;background:var(--green);color:#000;text-decoration:none;font-weight:700;transition:opacity .2s,transform .2s;display:inline-block;}
+.btn-p:hover{opacity:.85;transform:translateY(-2px);}
+.btn-s{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:12px 28px;border:1px solid var(--blight);color:var(--text);text-decoration:none;transition:border-color .2s,color .2s;}
+.btn-s:hover{border-color:var(--green);color:var(--green);}
 
-  /* ═══ HERO ═══ */
-  .hero {
-    position: relative;
-    z-index: 1;
-    padding: 5rem 2rem 4rem;
-    text-align: center;
-    overflow: hidden;
-  }
+/* HERO STATS */
+.hero-stats{position:absolute;right:3rem;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:2.5rem;animation:fadeUp 1s ease .6s both;}
+.hstat{text-align:right;}
+.hstat-num{font-family:'Syne',sans-serif;font-size:2.8rem;font-weight:800;color:var(--green);line-height:1;display:block;filter:drop-shadow(0 0 15px rgba(0,232,122,.3));}
+.hstat-lbl{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;}
 
-  .hero-glow {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 700px; height: 400px;
-    background: radial-gradient(ellipse, rgba(0,255,136,0.05) 0%, transparent 70%);
-    pointer-events: none;
-  }
+/* SECTIONS */
+section{position:relative;z-index:1;padding:5rem 3rem;}
+.max{max-width:1200px;margin:0 auto;}
+.s-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--green);letter-spacing:4px;text-transform:uppercase;margin-bottom:.6rem;display:flex;align-items:center;gap:10px;}
+.s-label::after{content:'';flex:1;height:1px;background:var(--border);max-width:50px;}
+.s-title{font-family:'Syne',sans-serif;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;color:var(--bright);line-height:1.1;margin-bottom:3rem;}
 
-  .hero-eyebrow {
-    display: inline-block;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 4px;
-    color: var(--green);
-    text-transform: uppercase;
-    border: 1px solid rgba(0,255,136,0.3);
-    padding: 5px 16px;
-    margin-bottom: 2rem;
-    background: rgba(0,255,136,0.05);
-    animation: fadeDown 0.6s ease both;
-  }
+/* EXPERIENCE */
+#experience{background:var(--bg2);}
+.exp-layout{display:grid;grid-template-columns:1fr 1fr;gap:2rem;}
+.exp-card{background:var(--bg3);border:1px solid var(--border);padding:2rem;position:relative;transition:border-color .2s;}
+.exp-card:hover{border-color:var(--blight);}
+.exp-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;}
+.exp-card.cimes::before{background:linear-gradient(to bottom,var(--green),var(--blue));}
+.exp-card.merlin::before{background:var(--blue);}
+.exp-card.satlx::before{background:var(--orange);}
+.exp-card.santech::before{background:var(--purple);}
+.exp-date{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:.5rem;}
+.exp-role{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--bright);margin-bottom:.2rem;}
+.exp-company{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:1px;margin-bottom:1rem;}
+.exp-items{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.exp-items li{font-size:12.5px;color:var(--text);padding-left:1rem;position:relative;font-weight:300;line-height:1.6;}
+.exp-items li::before{content:'▸';position:absolute;left:0;color:var(--green);font-size:9px;top:4px;}
+.exp-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:1rem;}
+.etag{font-family:'Share Tech Mono',monospace;font-size:9px;padding:2px 8px;border:1px solid var(--border);color:var(--dim);letter-spacing:1px;text-transform:uppercase;}
+.etag.hi{border-color:rgba(0,232,122,.25);color:var(--green);}
 
-  .hero-name {
-    font-family: 'Orbitron', monospace;
-    font-size: clamp(2.5rem, 8vw, 6rem);
-    font-weight: 900;
-    line-height: 1;
-    letter-spacing: -1px;
-    color: #fff;
-    animation: fadeDown 0.7s ease 0.1s both;
-  }
+/* SKILLS */
+#skills{background:var(--bg);}
+.skills-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;}
+.sk-card{background:var(--bg2);border:1px solid var(--border);padding:1.5rem;transition:border-color .2s;}
+.sk-card:hover{border-color:var(--blight);}
+.sk-icon{font-size:1.4rem;margin-bottom:.8rem;}
+.sk-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--bright);text-transform:uppercase;letter-spacing:1px;margin-bottom:.8rem;}
+.sk-tags{display:flex;flex-wrap:wrap;gap:5px;}
+.stag{font-family:'Share Tech Mono',monospace;font-size:9px;padding:2px 8px;background:var(--bg3);border:1px solid var(--border);color:var(--dim);letter-spacing:1px;}
+.stag.hi{border-color:rgba(0,232,122,.25);color:var(--green);background:var(--gdim);}
 
-  .hero-name span {
-    display: block;
-    background: linear-gradient(90deg, var(--green), var(--blue));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    filter: drop-shadow(0 0 25px rgba(0,255,136,0.35));
-  }
+/* PROJECTS */
+#projects{background:var(--bg2);}
+.proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.5rem;}
+.proj-card{background:var(--bg3);border:1px solid var(--border);padding:0;overflow:hidden;text-decoration:none;color:inherit;display:block;transition:transform .2s,border-color .2s;}
+.proj-card:hover{transform:translateY(-3px);border-color:var(--blight);}
+.proj-accent{height:3px;}
+.proj-body{padding:1.5rem;}
+.proj-category{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:.6rem;}
+.proj-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--bright);margin-bottom:.5rem;}
+.proj-desc{font-size:12.5px;color:var(--dim);line-height:1.6;margin-bottom:1rem;font-weight:300;}
+.proj-stack{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:1rem;}
+.ptag{font-family:'Share Tech Mono',monospace;font-size:9px;padding:2px 8px;background:var(--bg2);border:1px solid var(--border);color:var(--dim);letter-spacing:1px;}
+.proj-footer{display:flex;align-items:center;justify-content:space-between;padding-top:.8rem;border-top:1px solid var(--border);}
+.proj-type{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;}
+.proj-arrow{color:var(--dim);font-size:14px;transition:color .2s,transform .2s;}
+.proj-card:hover .proj-arrow{color:var(--green);transform:translateX(4px);}
 
-  .hero-title {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 13px;
-    color: var(--text-dim);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    margin-top: 1rem;
-    animation: fadeDown 0.8s ease 0.2s both;
-  }
+/* CTF */
+#ctf{background:var(--bg);}
+.ctf-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:2rem;}
+.fbtn{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:6px 14px;border:1px solid var(--border);background:transparent;color:var(--dim);cursor:pointer;transition:all .2s;}
+.fbtn:hover,.fbtn.active{border-color:var(--green);color:var(--green);background:var(--gdim);}
+.ctf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;}
+.ctf-card{background:var(--bg2);border:1px solid var(--border);text-decoration:none;color:inherit;display:block;transition:transform .2s,border-color .2s;overflow:hidden;}
+.ctf-card:hover{transform:translateY(-3px);border-color:var(--blight);}
+.ctf-top{height:3px;}
+.ctf-body{padding:1.5rem;}
+.ctf-meta{display:flex;justify-content:space-between;margin-bottom:.7rem;}
+.ctf-plat,.ctf-date{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;}
+.ctf-name{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--bright);margin-bottom:.4rem;}
+.ctf-desc{font-size:12px;color:var(--dim);line-height:1.6;margin-bottom:.8rem;font-weight:300;}
+.ctf-badges{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:.8rem;}
+.cbadge{font-family:'Share Tech Mono',monospace;font-size:8px;padding:2px 8px;border:1px solid var(--border);color:var(--dim);letter-spacing:1px;text-transform:uppercase;}
+.cbadge.win{border-color:rgba(56,189,248,.3);color:var(--blue);}
+.cbadge.lin{border-color:rgba(251,191,36,.3);color:var(--yellow);}
+.cbadge.easy{border-color:rgba(0,232,122,.3);color:var(--green);}
+.cbadge.med{border-color:rgba(251,146,60,.3);color:var(--orange);}
+.ctf-footer{display:flex;align-items:center;justify-content:space-between;padding-top:.8rem;border-top:1px solid var(--border);}
+.ctf-pwned{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--green);letter-spacing:1px;}
+.ctf-arrow{color:var(--dim);font-size:13px;transition:color .2s,transform .2s;}
+.ctf-card:hover .ctf-arrow{color:var(--green);transform:translateX(4px);}
 
-  .hero-stats {
-    display: flex;
-    justify-content: center;
-    gap: 3rem;
-    margin: 3rem 0 2rem;
-    flex-wrap: wrap;
-    animation: fadeUp 0.8s ease 0.3s both;
-  }
+/* CERTS */
+#certs{background:var(--bg2);}
+.certs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;}
+.cert-item{background:var(--bg3);border:1px solid var(--border);padding:1rem 1.2rem;display:flex;align-items:center;gap:1rem;transition:border-color .2s;}
+.cert-item:hover{border-color:rgba(0,232,122,.2);}
+.cert-logo{font-size:1.4rem;flex-shrink:0;}
+.cert-info{flex:1;}
+.cert-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--bright);line-height:1.3;}
+.cert-issuer{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+.cert-year{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--green);flex-shrink:0;}
+.sub-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--dim);letter-spacing:3px;text-transform:uppercase;margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border);}
 
-  .stat {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-  }
+/* FOOTER */
+footer{position:relative;z-index:1;background:var(--bg2);border-top:1px solid var(--border);padding:2rem 3rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+.f-copy{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:1px;}
+.f-links{display:flex;gap:2rem;}
+.f-links a{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim);text-decoration:none;letter-spacing:1px;transition:color .2s;}
+.f-links a:hover{color:var(--green);}
 
-  .stat-num {
-    font-family: 'Orbitron', monospace;
-    font-size: 2.5rem;
-    font-weight: 900;
-    color: var(--green);
-    line-height: 1;
-    filter: drop-shadow(0 0 15px rgba(0,255,136,0.4));
-  }
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 
-  .stat-label {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 10px;
-    color: var(--text-dim);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-
-  .stat-divider {
-    width: 1px;
-    height: 50px;
-    background: var(--border);
-    align-self: center;
-  }
-
-  /* ═══ FILTERS ═══ */
-  .filters {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    flex-wrap: wrap;
-    padding: 0 2rem 3rem;
-    animation: fadeUp 0.8s ease 0.4s both;
-  }
-
-  .filter-btn {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 7px 16px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--text-dim);
-    cursor: pointer;
-    transition: all 0.2s;
-    border-radius: 2px;
-  }
-
-  .filter-btn:hover,
-  .filter-btn.active {
-    border-color: var(--green);
-    color: var(--green);
-    background: rgba(0,255,136,0.06);
-  }
-
-  /* ═══ GRID ═══ */
-  .grid-container {
-    position: relative;
-    z-index: 1;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem 6rem;
-  }
-
-  .grid-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .grid-title {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    color: var(--text-dim);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-  }
-
-  .grid-count {
-    font-family: 'Orbitron', monospace;
-    font-size: 11px;
-    color: var(--green);
-  }
-
-  .writeups-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-    gap: 1.5rem;
-  }
-
-  /* ═══ CARD ═══ */
-  .card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    position: relative;
-    overflow: hidden;
-    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
-    text-decoration: none;
-    color: inherit;
-    display: block;
-  }
-
-  .card:hover {
-    transform: translateY(-4px);
-    border-color: rgba(0,255,136,0.3);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,255,136,0.1);
-  }
-
-  .card-accent {
-    height: 3px;
-    width: 100%;
-  }
-
-  .card-inner { padding: 1.5rem; }
-
-  .card-top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-  }
-
-  .card-platform {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 2px;
-    color: var(--text-dim);
-    text-transform: uppercase;
-  }
-
-  .card-date {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 10px;
-    color: var(--text-dim);
-  }
-
-  .card-name {
-    font-family: 'Orbitron', monospace;
-    font-size: 1.5rem;
-    font-weight: 900;
-    color: #fff;
-    margin-bottom: 0.3rem;
-    letter-spacing: 1px;
-  }
-
-  .card-tagline {
-    font-size: 13px;
-    color: var(--text-dim);
-    font-weight: 300;
-    line-height: 1.5;
-    margin-bottom: 1.2rem;
-  }
-
-  .card-badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 1.2rem;
-  }
-
-  .badge {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 10px;
-    padding: 3px 10px;
-    border: 1px solid;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    border-radius: 2px;
-  }
-
-  .badge-os-win { border-color: rgba(0,180,255,0.4); color: var(--blue); background: rgba(0,180,255,0.05); }
-  .badge-os-lin { border-color: rgba(255,214,0,0.4); color: var(--yellow); background: rgba(255,214,0,0.05); }
-  .badge-diff-easy { border-color: rgba(0,255,136,0.4); color: var(--green); background: rgba(0,255,136,0.05); }
-  .badge-diff-med { border-color: rgba(255,107,53,0.4); color: var(--orange); background: rgba(255,107,53,0.05); }
-  .badge-diff-hard { border-color: rgba(255,59,107,0.4); color: var(--red); background: rgba(255,59,107,0.05); }
-  .badge-tech { border-color: rgba(100,100,100,0.4); color: #aaa; background: rgba(100,100,100,0.05); }
-
-  .card-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border);
-  }
-
-  .card-pwned {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-
-  .card-arrow {
-    font-size: 18px;
-    color: var(--text-dim);
-    transition: color 0.2s, transform 0.2s;
-  }
-
-  .card:hover .card-arrow {
-    color: var(--green);
-    transform: translateX(4px);
-  }
-
-  /* Difficulty corner */
-  .diff-corner {
-    position: absolute;
-    top: 12px; right: 12px;
-    width: 8px; height: 8px;
-    border-radius: 50%;
-  }
-
-  /* ═══ COMING SOON CARD ═══ */
-  .card-soon {
-    border-style: dashed;
-    opacity: 0.4;
-    cursor: default;
-  }
-
-  .card-soon:hover {
-    transform: none;
-    border-color: var(--border);
-    box-shadow: none;
-  }
-
-  .card-soon .card-name {
-    color: var(--text-dim);
-  }
-
-  /* ═══ FOOTER ═══ */
-  footer {
-    position: relative;
-    z-index: 1;
-    border-top: 1px solid var(--border);
-    padding: 2.5rem 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-
-  .footer-left {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    color: var(--text-dim);
-    letter-spacing: 2px;
-  }
-
-  .footer-right {
-    display: flex;
-    gap: 1.5rem;
-  }
-
-  .footer-link {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    color: var(--text-dim);
-    text-decoration: none;
-    letter-spacing: 1px;
-    transition: color 0.2s;
-  }
-
-  .footer-link:hover { color: var(--green); }
-
-  /* ═══ ANIMATIONS ═══ */
-  @keyframes fadeDown {
-    from { opacity: 0; transform: translateY(-15px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(15px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .card { animation: fadeUp 0.5s ease both; }
-  .card:nth-child(1) { animation-delay: 0.1s; }
-  .card:nth-child(2) { animation-delay: 0.15s; }
-  .card:nth-child(3) { animation-delay: 0.2s; }
-  .card:nth-child(4) { animation-delay: 0.25s; }
-  .card:nth-child(5) { animation-delay: 0.3s; }
-
-  /* ═══ RESPONSIVE ═══ */
-  @media (max-width: 600px) {
-    .writeups-grid { grid-template-columns: 1fr; }
-    .hero-stats { gap: 1.5rem; }
-    .stat-divider { display: none; }
-    footer { flex-direction: column; text-align: center; }
-  }
+/* RESPONSIVE */
+@media(max-width:1000px){.hero-stats{display:none;}.exp-layout{grid-template-columns:1fr;}}
+@media(max-width:700px){nav{padding:.9rem 1.5rem;}.nav-links{display:none;}section{padding:3.5rem 1.5rem;}.hero{padding:6rem 1.5rem 3rem;}.ctf-grid,.proj-grid,.skills-grid,.certs-grid{grid-template-columns:1fr;}footer{flex-direction:column;text-align:center;}}
 </style>
 </head>
 <body>
 
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">DT_SEC</a>
+  <ul class="nav-links">
+    <li><a href="#experience">Expérience</a></li>
+    <li><a href="#skills">Compétences</a></li>
+    <li><a href="#projects">Projets</a></li>
+    <li><a href="#ctf">CTF</a></li>
+    <li><a href="#certs">Certifs</a></li>
+    <li><a href="#contact" class="nav-cta">Contact</a></li>
+  </ul>
+</nav>
+
 <!-- HERO -->
-<header class="hero">
+<section class="hero">
   <div class="hero-glow"></div>
-  <div class="hero-eyebrow">CTF Writeups Portfolio</div>
-  <h1 class="hero-name">
-    Daouda<span>Togola</span>
-  </h1>
-  <p class="hero-title">Master 2 Cyberdéfense · INSA · HackTheBox Player</p>
+  <div class="hero-glow2"></div>
+  <div class="hero-content">
+    <div class="hero-available"><span class="pulse"></span>Disponible en CDI — Septembre 2026</div>
+    <h1 class="hero-name">Daouda<br><em>Togola</em></h1>
+    <p class="hero-role">Ingénieur Cybersécurité · 3 ans d'expérience · INSA Hauts-de-France M2</p>
+    <p class="hero-desc">
+      Ingénieur cybersécurité polyvalent avec une expérience concrète en <strong>déploiement SOC/SIEM</strong>, <strong>administration réseau et Active Directory</strong>, et <strong>tests d'intrusion</strong>. Capable de répondre à des postes variés selon le besoin de l'entreprise.
+    </p>
+
+    <!-- 3 profils -->
+    <div class="profile-pills">
+      <div class="pill pill-soc"><span class="pill-dot"></span>Analyste SOC — SIEM / XDR / EDR</div>
+      <div class="pill pill-net"><span class="pill-dot"></span>Admin Systèmes & Réseaux</div>
+      <div class="pill pill-sec"><span class="pill-dot"></span>Ingénieur Cybersécurité</div>
+    </div>
+
+    <div class="hero-actions">
+      <a href="#projects" class="btn-p">Voir mes Projets</a>
+      <a href="#ctf" class="btn-s">CTF Writeups</a>
+    </div>
+  </div>
 
   <div class="hero-stats">
-    <div class="stat">
-      <span class="stat-num">4</span>
-      <span class="stat-label">Machines Pwned</span>
-    </div>
-    <div class="stat-divider"></div>
-    <div class="stat">
-      <span class="stat-num">3</span>
-      <span class="stat-label">Windows</span>
-    </div>
-    <div class="stat-divider"></div>
-    <div class="stat">
-      <span class="stat-num">1</span>
-      <span class="stat-label">Linux</span>
-    </div>
-    <div class="stat-divider"></div>
-    <div class="stat">
-      <span class="stat-num">2</span>
-      <span class="stat-label">Medium</span>
+    <div class="hstat"><span class="hstat-num">3+</span><span class="hstat-lbl">Ans expérience</span></div>
+    <div class="hstat"><span class="hstat-num">10</span><span class="hstat-lbl">Projets réalisés</span></div>
+    <div class="hstat"><span class="hstat-num">5</span><span class="hstat-lbl">CTF Writeups</span></div>
+    <div class="hstat"><span class="hstat-num">6</span><span class="hstat-lbl">Certifications</span></div>
+  </div>
+</section>
+
+<!-- ══ EXPÉRIENCE ══ -->
+<section id="experience">
+  <div class="max">
+    <div class="s-label">Parcours professionnel</div>
+    <h2 class="s-title">Expérience</h2>
+
+    <div class="exp-layout">
+
+      <!-- CIMES -->
+      <div class="exp-card cimes" style="grid-column:span 2">
+        <div class="exp-date">Mars — Août 2026</div>
+        <div class="exp-role">Stagiaire Ingénieur Cybersécurité — SOC, Sécurité SI & Infrastructure</div>
+        <div class="exp-company">CIMES · Valenciennes</div>
+        <ul class="exp-items">
+          <li>Déploiement SIEM Wazuh 3 nœuds (Manager / Indexer / Dashboard) sur Rocky Linux 9 — architecture SOC PME complète</li>
+          <li>Développement moteur EDR : création de règles MITRE ATT&CK (T1059, T1218, T1003, T1547, T1071) — réduction des faux positifs de 85 à 0 alertes critiques/jour</li>
+          <li>Active Response : quarantaine automatique malwares, blocage SSH brute force, enrichissement IOC via VirusTotal API</li>
+          <li>Déploiement Sysmon (SwiftOnSecurity), surveillance AD via Event IDs critiques, FIM temps réel Linux/Windows</li>
+          <li>Administration Active Directory : GPO déploiement/sécurité, gestion OUs, comptes privilégiés — hardening selon référentiel ANSSI</li>
+          <li>Administration Microsoft 365 : Exchange Online, MFA, Entra ID, Conditional Access, DLP</li>
+          <li>Gestion Hyper-V : 3 VMs Rocky Linux hébergeant le SIEM Wazuh, maintenance et supervision</li>
+          <li>Création règles firewall FortiGate et intégration alertes au SIEM</li>
+          <li>Résolution incidents Azure AD Connect : diagnostic synchronisation identités (UPN, ProxyAddresses)</li>
+          <li>Rédaction documentation : runbook infrastructure, PSSI, journal de bord, procédures incident response</li>
+        </ul>
+        <div class="exp-tags">
+          <span class="etag hi">Wazuh XDR</span><span class="etag hi">MITRE ATT&CK</span><span class="etag hi">Active Directory</span>
+          <span class="etag hi">FortiGate</span><span class="etag hi">Microsoft 365</span><span class="etag hi">Hyper-V</span>
+          <span class="etag">VirusTotal API</span><span class="etag">Sysmon</span><span class="etag">FIM</span><span class="etag">ANSSI</span><span class="etag">Azure AD</span>
+        </div>
+      </div>
+
+      <!-- Me MERLIN -->
+      <div class="exp-card merlin">
+        <div class="exp-date">Avril — Août 2024</div>
+        <div class="exp-role">Stagiaire Admin Réseau & Systèmes</div>
+        <div class="exp-company">Cabinet de Notaires Me Merlin · Le Quesnoy</div>
+        <ul class="exp-items">
+          <li>Migration et sécurisation messagerie Microsoft 365 : configuration DNS anti-spoofing (SPF, DKIM, DMARC)</li>
+          <li>Administration Active Directory, synchronisation AD, configuration VPN</li>
+          <li>Sauvegardes NAS Synology / Veeam, clonage postes, gestion du parc</li>
+          <li>Support N1/N2 et audit sécurité site web</li>
+          <li>Sensibilisation utilisateurs aux bonnes pratiques cybersécurité</li>
+        </ul>
+        <div class="exp-tags">
+          <span class="etag hi">Microsoft 365</span><span class="etag hi">Active Directory</span>
+          <span class="etag">SPF/DKIM/DMARC</span><span class="etag">Veeam</span><span class="etag">Synology</span>
+        </div>
+      </div>
+
+      <!-- SATLX -->
+      <div class="exp-card satlx">
+        <div class="exp-date">Mai — Juillet 2023</div>
+        <div class="exp-role">Technicien IT — Supervision & Sécurité</div>
+        <div class="exp-company">SATLX-IT Services</div>
+        <ul class="exp-items">
+          <li>Supervision des infrastructures via PRTG, gestion des incidents et analyse des alertes</li>
+          <li>Optimisation des règles de surveillance : réduction de 25% des alertes critiques</li>
+          <li>Support technique utilisateurs hardware/software</li>
+        </ul>
+        <div class="exp-tags">
+          <span class="etag hi">PRTG</span><span class="etag">Supervision</span><span class="etag">Ticketing</span>
+        </div>
+      </div>
+
+      <!-- SantechAfrica -->
+      <div class="exp-card santech" style="grid-column:span 2">
+        <div class="exp-date">Janvier 2022 — Avril 2023</div>
+        <div class="exp-role">Technicien Réseau & Système</div>
+        <div class="exp-company">SantechAfrica</div>
+        <ul class="exp-items">
+          <li>Déploiement et sécurisation d'équipements Cisco (switchs, routeurs) en environnement industriel</li>
+          <li>Administration Windows Server / Linux, pare-feu Fortinet, PfSense, Kerio</li>
+          <li>Maintenance proactive du réseau et support utilisateurs</li>
+        </ul>
+        <div class="exp-tags">
+          <span class="etag hi">Cisco</span><span class="etag hi">Fortinet</span><span class="etag hi">PfSense</span>
+          <span class="etag">Windows Server</span><span class="etag">Linux</span>
+        </div>
+      </div>
+
     </div>
   </div>
-</header>
+</section>
 
-<!-- FILTERS -->
-<div class="filters">
-  <button class="filter-btn active" onclick="filterCards('all', this)">All</button>
-  <button class="filter-btn" onclick="filterCards('windows', this)">Windows</button>
-  <button class="filter-btn" onclick="filterCards('linux', this)">Linux</button>
-  <button class="filter-btn" onclick="filterCards('easy', this)">Easy</button>
-  <button class="filter-btn" onclick="filterCards('medium', this)">Medium</button>
-  <button class="filter-btn" onclick="filterCards('ad', this)">Active Directory</button>
-</div>
+<!-- ══ COMPÉTENCES ══ -->
+<section id="skills">
+  <div class="max">
+    <div class="s-label">Stack technique</div>
+    <h2 class="s-title">Compétences</h2>
+    <div class="skills-grid">
 
-<!-- GRID -->
-<main class="grid-container">
-  <div class="grid-header">
-    <span class="grid-title">// writeups</span>
-    <span class="grid-count" id="count">4 machines</span>
+      <div class="sk-card">
+        <div class="sk-icon">🛡️</div>
+        <div class="sk-title">SOC & SIEM / XDR</div>
+        <div class="sk-tags">
+          <span class="stag hi">Wazuh XDR</span><span class="stag hi">Splunk</span><span class="stag hi">Elastic Stack</span>
+          <span class="stag">Sysmon</span><span class="stag">Sigma</span><span class="stag">Yara</span>
+          <span class="stag">MITRE ATT&CK</span><span class="stag">TheHive</span><span class="stag">FIM</span>
+        </div>
+      </div>
+
+      <div class="sk-card">
+        <div class="sk-icon">💀</div>
+        <div class="sk-title">Sécurité Offensive / Pentest</div>
+        <div class="sk-tags">
+          <span class="stag hi">Metasploit</span><span class="stag hi">BloodHound</span><span class="stag hi">Impacket</span>
+          <span class="stag">Nmap</span><span class="stag">Nessus</span><span class="stag">BurpSuite</span>
+          <span class="stag">Kerberoasting</span><span class="stag">DCSync</span><span class="stag">Golden Ticket</span>
+        </div>
+      </div>
+
+      <div class="sk-card">
+        <div class="sk-icon">🌐</div>
+        <div class="sk-title">Réseau & Infrastructure</div>
+        <div class="sk-tags">
+          <span class="stag hi">Active Directory</span><span class="stag hi">Azure AD</span><span class="stag hi">FortiGate</span>
+          <span class="stag">Cisco</span><span class="stag">PfSense</span><span class="stag">VLAN / VPN</span>
+          <span class="stag">Hyper-V</span><span class="stag">VMware</span><span class="stag">GNS3</span>
+        </div>
+      </div>
+
+      <div class="sk-card">
+        <div class="sk-icon">☁️</div>
+        <div class="sk-title">Cloud & Microsoft 365</div>
+        <div class="sk-tags">
+          <span class="stag hi">Microsoft 365</span><span class="stag hi">Exchange Online</span>
+          <span class="stag hi">Entra ID</span><span class="stag">AWS IAM/EC2/S3</span>
+          <span class="stag">MFA</span><span class="stag">Conditional Access</span><span class="stag">DLP</span>
+        </div>
+      </div>
+
+      <div class="sk-card">
+        <div class="sk-icon">⚡</div>
+        <div class="sk-title">Scripting & Automatisation</div>
+        <div class="sk-tags">
+          <span class="stag hi">Python</span><span class="stag hi">PowerShell</span><span class="stag">Bash</span>
+          <span class="stag">API SOC</span><span class="stag">VirusTotal API</span><span class="stag">JSON Enrichissement</span>
+        </div>
+      </div>
+
+      <div class="sk-card">
+        <div class="sk-icon">📋</div>
+        <div class="sk-title">Gouvernance & Conformité</div>
+        <div class="sk-tags">
+          <span class="stag hi">ISO 27001</span><span class="stag hi">EBIOS RM</span>
+          <span class="stag">NIS2</span><span class="stag">ANSSI</span><span class="stag">PCI-DSS</span>
+          <span class="stag">RGPD</span><span class="stag">CIS Benchmark</span>
+        </div>
+      </div>
+
+    </div>
   </div>
+</section>
 
-  <div class="writeups-grid" id="grid">
+<!-- ══ PROJETS ══ -->
+<section id="projects">
+  <div class="max">
+    <div class="s-label">Réalisations académiques & personnelles</div>
+    <h2 class="s-title">Projets Techniques</h2>
+    <div class="proj-grid">
 
-    <!-- VulnCicada -->
-    <a href="vulncicada-writeup.html" class="card" data-os="windows" data-diff="medium" data-tags="ad kerberos adcs">
-      <div class="card-accent" style="background: linear-gradient(90deg, #00ff88, #00b4ff);"></div>
-      <div class="card-inner">
-        <div class="card-top">
-          <span class="card-platform">HackTheBox</span>
-          <span class="card-date">2025</span>
+      <a href="tp-wazuh.html" class="proj-card">
+        <div class="proj-accent" style="background:linear-gradient(90deg,var(--green),var(--blue))"></div>
+        <div class="proj-body">
+          <div class="proj-category">SOC · Détection · M2 INSA</div>
+          <div class="proj-title">Mise en Place Wazuh IDS/XDR</div>
+          <div class="proj-desc">Déploiement SOC complet : Wazuh, Suricata, VirusTotal. Détection SSH brute force, SQLi, XSS, fuzzing web avec Active Response automatisé.</div>
+          <div class="proj-stack">
+            <span class="ptag">Wazuh</span><span class="ptag">Suricata</span><span class="ptag">VirusTotal API</span><span class="ptag">DVWA</span><span class="ptag">Python</span>
+          </div>
+          <div class="proj-footer">
+            <span class="proj-type" style="color:var(--green)">Rapport complet →</span>
+            <span class="proj-arrow">→</span>
+          </div>
         </div>
-        <div class="card-name">VulnCicada</div>
-        <p class="card-tagline">ESC8 + Kerberos Relay pour compromettre un domaine Active Directory. NTLM désactivé, certificat DC obtenu via krbrelayx.</p>
-        <div class="card-badges">
-          <span class="badge badge-os-win">Windows</span>
-          <span class="badge badge-diff-med">Medium</span>
-          <span class="badge badge-tech">ADCS / ESC8</span>
-          <span class="badge badge-tech">Kerberos Relay</span>
-          <span class="badge badge-tech">NFS</span>
+      </a>
+
+      <a href="rapport_gns3.html" class="proj-card">
+        <div class="proj-accent" style="background:linear-gradient(90deg,var(--orange),var(--yellow))"></div>
+        <div class="proj-body">
+          <div class="proj-category">Réseau · Infrastructure · M2 INSA</div>
+          <div class="proj-title">Infrastructure Sécurisée GNS3 + FortiGate</div>
+          <div class="proj-desc">Conception et déploiement d'un réseau simulé complet : VLANs, routage inter-VLAN, pare-feu FortiGate HA, DMZ, segmentation périmétrique.</div>
+          <div class="proj-stack">
+            <span class="ptag">GNS3</span><span class="ptag">FortiGate HA</span><span class="ptag">VLANs</span><span class="ptag">DMZ</span><span class="ptag">Windows Server</span>
+          </div>
+          <div class="proj-footer">
+            <span class="proj-type" style="color:var(--orange)">Rapport complet →</span>
+            <span class="proj-arrow">→</span>
+          </div>
         </div>
-        <div class="card-footer">
-          <span class="card-pwned" style="color:var(--green);">✓ Pwned</span>
-          <span class="card-arrow">→</span>
+      </a>
+
+      <a href="rapport_pentesting.html" class="proj-card">
+        <div class="proj-accent" style="background:linear-gradient(90deg,var(--red),var(--orange))"></div>
+        <div class="proj-body">
+          <div class="proj-category">Pentest · Ethical Hacking · M2 INSA</div>
+          <div class="proj-title">Pentest Avancé — Infrastructure Complète</div>
+          <div class="proj-desc">Tests d'intrusion sur réseau, IoT, WiFi, Web et Active Directory. Kerberoasting, DCSync, Golden Ticket, ACL abuse, LLMNR, MITM6.</div>
+          <div class="proj-stack">
+            <span class="ptag">Kali Linux</span><span class="ptag">Metasploit</span><span class="ptag">BloodHound</span><span class="ptag">Impacket</span><span class="ptag">Burp Suite</span>
+          </div>
+          <div class="proj-footer">
+            <span class="proj-type" style="color:var(--red)">Rapport complet →</span>
+            <span class="proj-arrow">→</span>
+          </div>
+        </div>
+      </a>
+
+      <a href="rapport_ehome.html" class="proj-card">
+        <div class="proj-accent" style="background:linear-gradient(90deg,var(--purple),var(--blue))"></div>
+        <div class="proj-body">
+          <div class="proj-category">IoT · Domotique · Sécurité · M2 INSA</div>
+          <div class="proj-title">Projet E-HOME — Domotique & Sécurité IoT</div>
+          <div class="proj-desc">Conception d'un système domotique sécurisé. Analyse des vulnérabilités IoT, sécurisation des communications, contrôle d'accès et supervision.</div>
+          <div class="proj-stack">
+            <span class="ptag">IoT</span><span class="ptag">Raspberry Pi</span><span class="ptag">MQTT</span><span class="ptag">Sécurité réseau</span>
+          </div>
+          <div class="proj-footer">
+            <span class="proj-type" style="color:var(--purple)">Rapport complet →</span>
+            <span class="proj-arrow">→</span>
+          </div>
+        </div>
+      </a>
+
+      <a href="tp-reseaux.html" class="proj-card">
+        <div class="proj-accent" style="background:linear-gradient(90deg,var(--blue),var(--green))"></div>
+        <div class="proj-body">
+          <div class="proj-category">Réseau · Systèmes · LPRT INSA</div>
+          <div class="proj-title">Administration AD · Samba · Zabbix</div>
+          <div class="proj-desc">Déploiement Active Directory Windows Server, contrôleur de domaine Samba Linux, supervision Zabbix avec alertes mail sur indisponibilité MySQL.</div>
+          <div class="proj-stack">
+            <span class="ptag">Active Directory</span><span class="ptag">Samba 4</span><span class="ptag">Zabbix 6.4</span><span class="ptag">MySQL</span><span class="ptag">GPO</span>
+          </div>
+          <div class="proj-footer">
+            <span class="proj-type" style="color:var(--blue)">Rapport complet →</span>
+            <span class="proj-arrow">→</span>
+          </div>
+        </div>
+      </a>
+
+      <a href="tp-crypto.html" class="proj-card">
+        <div class="proj-accent" style="background:linear-gradient(90deg,var(--purple),var(--red))"></div>
+        <div class="proj-body">
+          <div class="proj-category">Cryptographie · Python · LPRT INSA</div>
+          <div class="proj-title">Cryptographie Python</div>
+          <div class="proj-desc">Implémentation des algorithmes César, substitution mono-alphabétique et Vigenère. Cryptanalyse par analyse fréquentielle en Python.</div>
+          <div class="proj-stack">
+            <span class="ptag">Python</span><span class="ptag">César</span><span class="ptag">Vigenère</span><span class="ptag">Analyse fréquentielle</span>
+          </div>
+          <div class="proj-footer">
+            <span class="proj-type" style="color:var(--purple)">Rapport complet →</span>
+            <span class="proj-arrow">→</span>
+          </div>
+        </div>
+      </a>
+
+      <div class="proj-card" style="cursor:default;">
+        <div class="proj-accent" style="background:linear-gradient(90deg,var(--green),var(--blue))"></div>
+        <div class="proj-body">
+          <div class="proj-category">SOC · IA · Automatisation</div>
+          <div class="proj-title">SOC/SIEM IA — Enrichissement Wazuh</div>
+          <div class="proj-desc">Script Python d'enrichissement JSON avec modèle IA via API pour triage automatique. Intégration VirusTotal. Réduction du temps d'analyse de 10 min à 1 min.</div>
+          <div class="proj-stack">
+            <span class="ptag">Python</span><span class="ptag">Wazuh</span><span class="ptag">VirusTotal API</span><span class="ptag">IA API</span><span class="ptag">JSON</span>
+          </div>
+          <div class="proj-footer">
+            <span class="proj-type" style="color:var(--dim)">Projet personnel</span>
+            <span class="proj-arrow" style="opacity:.3">→</span>
+          </div>
         </div>
       </div>
-    </a>
 
-    <!-- POV -->
-    <a href="powwriteup.html" class="card" data-os="windows" data-diff="medium" data-tags="iis viewstate rce">
-      <div class="card-accent" style="background: linear-gradient(90deg, #ff3b6b, #ff6b35);"></div>
-      <div class="card-inner">
-        <div class="card-top">
-          <span class="card-platform">HackTheBox</span>
-          <span class="card-date">23/02/2026</span>
-        </div>
-        <div class="card-name">POV</div>
-        <p class="card-tagline">LFI sur web.config expose les MachineKeys IIS → désérialisation ViewState malveillante → RCE, puis SeDebugPrivilege pour SYSTEM.</p>
-        <div class="card-badges">
-          <span class="badge badge-os-win">Windows</span>
-          <span class="badge badge-diff-med">Medium</span>
-          <span class="badge badge-tech">ViewState RCE</span>
-          <span class="badge badge-tech">SeDebug</span>
-          <span class="badge badge-tech">Chisel</span>
-        </div>
-        <div class="card-footer">
-          <span class="card-pwned" style="color:var(--green);">✓ Pwned</span>
-          <span class="card-arrow">→</span>
+      <div class="proj-card" style="cursor:default;">
+        <div class="proj-accent" style="background:linear-gradient(90deg,var(--yellow),var(--orange))"></div>
+        <div class="proj-body">
+          <div class="proj-category">Gouvernance · Conformité</div>
+          <div class="proj-title">SMSI selon ISO/IEC 27001</div>
+          <div class="proj-desc">Analyse de risques EBIOS RM, définition du périmètre SMSI, choix des mesures de sécurité, audit simulé ISO 19011 et plan d'amélioration continue.</div>
+          <div class="proj-stack">
+            <span class="ptag">ISO 27001</span><span class="ptag">EBIOS RM</span><span class="ptag">ISO 19011</span><span class="ptag">Audit</span>
+          </div>
+          <div class="proj-footer">
+            <span class="proj-type" style="color:var(--dim)">Projet académique</span>
+            <span class="proj-arrow" style="opacity:.3">→</span>
+          </div>
         </div>
       </div>
-    </a>
 
-    <!-- MEDIA -->
-    <a href="media-writeup.html" class="card" data-os="windows" data-diff="medium" data-tags="ntlm smb upload">
-      <div class="card-accent" style="background: linear-gradient(90deg, #bf5fff, #00b4ff);"></div>
-      <div class="card-inner">
-        <div class="card-top">
-          <span class="card-platform">HackTheBox CPTS</span>
-          <span class="card-date">2026</span>
-        </div>
-        <div class="card-name">MEDIA</div>
-        <p class="card-tagline">Upload d'un fichier .asx déclenche une connexion SMB → capture NTLMv2 → accès. Junction attack + Potato pour élévation SYSTEM.</p>
-        <div class="card-badges">
-          <span class="badge badge-os-win">Windows</span>
-          <span class="badge badge-diff-med">Medium</span>
-          <span class="badge badge-tech">NTLMv2 Capture</span>
-          <span class="badge badge-tech">Junction Attack</span>
-          <span class="badge badge-tech">XAMPP</span>
-        </div>
-        <div class="card-footer">
-          <span class="card-pwned" style="color:var(--green);">✓ Pwned</span>
-          <span class="card-arrow">→</span>
-        </div>
-      </div>
-    </a>
+    </div>
+  </div>
+</section>
 
-    <!-- TRICK -->
-    <a href="trick-writeup.html" class="card" data-os="linux" data-diff="easy" data-tags="dns sqli lfi">
-      <div class="card-accent" style="background: linear-gradient(90deg, #ffd600, #ff6b35);"></div>
-      <div class="card-inner">
-        <div class="card-top">
-          <span class="card-platform">HackTheBox</span>
-          <span class="card-date">2026</span>
-        </div>
-        <div class="card-name">Trick</div>
-        <p class="card-tagline">Zone transfer DNS révèle un vhost caché → SQLi pour lire nginx config → nouveau vhost → LFI + SMTP log poisoning → RCE → Fail2ban privesc.</p>
-        <div class="card-badges">
-          <span class="badge badge-os-lin">Linux</span>
-          <span class="badge badge-diff-easy">Easy</span>
-          <span class="badge badge-tech">DNS Zone Transfer</span>
-          <span class="badge badge-tech">SQLi / LFI</span>
-          <span class="badge badge-tech">Fail2ban</span>
-        </div>
-        <div class="card-footer">
-          <span class="card-pwned" style="color:var(--green);">✓ Pwned</span>
-          <span class="card-arrow">→</span>
-        </div>
-      </div>
-    </a>
+<!-- ══ CTF WRITEUPS ══ -->
+<section id="ctf">
+  <div class="max">
+    <div class="s-label">HackTheBox · VulnLab · CTF</div>
+    <h2 class="s-title">Writeups</h2>
 
-    <!-- COMING SOON -->
-    <div class="card card-soon" data-os="" data-diff="" data-tags="">
-      <div class="card-accent" style="background: var(--border);"></div>
-      <div class="card-inner">
-        <div class="card-top">
-          <span class="card-platform">HackTheBox</span>
-          <span class="card-date">Soon</span>
+    <div class="ctf-filters">
+      <button class="fbtn active" onclick="filterCTF('all',this)">Tous</button>
+      <button class="fbtn" onclick="filterCTF('windows',this)">Windows</button>
+      <button class="fbtn" onclick="filterCTF('linux',this)">Linux</button>
+      <button class="fbtn" onclick="filterCTF('easy',this)">Easy</button>
+      <button class="fbtn" onclick="filterCTF('medium',this)">Medium</button>
+      <button class="fbtn" onclick="filterCTF('ad',this)">Active Directory</button>
+    </div>
+
+    <div class="ctf-grid" id="ctfgrid">
+
+      <a href="vulncicada-writeup.html" class="ctf-card" data-os="windows" data-diff="medium" data-tags="ad kerberos adcs">
+        <div class="ctf-top" style="background:linear-gradient(90deg,var(--green),var(--blue))"></div>
+        <div class="ctf-body">
+          <div class="ctf-meta"><span class="ctf-plat">HackTheBox</span><span class="ctf-date">2025</span></div>
+          <div class="ctf-name">VulnCicada</div>
+          <div class="ctf-desc">ESC8 + Kerberos Relay. NTLM désactivé — certificat DC$ via krbrelayx pour DCSync et compromission domaine.</div>
+          <div class="ctf-badges">
+            <span class="cbadge win">Windows</span><span class="cbadge med">Medium</span>
+            <span class="cbadge">ADCS ESC8</span><span class="cbadge">Kerberos Relay</span><span class="cbadge">NFS</span>
+          </div>
+          <div class="ctf-footer"><span class="ctf-pwned">✓ Pwned</span><span class="ctf-arrow">→</span></div>
         </div>
-        <div class="card-name">???</div>
-        <p class="card-tagline">Prochain writeup en cours de rédaction...</p>
-        <div class="card-badges">
-          <span class="badge badge-tech">Coming Soon</span>
+      </a>
+
+      <a href="fluffy-writeup.html" class="ctf-card" data-os="windows" data-diff="medium" data-tags="ad adcs esc16">
+        <div class="ctf-top" style="background:linear-gradient(90deg,var(--red),var(--purple))"></div>
+        <div class="ctf-body">
+          <div class="ctf-meta"><span class="ctf-plat">HackTheBox</span><span class="ctf-date">2025</span></div>
+          <div class="ctf-name">Fluffy</div>
+          <div class="ctf-desc">Manipulation LDAP → Shadow Credentials → ESC16 UPN Spoofing → certificat Administrator → hash NT → domaine compromis.</div>
+          <div class="ctf-badges">
+            <span class="cbadge win">Windows</span><span class="cbadge med">Medium</span>
+            <span class="cbadge">ADCS ESC16</span><span class="cbadge">Shadow Creds</span><span class="cbadge">UPN Spoof</span>
+          </div>
+          <div class="ctf-footer"><span class="ctf-pwned">✓ Pwned</span><span class="ctf-arrow">→</span></div>
         </div>
-        <div class="card-footer">
-          <span class="card-pwned" style="color:var(--text-dim);">In Progress</span>
-          <span class="card-arrow" style="color:var(--text-dim);">→</span>
+      </a>
+
+      <a href="powwriteup.html" class="ctf-card" data-os="windows" data-diff="medium" data-tags="iis viewstate rce">
+        <div class="ctf-top" style="background:linear-gradient(90deg,var(--red),var(--orange))"></div>
+        <div class="ctf-body">
+          <div class="ctf-meta"><span class="ctf-plat">HackTheBox</span><span class="ctf-date">02/2026</span></div>
+          <div class="ctf-name">POV</div>
+          <div class="ctf-desc">LFI sur web.config → MachineKeys IIS → désérialisation ViewState malveillante → RCE. SeDebugPrivilege → SYSTEM.</div>
+          <div class="ctf-badges">
+            <span class="cbadge win">Windows</span><span class="cbadge med">Medium</span>
+            <span class="cbadge">ViewState RCE</span><span class="cbadge">SeDebug</span><span class="cbadge">Chisel</span>
+          </div>
+          <div class="ctf-footer"><span class="ctf-pwned">✓ Pwned</span><span class="ctf-arrow">→</span></div>
         </div>
-      </div>
+      </a>
+
+      <a href="media-writeup.html" class="ctf-card" data-os="windows" data-diff="medium" data-tags="ntlm smb">
+        <div class="ctf-top" style="background:linear-gradient(90deg,var(--purple),var(--blue))"></div>
+        <div class="ctf-body">
+          <div class="ctf-meta"><span class="ctf-plat">HTB CPTS Path</span><span class="ctf-date">2026</span></div>
+          <div class="ctf-name">MEDIA</div>
+          <div class="ctf-desc">Upload .asx → connexion SMB → capture NTLMv2 du compte machine. Junction attack + Potato → SYSTEM.</div>
+          <div class="ctf-badges">
+            <span class="cbadge win">Windows</span><span class="cbadge med">Medium</span>
+            <span class="cbadge">NTLMv2</span><span class="cbadge">Junction Attack</span>
+          </div>
+          <div class="ctf-footer"><span class="ctf-pwned">✓ Pwned</span><span class="ctf-arrow">→</span></div>
+        </div>
+      </a>
+
+      <a href="trick-writeup.html" class="ctf-card" data-os="linux" data-diff="easy" data-tags="dns sqli lfi">
+        <div class="ctf-top" style="background:linear-gradient(90deg,var(--yellow),var(--orange))"></div>
+        <div class="ctf-body">
+          <div class="ctf-meta"><span class="ctf-plat">HackTheBox</span><span class="ctf-date">2026</span></div>
+          <div class="ctf-name">Trick</div>
+          <div class="ctf-desc">Zone transfer DNS → vhost caché → SQLi → LFI + SMTP log poisoning → RCE → Fail2ban privesc root.</div>
+          <div class="ctf-badges">
+            <span class="cbadge lin">Linux</span><span class="cbadge easy">Easy</span>
+            <span class="cbadge">DNS Zone Transfer</span><span class="cbadge">SQLi / LFI</span><span class="cbadge">Fail2ban</span>
+          </div>
+          <div class="ctf-footer"><span class="ctf-pwned">✓ Pwned</span><span class="ctf-arrow">→</span></div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ CERTIFICATIONS & FORMATION ══ -->
+<section id="certs">
+  <div class="max">
+    <div class="s-label">Certifications & Formation</div>
+    <h2 class="s-title">Diplômes & Certifs</h2>
+
+    <div class="sub-label">Certifications</div>
+    <div class="certs-grid">
+      <div class="cert-item"><div class="cert-logo">🎯</div><div class="cert-info"><div class="cert-name">SOC Analyst CDSA Path</div><div class="cert-issuer">HackTheBox</div></div><div class="cert-year">2026</div></div>
+      <div class="cert-item"><div class="cert-logo">💀</div><div class="cert-info"><div class="cert-name">Penetration Tester CPTS Path</div><div class="cert-issuer">HackTheBox</div></div><div class="cert-year">2025</div></div>
+      <div class="cert-item"><div class="cert-logo">🔒</div><div class="cert-info"><div class="cert-name">Fortinet Certified Fundamentals</div><div class="cert-issuer">Fortinet</div></div><div class="cert-year">2025</div></div>
+      <div class="cert-item"><div class="cert-logo">🛡️</div><div class="cert-info"><div class="cert-name">SOC Level 1</div><div class="cert-issuer">TryHackMe</div></div><div class="cert-year">2024</div></div>
+      <div class="cert-item"><div class="cert-logo">🌐</div><div class="cert-info"><div class="cert-name">JR Pentesting & Web Pentesting</div><div class="cert-issuer">TryHackMe</div></div><div class="cert-year">2024–2025</div></div>
+      <div class="cert-item"><div class="cert-logo">☁️</div><div class="cert-info"><div class="cert-name">AWS Cloud</div><div class="cert-issuer">Orange Digital Center</div></div><div class="cert-year">2023</div></div>
+    </div>
+
+    <div class="sub-label">Formation Académique</div>
+    <div class="certs-grid">
+      <div class="cert-item"><div class="cert-logo">🎓</div><div class="cert-info"><div class="cert-name">Master 2 Cyberdéfense & Sécurité SI</div><div class="cert-issuer">INSA Hauts-de-France · Valenciennes</div></div><div class="cert-year">2025–2026</div></div>
+      <div class="cert-item"><div class="cert-logo">📡</div><div class="cert-info"><div class="cert-name">Licence Pro Réseaux & Télécoms</div><div class="cert-issuer">INSA Hauts-de-France · Valenciennes</div></div><div class="cert-year">2023–2024</div></div>
+      <div class="cert-item"><div class="cert-logo">📱</div><div class="cert-info"><div class="cert-name">BTS Télécommunications option Informatique</div><div class="cert-issuer">CSFE Sousse · Tunisie</div></div><div class="cert-year">2018–2020</div></div>
     </div>
 
   </div>
-</main>
+</section>
 
-<!-- FOOTER -->
-<footer>
-  <div class="footer-left">
-    Daouda Togola &nbsp;·&nbsp; M2 Cyberdéfense INSA &nbsp;·&nbsp; 2026
-  </div>
-  <div class="footer-right">
-    <a href="https://app.hackthebox.com" class="footer-link" target="_blank">HackTheBox ↗</a>
-    <a href="https://github.com" class="footer-link" target="_blank">GitHub ↗</a>
-    <a href="https://linkedin.com" class="footer-link" target="_blank">LinkedIn ↗</a>
+<!-- FOOTER / CONTACT -->
+<footer id="contact">
+  <div class="f-copy">© 2026 Daouda Togola · Ingénieur Cybersécurité · Master 2 INSA Hauts-de-France</div>
+  <div class="f-links">
+    <a href="https://github.com/Daou53" target="_blank">GitHub ↗</a>
+    <a href="https://linkedin.com/in/daouda-togola-334523228" target="_blank">LinkedIn ↗</a>
+    <a href="https://app.hackthebox.com" target="_blank">HackTheBox ↗</a>
   </div>
 </footer>
 
 <script>
-  function filterCards(filter, btn) {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-
-    const cards = document.querySelectorAll('#grid .card');
-    let visible = 0;
-
-    cards.forEach(card => {
-      if (card.classList.contains('card-soon')) {
-        card.style.display = filter === 'all' ? 'block' : 'none';
-        return;
-      }
-
-      const os = card.dataset.os || '';
-      const diff = card.dataset.diff || '';
-      const tags = card.dataset.tags || '';
-
-      let show = false;
-      if (filter === 'all') show = true;
-      else if (filter === 'windows' && os === 'windows') show = true;
-      else if (filter === 'linux' && os === 'linux') show = true;
-      else if (filter === 'easy' && diff === 'easy') show = true;
-      else if (filter === 'medium' && diff === 'medium') show = true;
-      else if (filter === 'ad' && tags.includes('ad')) show = true;
-
-      card.style.display = show ? 'block' : 'none';
-      if (show) visible++;
-    });
-
-    const total = filter === 'all'
-      ? document.querySelectorAll('#grid .card:not(.card-soon)').length
-      : visible;
-    document.getElementById('count').textContent = total + ' machine' + (total > 1 ? 's' : '');
-  }
+function filterCTF(filter, btn) {
+  document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#ctfgrid .ctf-card').forEach(card => {
+    const os = card.dataset.os || '';
+    const diff = card.dataset.diff || '';
+    const tags = card.dataset.tags || '';
+    const show = filter === 'all' ||
+      (filter === 'windows' && os === 'windows') ||
+      (filter === 'linux' && os === 'linux') ||
+      (filter === 'easy' && diff === 'easy') ||
+      (filter === 'medium' && diff === 'medium') ||
+      (filter === 'ad' && tags.includes('ad'));
+    card.style.display = show ? 'block' : 'none';
+  });
+}
 </script>
-
 </body>
 </html>
