@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TP Cryptographie Python — Daouda Togola</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060809;--bg2:#0b0e12;--bg3:#10151c;--green:#00e87a;--blue:#38bdf8;--red:#f43f5e;--orange:#fb923c;--yellow:#fbbf24;--purple:#a78bfa;--text:#cbd5e1;--text-dim:#475569;--text-bright:#f1f5f9;--border:#1e293b;}
+*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.7;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 3rem;background:rgba(6,8,9,0.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--purple);letter-spacing:2px;text-decoration:none;}
+.nav-back{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);text-decoration:none;letter-spacing:2px;border:1px solid var(--border);padding:6px 14px;transition:all 0.2s;}
+.nav-back:hover{border-color:var(--purple);color:var(--purple);}
+.hero{padding:8rem 3rem 4rem;position:relative;overflow:hidden;border-bottom:1px solid var(--border);}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(167,139,250,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(167,139,250,0.03) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 0%,transparent 100%);}
+.hero-inner{position:relative;z-index:1;max-width:900px;margin:0 auto;}
+.breadcrumb{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem;}
+.breadcrumb a{color:var(--purple);text-decoration:none;}
+.hero-type{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--purple);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:8px;}
+.type-dot{width:6px;height:6px;border-radius:50%;background:var(--purple);}
+h1{font-family:'Syne',sans-serif;font-size:clamp(2rem,5vw,4rem);font-weight:800;color:var(--text-bright);line-height:1.1;margin-bottom:1rem;}
+.hero-sub{font-size:16px;color:var(--text-dim);font-weight:300;line-height:1.8;max-width:700px;margin-bottom:2rem;border-left:2px solid var(--purple);padding-left:1.2rem;}
+.meta-row{display:flex;flex-wrap:wrap;gap:1.5rem;margin-top:1.5rem;}
+.meta-item{display:flex;flex-direction:column;gap:2px;}
+.meta-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;}
+.meta-value{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text-bright);}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:1.5rem;}
+.tag{font-family:'Share Tech Mono',monospace;font-size:9px;padding:3px 10px;border:1px solid var(--border);color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;}
+.tag.purple{border-color:rgba(167,139,250,0.3);color:var(--purple);}
+.tag.green{border-color:rgba(0,232,122,0.3);color:var(--green);}
+main{max-width:900px;margin:0 auto;padding:4rem 3rem;}
+.toc{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--purple);padding:1.5rem;margin-bottom:3rem;}
+.toc-title{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--purple);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;}
+.toc-list{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.toc-list a{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text-dim);text-decoration:none;letter-spacing:1px;transition:color 0.2s;}
+.toc-list a:hover{color:var(--purple);}
+.toc-list a::before{content:'→ ';color:var(--purple);}
+.section{margin-bottom:4rem;}
+.section-header{display:flex;align-items:center;gap:1rem;margin-bottom:2rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.section-num{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--purple);background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);padding:4px 10px;letter-spacing:2px;flex-shrink:0;}
+h2{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:700;color:var(--text-bright);}
+h3{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--text-bright);margin:2rem 0 1rem;}
+p{font-size:14px;color:var(--text);line-height:1.8;margin-bottom:1rem;font-weight:300;}
+.code-block{background:#040608;border:1px solid var(--border);border-left:3px solid var(--purple);margin:1.5rem 0;overflow:hidden;}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:rgba(167,139,250,0.04);border-bottom:1px solid var(--border);}
+.code-lang{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--purple);letter-spacing:2px;text-transform:uppercase;}
+.code-dots{display:flex;gap:4px;}
+.code-dot{width:7px;height:7px;border-radius:50%;}
+.code-dot:nth-child(1){background:#ff5f57;}.code-dot:nth-child(2){background:#febc2e;}.code-dot:nth-child(3){background:#28c840;}
+pre{padding:1.2rem 1.5rem;overflow-x:auto;font-family:'Share Tech Mono',monospace;font-size:12px;line-height:1.8;color:var(--text);}
+.highlight-box{background:rgba(167,139,250,0.04);border-left:3px solid var(--purple);padding:1rem 1.5rem;margin:1.5rem 0;font-size:13px;}
+.concept-box{background:var(--bg2);border:1px solid var(--border);padding:1.5rem;margin:1.5rem 0;}
+.concept-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--purple);margin-bottom:0.8rem;text-transform:uppercase;letter-spacing:1px;}
+.concept-desc{font-size:13px;color:var(--text-dim);font-weight:300;line-height:1.6;}
+footer{border-top:1px solid var(--border);padding:2rem 3rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;}
+.footer-copy{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);}
+.footer-link{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);text-decoration:none;transition:color 0.2s;}
+.footer-link:hover{color:var(--purple);}
+@media(max-width:768px){nav{padding:1rem 1.5rem;}main{padding:2rem 1.5rem;}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">DT_SEC</a>
+  <a href="index.html" class="nav-back">← Retour</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <div class="breadcrumb"><a href="index.html">Portfolio</a> / TP & Projets / Cryptographie</div>
+    <div class="hero-type"><span class="type-dot"></span>Compte Rendu TP — Licence Pro</div>
+    <h1>Cryptographie en Python<br>César · Substitution · Vigenère</h1>
+    <p class="hero-sub">Implémentation en Python des algorithmes de chiffrement classiques : code de César, cryptanalyse par analyse de fréquence, substitution mono-alphabétique et chiffre de Vigenère.</p>
+    <div class="meta-row">
+      <div class="meta-item"><span class="meta-label">Formation</span><span class="meta-value">Licence Pro Réseaux & Télécoms</span></div>
+      <div class="meta-item"><span class="meta-label">Établissement</span><span class="meta-value">INSA Hauts-de-France</span></div>
+      <div class="meta-item"><span class="meta-label">Auteur</span><span class="meta-value">Daouda Togola</span></div>
+    </div>
+    <div class="tags">
+      <span class="tag purple">Python</span>
+      <span class="tag purple">Cryptographie</span>
+      <span class="tag green">Code de César</span>
+      <span class="tag green">Vigenère</span>
+      <span class="tag green">Analyse fréquentielle</span>
+      <span class="tag">Substitution mono-alpha</span>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="toc">
+    <div class="toc-title">// Table des matières</div>
+    <ul class="toc-list">
+      <li><a href="#cesar">01 — Chiffrement de César</a></li>
+      <li><a href="#cryptanalyse">02 — Cryptanalyse par fréquence</a></li>
+      <li><a href="#substitution">03 — Substitution mono-alphabétique</a></li>
+      <li><a href="#vigenere">04 — Chiffre de Vigenère</a></li>
+    </ul>
+  </div>
+
+  <section class="section" id="cesar">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2>Chiffrement de César</h2>
+    </div>
+    <p>Le code de César est un chiffrement par substitution où chaque lettre est remplacée par une lettre décalée d'un nombre fixe de positions dans l'alphabet.</p>
+
+    <div class="concept-box">
+      <div class="concept-title">Principe</div>
+      <div class="concept-desc">Si décalage = 3 : A→D, B→E, C→F... "BONJOUR" devient "ERQMRXU". Pour décoder, on applique le décalage inverse (-3).</div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">python — position(x)</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+      <pre>def position(caractere):
+    alphabet = 'abcdefghijklmnopqrstuvwxyz'
+    if caractere.lower() in alphabet:
+        return alphabet.index(caractere.lower()) + 1
+    else:
+        return -1</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">python — decalage(x, n)</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+      <pre>def decalage(x, n):
+    if 'a' <= x <= 'z':
+        n_position = (ord(x) - ord('a') + n) % 26
+        return chr(ord('a') + n_position)
+    elif 'A' <= x <= 'Z':
+        n_position = (ord(x) - ord('A') + n) % 26
+        return chr(ord('A') + n_position)
+    else:
+        return x</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">python — codage(texte, n)</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+      <pre>def codage(texte, n):
+    code = ""
+    for i in range(len(texte)):
+        if position(texte[i]) == -1:
+            code = code + texte[i]  # caractère non codé (ponctuation etc.)
+        else:
+            code = code + decalage(texte[i], n)
+    return code
+
+# Test
+texte_claire = "Bonjour, daouda!"
+texte_code = codage(texte_claire, 3)
+# → "Erqmrxu, gdrxgd!"</pre>
+    </div>
+  </section>
+
+  <section class="section" id="cryptanalyse">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2>Cryptanalyse par Analyse de Fréquence</h2>
+    </div>
+    <p>La lettre la plus fréquente en français est le <strong style="color:var(--purple)">'e'</strong>. Si on connaît la lettre la plus fréquente du texte chiffré, on peut déduire le décalage et décoder le message.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">python — plus_frequent(texte)</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+      <pre>def plus_frequent(texte):
+    alphabet = 'abcdefghijklmnopqrstuvwxyz'
+    occurrences = {char: texte.count(char) for char in alphabet}
+    Cmax = max(occurrences, key=occurrences.get)
+    return Cmax</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">python — decryptage(code)</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+      <pre>def decryptage(code):
+    frequent_char_in_code = plus_frequent(code)
+    shift = ord(frequent_char_in_code) - ord('e')
+    decrypted_text = ''
+    for char in code:
+        if char.isalpha():
+            if char.isupper():
+                decrypted_text += chr((ord(char) - shift - ord('A')) % 26 + ord('A'))
+            else:
+                decrypted_text += chr((ord(char) - shift - ord('a')) % 26 + ord('a'))
+        else:
+            decrypted_text += char
+    return decrypted_text</pre>
+    </div>
+
+    <div class="highlight-box">
+      <strong>Résultat :</strong> Avec un texte long chiffré avec un décalage aléatoire (1-25), l'algorithme retrouve automatiquement le texte original en supposant que la lettre la plus fréquente est 'e'.
+    </div>
+  </section>
+
+  <section class="section" id="substitution">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2>Substitution Mono-alphabétique</h2>
+    </div>
+    <p>Chiffrement plus robuste que César : chaque lettre est remplacée par une lettre définie dans une table de substitution. Exemple : A→W, B→X, C→E...</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">python — codage_substitution_mono_alph</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+      <pre>def codage_substitution_mono_alph(texte_clair, table_substitution):
+    texte_clair = texte_clair.lower()
+    texte_chiffre = ""
+    for caractere in texte_clair:
+        if caractere.isalpha():
+            indice = ord(caractere) - ord('a')
+            texte_chiffre += table_substitution[indice]
+        else:
+            texte_chiffre += caractere
+    return texte_chiffre
+
+# Test
+table_substitution = "wxehyztkcpj1uadglmnrsvbo"
+texte_clair = "il fait beau"
+# → "kp zwkn zywn"</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">python — decodage_substitution_mono_alph</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+      <pre>def decodage_substitution_mono_alph(texte_chiffre, table_substitution):
+    texte_chiffre = texte_chiffre.lower()
+    texte_clair = ""
+    for caractere in texte_chiffre:
+        if caractere.isalpha():
+            indice = table_substitution.index(caractere)
+            texte_clair += chr(indice + ord('a'))
+        else:
+            texte_clair += caractere
+    return texte_clair</pre>
+    </div>
+  </section>
+
+  <section class="section" id="vigenere">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2>Chiffre de Vigenère</h2>
+    </div>
+
+    <div class="concept-box">
+      <div class="concept-title">Principe de Blaise de Vigenère</div>
+      <div class="concept-desc">La clé est répétée sur toute la longueur du texte. Chaque lettre du texte est décalée du nombre correspondant à la lettre de la clé à la même position. Beaucoup plus résistant au César car le même caractère peut être chiffré différemment selon sa position.</div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">python — Vigenere(texte, cle)</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+      <pre>def Vigenere(texte, cle):
+    code = ""
+    p = len(cle)
+    for i, char in enumerate(texte):
+        if char.isalpha():
+            k = position(cle[i % p])  # décalage = position de la lettre de clé
+            code += char if k == -1 else decalage(char, k)
+        else:
+            code += char
+    return code
+
+# Exemple : texte="BONJOUR" cle="CLE"
+# B+C=E, O+L=Z, N+E=R, J+C=M, O+L=Z, U+E=Y, R+C=U
+# → "EZRMZYU"</pre>
+    </div>
+
+    <div class="highlight-box">
+      <strong>Sécurité :</strong> Le chiffre de Vigenère est plus robuste que César car la même lettre du texte clair peut produire des lettres chiffrées différentes. Il peut néanmoins être cassé par l'indice de coïncidence ou la méthode de Kasiski pour trouver la longueur de la clé.
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-copy">Daouda Togola · Licence Pro INSA · Cryptographie Python</div>
+  <a href="index.html" class="footer-link">← Retour au portfolio</a>
+</footer>
+</body>
+</html>

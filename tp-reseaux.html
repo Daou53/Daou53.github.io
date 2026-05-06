@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TP Réseaux & Systèmes — Daouda Togola</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060809;--bg2:#0b0e12;--bg3:#10151c;--green:#00e87a;--blue:#38bdf8;--red:#f43f5e;--orange:#fb923c;--yellow:#fbbf24;--text:#cbd5e1;--text-dim:#475569;--text-bright:#f1f5f9;--border:#1e293b;}
+*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.7;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 3rem;background:rgba(6,8,9,0.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--blue);letter-spacing:2px;text-decoration:none;}
+.nav-back{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);text-decoration:none;letter-spacing:2px;border:1px solid var(--border);padding:6px 14px;transition:all 0.2s;}
+.nav-back:hover{border-color:var(--blue);color:var(--blue);}
+.hero{padding:8rem 3rem 4rem;position:relative;overflow:hidden;border-bottom:1px solid var(--border);}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(56,189,248,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,0.03) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 0%,transparent 100%);}
+.hero-inner{position:relative;z-index:1;max-width:900px;margin:0 auto;}
+.breadcrumb{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem;}
+.breadcrumb a{color:var(--blue);text-decoration:none;}
+.hero-type{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--blue);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:8px;}
+.type-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);}
+h1{font-family:'Syne',sans-serif;font-size:clamp(2rem,5vw,4rem);font-weight:800;color:var(--text-bright);line-height:1.1;margin-bottom:1rem;}
+.hero-sub{font-size:16px;color:var(--text-dim);font-weight:300;line-height:1.8;max-width:700px;margin-bottom:2rem;border-left:2px solid var(--blue);padding-left:1.2rem;}
+.meta-row{display:flex;flex-wrap:wrap;gap:1.5rem;margin-top:1.5rem;}
+.meta-item{display:flex;flex-direction:column;gap:2px;}
+.meta-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;}
+.meta-value{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text-bright);}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:1.5rem;}
+.tag{font-family:'Share Tech Mono',monospace;font-size:9px;padding:3px 10px;border:1px solid var(--border);color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;}
+.tag.blue{border-color:rgba(56,189,248,0.3);color:var(--blue);}
+.tag.green{border-color:rgba(0,232,122,0.3);color:var(--green);}
+.tag.orange{border-color:rgba(251,146,60,0.3);color:var(--orange);}
+main{max-width:900px;margin:0 auto;padding:4rem 3rem;}
+.toc{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--blue);padding:1.5rem;margin-bottom:3rem;}
+.toc-title{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;}
+.toc-list{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.toc-list a{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text-dim);text-decoration:none;letter-spacing:1px;transition:color 0.2s;}
+.toc-list a:hover{color:var(--blue);}
+.toc-list a::before{content:'→ ';color:var(--blue);}
+.section{margin-bottom:4rem;}
+.section-header{display:flex;align-items:center;gap:1rem;margin-bottom:2rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.section-num{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--blue);background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);padding:4px 10px;letter-spacing:2px;flex-shrink:0;}
+h2{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:700;color:var(--text-bright);}
+h3{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--text-bright);margin:2rem 0 1rem;}
+p{font-size:14px;color:var(--text);line-height:1.8;margin-bottom:1rem;font-weight:300;}
+.code-block{background:#040608;border:1px solid var(--border);border-left:3px solid var(--blue);margin:1.5rem 0;overflow:hidden;}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:rgba(56,189,248,0.04);border-bottom:1px solid var(--border);}
+.code-lang{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--blue);letter-spacing:2px;text-transform:uppercase;}
+.code-dots{display:flex;gap:4px;}
+.code-dot{width:7px;height:7px;border-radius:50%;}
+.code-dot:nth-child(1){background:#ff5f57;}.code-dot:nth-child(2){background:#febc2e;}.code-dot:nth-child(3){background:#28c840;}
+pre{padding:1.2rem 1.5rem;overflow-x:auto;font-family:'Share Tech Mono',monospace;font-size:12px;line-height:1.8;color:var(--text);}
+.highlight-box{background:rgba(56,189,248,0.04);border-left:3px solid var(--blue);padding:1rem 1.5rem;margin:1.5rem 0;font-size:13px;}
+.highlight-box.success{border-left-color:var(--green);background:rgba(0,232,122,0.04);}
+.step-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem;margin:1.5rem 0;}
+.step-card{background:var(--bg2);border:1px solid var(--border);padding:1.2rem;}
+.step-num{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--blue);letter-spacing:2px;margin-bottom:0.5rem;}
+.step-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--text-bright);margin-bottom:0.4rem;}
+.step-desc{font-size:12px;color:var(--text-dim);font-weight:300;}
+footer{border-top:1px solid var(--border);padding:2rem 3rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;}
+.footer-copy{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);}
+.footer-link{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);text-decoration:none;transition:color 0.2s;}
+.footer-link:hover{color:var(--blue);}
+@media(max-width:768px){nav{padding:1rem 1.5rem;}main{padding:2rem 1.5rem;}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">DT_SEC</a>
+  <a href="index.html" class="nav-back">← Retour</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <div class="breadcrumb"><a href="index.html">Portfolio</a> / TP & Projets / Réseaux & Systèmes</div>
+    <div class="hero-type"><span class="type-dot"></span>Compte Rendu TP — Licence Pro</div>
+    <h1>Administration Réseaux & Systèmes<br>Active Directory · Samba · Zabbix</h1>
+    <p class="hero-sub">Mise en place d'un environnement d'infrastructure complet : déploiement Active Directory sous Windows Server, contrôleur de domaine Samba sous Linux, et supervision avec Zabbix incluant alertes mail et surveillance de services.</p>
+    <div class="meta-row">
+      <div class="meta-item"><span class="meta-label">Formation</span><span class="meta-value">Licence Pro Réseaux & Télécoms</span></div>
+      <div class="meta-item"><span class="meta-label">Établissement</span><span class="meta-value">INSA Hauts-de-France</span></div>
+      <div class="meta-item"><span class="meta-label">Année</span><span class="meta-value">2023–2024</span></div>
+      <div class="meta-item"><span class="meta-label">Équipe</span><span class="meta-value">Togola · M'hamadi · Soule</span></div>
+    </div>
+    <div class="tags">
+      <span class="tag blue">Active Directory</span>
+      <span class="tag blue">Windows Server 2012</span>
+      <span class="tag blue">Samba 4</span>
+      <span class="tag green">Zabbix 6.4</span>
+      <span class="tag green">MySQL</span>
+      <span class="tag orange">GPO</span>
+      <span class="tag">Debian 10</span>
+      <span class="tag">Ubuntu 22.04</span>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="toc">
+    <div class="toc-title">// Table des matières</div>
+    <ul class="toc-list">
+      <li><a href="#ad">01 — Active Directory (Windows Server 2012 R2)</a></li>
+      <li><a href="#samba">02 — Samba — Contrôleur de domaine Linux</a></li>
+      <li><a href="#zabbix">03 — Supervision avec Zabbix</a></li>
+      <li><a href="#mysql">04 — Surveillance MySQL & Alertes mail</a></li>
+    </ul>
+  </div>
+
+  <section class="section" id="ad">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2>Active Directory — Windows Server 2012 R2</h2>
+    </div>
+    <p>Déploiement d'un contrôleur de domaine Active Directory sur Windows Server 2012 R2. Configuration du rôle AD DS, création d'un nouveau forêt <code style="color:var(--blue);background:rgba(56,189,248,0.08);padding:2px 6px;font-family:'Share Tech Mono',monospace">tp.lab</code>, et jonction de postes clients.</p>
+
+    <div class="step-grid">
+      <div class="step-card"><div class="step-num">ÉTAPE 01</div><div class="step-title">Installation AD DS</div><div class="step-desc">Ajout du rôle Active Directory Domain Services via Server Manager</div></div>
+      <div class="step-card"><div class="step-num">ÉTAPE 02</div><div class="step-title">Promotion DC</div><div class="step-desc">Création d'un nouveau forêt tp.lab avec configuration DNS intégrée</div></div>
+      <div class="step-card"><div class="step-num">ÉTAPE 03</div><div class="step-title">Jonction clients</div><div class="step-desc">Ajout de postes Windows 10 au domaine via sysdm.cpl</div></div>
+      <div class="step-card"><div class="step-num">ÉTAPE 04</div><div class="step-title">Utilisateurs & Groupes</div><div class="step-desc">Création utilisateur "daouda" et groupe "Groupe TP" via AD Users and Computers</div></div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">powershell — Jonction au domaine</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+      <pre># Via sysdm.cpl → Membre d'un domaine : tp.lab
+# Authentification avec le compte Administrateur du domaine
+# Résultat : "Bienvenue dans le domaine tp.lab"</pre>
+    </div>
+    <div class="highlight-box success">✅ Contrôleur de domaine opérationnel — NetBios : TP\serveur — Domaine : tp.lab</div>
+  </section>
+
+  <section class="section" id="samba">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2>Samba — Contrôleur de domaine Linux</h2>
+    </div>
+    <p>Configuration de Samba 4 sur Ubuntu/Debian comme contrôleur de domaine Active Directory alternatif. Permet l'intégration de postes Windows dans un environnement Linux.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">bash — Installation Samba</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+      <pre>sudo apt -y install samba krb5-config winbind smbclient
+sudo mv /etc/samba/smb.conf /etc/samba/smb.conf.original
+sudo samba-tool domain provision
+# Realm : TP.LAB | Domain : TP | Server Role : dc
+sudo cp /var/lib/samba/private/krb5.conf /etc/</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">bash — Création utilisateur & test</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+      <pre>sudo samba-tool user create daouda
+# Test connectivité
+ping -c3 tp.lab
+host -t a tp.lab
+# → tp.lab has address 192.168.188.128</pre>
+    </div>
+
+    <h3>Partages Samba</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">bash — /etc/samba/smb.conf</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+      <pre>[Mon-partage]
+  path = /home/daou/Desktop
+  browseable = yes
+  read only = no
+
+[imprimante]
+  path = /var/spool/samba
+  printable = yes
+  guest ok = yes</pre>
+    </div>
+    <div class="highlight-box success">✅ Partages accessibles depuis Windows via \\192.168.72.130\Mon-partage</div>
+  </section>
+
+  <section class="section" id="zabbix">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2>Supervision avec Zabbix 6.4</h2>
+    </div>
+    <p>Déploiement de Zabbix 6.4 sur Ubuntu 22.04 avec base de données MySQL et serveur web Apache. Supervision de machines Windows et Linux via agents Zabbix.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">bash — Installation Zabbix</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+      <pre>wget https://repo.zabbix.com/zabbix/6.4/ubuntu/pool/main/z/zabbix-release/zabbix-release_6.4-1+ubuntu22.04_all.deb
+dpkg -i zabbix-release_6.4-1+ubuntu22.04_all.deb
+apt install zabbix-server-mysql zabbix-frontend-php zabbix-apache-conf zabbix-agent</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">sql — Création base de données</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+      <pre>CREATE DATABASE zabbix CHARACTER SET utf8 COLLATE utf8_bin;
+CREATE USER zabbix@localhost IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON zabbix.* TO zabbix@localhost;
+FLUSH PRIVILEGES;</pre>
+    </div>
+    <div class="highlight-box success">✅ Interface Zabbix accessible sur http://ip_server/zabbix — 3 hôtes supervisés : Zabbix server, PC Windows, Ubuntu Client</div>
+  </section>
+
+  <section class="section" id="mysql">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2>Surveillance MySQL & Alertes Mail</h2>
+    </div>
+    <p>Configuration d'un déclencheur Zabbix pour surveiller la disponibilité du service MySQL. En cas d'indisponibilité, une alerte mail est envoyée automatiquement à l'administrateur.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">sql — Utilisateur de surveillance</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+      <pre>CREATE USER 'zbx_monitor'@'%' IDENTIFIED BY 'DevOpsSchool$123';
+GRANT REPLICATION CLIENT,PROCESS,SHOW DATABASES,SHOW VIEW ON *.* TO 'zbx_monitor'@'%';
+FLUSH PRIVILEGES;</pre>
+    </div>
+
+    <p>Déclencheur configuré : si MySQL ne répond pas pendant plus de 5 minutes → alerte de sévérité <strong style="color:var(--orange)">Haute</strong> → envoi mail SMTP.</p>
+    <p>Test de validation : arrêt du service MySQL → mail reçu en moins d'1 minute avec détails de l'incident. Redémarrage → mail de résolution automatique envoyé.</p>
+
+    <div class="highlight-box success">
+      ✅ Chaîne complète validée : panne simulée → détection Zabbix → alerte mail → résolution automatique notifiée.
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-copy">Daouda Togola · Licence Pro Réseaux & Télécoms INSA · 2023–2024</div>
+  <a href="index.html" class="footer-link">← Retour au portfolio</a>
+</footer>
+</body>
+</html>
