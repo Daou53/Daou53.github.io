@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISO/IEC 27001 — SMSI — Daouda Togola</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,700;1,300&family=Figtree:wght@300;400;500;600;700&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fafaf8;--bg2:#f3f2ee;--bg3:#ebe9e3;--ink:#1c1b18;--ink-dim:#6b6860;--ink-light:#a8a5a0;--navy:#1a3a5c;--navy-dim:rgba(26,58,92,0.08);--navy-mid:rgba(26,58,92,0.2);--blue:#2563eb;--green:#16a34a;--red:#dc2626;--amber:#d97706;--border:#d8d5cd;--white:#ffffff;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--ink);font-family:'Figtree',sans-serif;font-size:15px;line-height:1.8;font-weight:300;}
+
+/* BACK NAV */
+.back-nav{position:fixed;top:0;left:0;right:0;z-index:500;background:rgba(26,58,92,0.97);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.1);padding:.8rem 2rem;display:flex;align-items:center;justify-content:space-between;}
+.back-logo{font-family:'Fira Code',monospace;font-size:12px;color:rgba(255,255,255,0.8);letter-spacing:2px;text-decoration:none;}
+.back-btn{font-family:'Fira Code',monospace;font-size:10px;color:rgba(255,255,255,0.5);text-decoration:none;letter-spacing:2px;border:1px solid rgba(255,255,255,0.2);padding:5px 12px;transition:all .2s;}
+.back-btn:hover{border-color:rgba(255,255,255,0.6);color:rgba(255,255,255,0.9);}
+
+/* COVER */
+.cover{min-height:100vh;display:grid;grid-template-rows:auto 1fr auto;background:var(--navy);position:relative;overflow:hidden;}
+.cover-header{padding:4.5rem 4rem 2rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.1);}
+.cover-logo-text{font-family:'Fira Code',monospace;font-size:11px;letter-spacing:3px;color:rgba(255,255,255,0.5);text-transform:uppercase;}
+.cover-year{font-family:'Fira Code',monospace;font-size:11px;color:rgba(255,255,255,0.5);}
+.cover-main{display:flex;flex-direction:column;justify-content:center;align-items:center;padding:4rem;text-align:center;position:relative;}
+.cover-iso-badge{width:120px;height:120px;border:3px solid rgba(255,255,255,0.3);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:3rem;position:relative;}
+.cover-iso-badge::before{content:'';position:absolute;inset:-12px;border:1px solid rgba(255,255,255,0.1);border-radius:50%;}
+.cover-iso-num{font-family:'Fraunces',serif;font-size:2.5rem;font-weight:700;color:white;line-height:1;}
+.cover-iso-label{font-family:'Fira Code',monospace;font-size:8px;letter-spacing:2px;color:rgba(255,255,255,0.5);margin-top:4px;}
+.cover-h1{font-family:'Fraunces',serif;font-size:clamp(1.5rem,4vw,3rem);font-weight:700;color:white;line-height:1.2;margin-bottom:1rem;max-width:700px;}
+.cover-sub{font-size:1rem;color:rgba(255,255,255,0.6);max-width:500px;line-height:1.7;margin-bottom:3rem;}
+.cover-meta-row{display:flex;gap:3rem;flex-wrap:wrap;justify-content:center;}
+.cover-meta-item{text-align:center;}
+.cover-meta-label{font-family:'Fira Code',monospace;font-size:9px;letter-spacing:2px;color:rgba(255,255,255,0.4);text-transform:uppercase;display:block;margin-bottom:4px;}
+.cover-meta-value{font-family:'Fira Code',monospace;font-size:12px;color:rgba(255,255,255,0.85);}
+.cover-footer{padding:1.5rem 4rem;background:rgba(0,0,0,0.2);display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+.cover-tags{display:flex;gap:8px;flex-wrap:wrap;}
+.cover-tag{font-family:'Fira Code',monospace;font-size:9px;letter-spacing:1px;padding:3px 10px;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.5);}
+.cover-tag.active{border-color:rgba(255,255,255,0.5);color:rgba(255,255,255,0.8);}
+
+/* NAV */
+nav{position:sticky;top:42px;z-index:100;background:rgba(250,250,248,0.97);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:0 4rem;display:flex;overflow-x:auto;scrollbar-width:none;}
+nav::-webkit-scrollbar{display:none;}
+nav a{font-family:'Fira Code',monospace;font-size:10px;letter-spacing:1px;color:var(--ink-light);text-decoration:none;padding:1rem 0.9rem;border-bottom:2px solid transparent;white-space:nowrap;transition:all 0.2s;text-transform:uppercase;}
+nav a:hover{color:var(--navy);border-bottom-color:var(--navy);}
+
+/* LAYOUT */
+.container{max-width:960px;margin:0 auto;padding:5rem 4rem;}
+.section-label{font-family:'Fira Code',monospace;font-size:9px;letter-spacing:4px;color:var(--navy);text-transform:uppercase;margin-bottom:0.8rem;}
+h2{font-family:'Fraunces',serif;font-size:clamp(2rem,4vw,3rem);font-weight:700;color:var(--ink);line-height:1.2;margin-bottom:2rem;}
+h3{font-family:'Figtree',sans-serif;font-size:1.05rem;font-weight:600;color:var(--navy);margin:2.5rem 0 0.8rem;text-transform:uppercase;letter-spacing:1px;}
+h4{font-family:'Figtree',sans-serif;font-size:1rem;font-weight:600;color:var(--ink);margin:1.5rem 0 0.5rem;}
+p{margin-bottom:1rem;}
+.sep{border:none;height:1px;background:var(--border);margin:5rem 0;}
+.intro-box{background:var(--white);border:1px solid var(--border);border-left:4px solid var(--navy);padding:2rem 2.5rem;margin-bottom:2rem;font-family:'Fraunces',serif;font-size:1.05rem;color:var(--ink-dim);line-height:1.9;font-style:italic;}
+.pdca-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border);margin:2rem 0;}
+.pdca-card{background:var(--white);padding:2rem;text-align:center;}
+.pdca-letter{font-family:'Fraunces',serif;font-size:3rem;font-weight:700;color:var(--navy);opacity:0.15;display:block;margin-bottom:-0.5rem;}
+.pdca-title{font-weight:700;color:var(--ink);margin-bottom:0.4rem;font-size:1.1rem;}
+.pdca-desc{font-size:13px;color:var(--ink-dim);line-height:1.6;}
+.clause-list{display:flex;flex-direction:column;gap:6px;margin:1.5rem 0;}
+.clause-item{display:flex;gap:1rem;padding:0.8rem 1rem;background:var(--white);border:1px solid var(--border);font-size:13.5px;border-left:2px solid transparent;transition:border-left 0.2s;}
+.clause-item:hover{border-left-color:var(--navy);}
+.clause-num{font-family:'Fira Code',monospace;font-size:11px;color:var(--navy);background:var(--navy-dim);border:1px solid var(--navy-mid);padding:2px 8px;flex-shrink:0;height:fit-content;margin-top:2px;}
+.clause-title{font-weight:500;color:var(--ink);}
+.clause-desc{font-size:12.5px;color:var(--ink-dim);}
+.ctrl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1px;background:var(--border);margin:1.5rem 0;}
+.ctrl-card{background:var(--white);padding:1.5rem;text-align:center;}
+.ctrl-icon{font-size:2rem;margin-bottom:0.8rem;}
+.ctrl-num{font-family:'Fira Code',monospace;font-size:1.5rem;font-weight:500;color:var(--navy);margin-bottom:0.3rem;}
+.ctrl-label{font-size:13px;color:var(--ink-dim);}
+.risk-table{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:12.5px;}
+.risk-table th{background:var(--navy-dim);color:var(--navy);font-family:'Fira Code',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:10px 14px;text-align:left;border-bottom:1px solid var(--navy-mid);}
+.risk-table td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top;}
+.risk-table tr:hover td{background:var(--bg2);}
+.risk-high{color:var(--red);font-weight:500;font-size:11px;font-family:'Fira Code',monospace;}
+.risk-med{color:var(--amber);font-weight:500;font-size:11px;font-family:'Fira Code',monospace;}
+.risk-low{color:var(--green);font-weight:500;font-size:11px;font-family:'Fira Code',monospace;}
+.audit-table{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:12.5px;}
+.audit-table th{background:var(--bg2);color:var(--ink-dim);font-family:'Fira Code',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);}
+.audit-table td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top;}
+.badge{font-family:'Fira Code',monospace;font-size:10px;padding:3px 8px;white-space:nowrap;}
+.badge-major{background:#fef2f2;color:var(--red);border:1px solid #fecaca;}
+.badge-minor{background:#fffbeb;color:var(--amber);border:1px solid #fde68a;}
+.badge-opport{background:#f0fdf4;color:var(--green);border:1px solid #bbf7d0;}
+.etape-list{display:flex;flex-direction:column;gap:8px;margin:1.5rem 0;}
+.etape-item{display:flex;gap:1rem;padding:1.2rem 1.5rem;background:var(--white);border:1px solid var(--border);}
+.etape-num{font-family:'Fira Code',monospace;font-size:11px;color:var(--navy);background:var(--navy-dim);border:1px solid var(--navy-mid);padding:2px 10px;height:fit-content;flex-shrink:0;margin-top:2px;}
+.etape-title{font-weight:600;color:var(--ink);margin-bottom:0.2rem;}
+.etape-desc{font-size:13px;color:var(--ink-dim);}
+.concl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin:2rem 0;}
+.concl-card{background:var(--white);border:1px solid var(--border);padding:1.5rem;}
+.concl-icon{font-size:1.6rem;margin-bottom:0.6rem;}
+.concl-title{font-weight:600;color:var(--ink);font-size:0.95rem;margin-bottom:0.4rem;}
+.concl-text{font-size:12.5px;color:var(--ink-dim);line-height:1.6;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin:2rem 0;}
+footer{background:var(--navy);padding:2.5rem 4rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;font-family:'Fira Code',monospace;font-size:11px;color:rgba(255,255,255,0.5);}
+footer strong{color:rgba(255,255,255,0.85);}
+@media(max-width:768px){.container{padding:3rem 1.5rem;}nav{padding:0 1rem;top:42px;}.cover-header,.cover-main,.cover-footer{padding-left:1.5rem;padding-right:1.5rem;}.pdca-grid{grid-template-columns:1fr;}.two-col{grid-template-columns:1fr;}footer{padding:2rem 1.5rem;flex-direction:column;text-align:center;}}
+</style>
+</head>
+<body>
+
+<div class="back-nav">
+  <a href="index.html" class="back-logo">DT_SEC</a>
+  <a href="index.html" class="back-btn">← Portfolio</a>
+</div>
+
+<section class="cover">
+  <div class="cover-header">
+    <div class="cover-logo-text">INSA Hauts-de-France · Université Polytechnique</div>
+    <div class="cover-year">2025–2026</div>
+  </div>
+  <div class="cover-main">
+    <div class="cover-iso-badge">
+      <div class="cover-iso-num">27001</div>
+      <div class="cover-iso-label">ISO / IEC</div>
+    </div>
+    <h1 class="cover-h1">Sécurité des Accès Distants<br>ISO/IEC 27001 : Mise en œuvre & Audit simulé</h1>
+    <p class="cover-sub">Analyse de la norme, méthodologie de mise en œuvre d'un SMSI, et simulation d'audit de conformité sur le cas fictif DataSecure.</p>
+    <div class="cover-meta-row">
+      <div class="cover-meta-item"><span class="cover-meta-label">Réalisé par</span><span class="cover-meta-value">Daouda TOGOLA</span></div>
+      <div class="cover-meta-item"><span class="cover-meta-label">Tuteur</span><span class="cover-meta-value">I. OUAKRIM</span></div>
+      <div class="cover-meta-item"><span class="cover-meta-label">Année</span><span class="cover-meta-value">2025–2026</span></div>
+    </div>
+  </div>
+  <div class="cover-footer">
+    <div class="cover-tags">
+      <span class="cover-tag active">ISO 27001:2022</span>
+      <span class="cover-tag active">SMSI</span>
+      <span class="cover-tag active">PDCA</span>
+      <span class="cover-tag">ISO 27002</span>
+      <span class="cover-tag">Audit</span>
+      <span class="cover-tag">RGPD</span>
+      <span class="cover-tag">NIS2</span>
+    </div>
+  </div>
+</section>
+
+<nav>
+  <a href="#intro">Introduction</a>
+  <a href="#norme">Norme</a>
+  <a href="#pdca">PDCA</a>
+  <a href="#methodologie">Méthodologie</a>
+  <a href="#datasecure">DataSecure</a>
+  <a href="#risques">Risques</a>
+  <a href="#audit">Audit</a>
+  <a href="#limites">Limites</a>
+  <a href="#conclusion">Conclusion</a>
+</nav>
+
+<div class="container" id="intro">
+  <div class="section-label">Introduction</div>
+  <h2>La sécurité de l'information comme enjeu stratégique</h2>
+  <div class="intro-box">Dans un contexte où les organisations dépendent de plus en plus des systèmes d'information, les cyberattaques et les fuites d'informations peuvent avoir des conséquences financières, juridiques et réputationnelles considérables. La norme ISO/IEC 27001 définit les exigences d'un Système de Management de la Sécurité de l'Information (SMSI) — référence mondiale depuis sa troisième édition d'octobre 2022.</div>
+  <p>Ce projet analyse la norme ISO/IEC 27001, en comprend la logique, puis simule sa mise en œuvre et son audit à travers le cas fictif de l'entreprise <strong>DataSecure</strong>.</p>
+</div>
+
+<div class="sep"></div>
+
+<div class="container" id="norme">
+  <div class="section-label">Section 1</div>
+  <h2>Présentation de la norme ISO/IEC 27001</h2>
+  <p>Élaborée conjointement par l'ISO et la IEC, la norme définit les exigences pour établir, mettre en œuvre, maintenir et améliorer un SMSI. La certification atteste de la mise en œuvre de processus formalisés pour gérer les risques de sécurité — <strong>elle ne garantit pas l'absence d'incident</strong>.</p>
+
+  <h3 id="pdca">Structure et approche PDCA</h3>
+  <div class="pdca-grid">
+    <div class="pdca-card"><span class="pdca-letter">P</span><div class="pdca-title">Plan — Planifier</div><div class="pdca-desc">Définir le périmètre, identifier les parties intéressées, évaluer les risques, définir objectifs et contrôles.</div></div>
+    <div class="pdca-card"><span class="pdca-letter">D</span><div class="pdca-title">Do — Déployer</div><div class="pdca-desc">Mettre en œuvre les contrôles sélectionnés, produire procédures, sensibiliser le personnel.</div></div>
+    <div class="pdca-card"><span class="pdca-letter">C</span><div class="pdca-title">Check — Vérifier</div><div class="pdca-desc">Mesurer l'efficacité, audits internes, revues de direction, identification des écarts.</div></div>
+    <div class="pdca-card"><span class="pdca-letter">A</span><div class="pdca-title">Act — Améliorer</div><div class="pdca-desc">Corriger les écarts, affiner politiques et contrôles, adapter aux nouvelles menaces.</div></div>
+  </div>
+
+  <h4>Les 10 clauses de la norme (cœur : clauses 4–10)</h4>
+  <div class="clause-list">
+    <div class="clause-item"><div class="clause-num">4</div><div><div class="clause-title">Contexte de l'organisation</div><div class="clause-desc">Identifier les parties intéressées et définir le périmètre du SMSI</div></div></div>
+    <div class="clause-item"><div class="clause-num">5</div><div><div class="clause-title">Leadership</div><div class="clause-desc">Engagement de la direction, politique de sécurité, rôles et responsabilités</div></div></div>
+    <div class="clause-item"><div class="clause-num">6</div><div><div class="clause-title">Planification</div><div class="clause-desc">Traitement des risques, plan d'action, objectifs de sécurité mesurables</div></div></div>
+    <div class="clause-item"><div class="clause-num">7</div><div><div class="clause-title">Support</div><div class="clause-desc">Ressources, compétences, sensibilisation, communication, documentation</div></div></div>
+    <div class="clause-item"><div class="clause-num">8</div><div><div class="clause-title">Fonctionnement</div><div class="clause-desc">Mise en œuvre opérationnelle des contrôles, gestion des risques</div></div></div>
+    <div class="clause-item"><div class="clause-num">9</div><div><div class="clause-title">Évaluation des performances</div><div class="clause-desc">Audits internes, revues de direction, mesure de la performance</div></div></div>
+    <div class="clause-item"><div class="clause-num">10</div><div><div class="clause-title">Amélioration</div><div class="clause-desc">Traitement des non-conformités, amélioration continue du SMSI</div></div></div>
+  </div>
+
+  <h3>Annexe A — 93 contrôles en 4 domaines (édition 2022)</h3>
+  <div class="ctrl-grid">
+    <div class="ctrl-card"><div class="ctrl-icon">🏛️</div><div class="ctrl-num">~37</div><div class="ctrl-label">Contrôles organisationnels</div></div>
+    <div class="ctrl-card"><div class="ctrl-icon">👥</div><div class="ctrl-num">~8</div><div class="ctrl-label">Contrôles liés au personnel</div></div>
+    <div class="ctrl-card"><div class="ctrl-icon">🏢</div><div class="ctrl-num">~14</div><div class="ctrl-label">Contrôles physiques</div></div>
+    <div class="ctrl-card"><div class="ctrl-icon">💻</div><div class="ctrl-num">~34</div><div class="ctrl-label">Contrôles technologiques</div></div>
+  </div>
+</div>
+
+<div class="sep"></div>
+
+<div class="container" id="methodologie">
+  <div class="section-label">Section 2</div>
+  <h2>Méthodologie de mise en œuvre du SMSI</h2>
+  <div class="etape-list">
+    <div class="etape-item"><div class="etape-num">1</div><div class="etape-content"><div class="etape-title">Définition du contexte et du périmètre</div><div class="etape-desc">Identifier parties intéressées, actifs informationnels, portée géographique et fonctionnelle.</div></div></div>
+    <div class="etape-item"><div class="etape-num">2</div><div class="etape-content"><div class="etape-title">Analyse de risques (ISO 27005 / ISO 31000)</div><div class="etape-desc">Identifier menaces et vulnérabilités, évaluer risques selon probabilité × impact.</div></div></div>
+    <div class="etape-item"><div class="etape-num">3</div><div class="etape-content"><div class="etape-title">Politique de sécurité et objectifs</div><div class="etape-desc">Direction approuve politique, définit rôles (RSSI), fixe objectifs mesurables.</div></div></div>
+    <div class="etape-item"><div class="etape-num">4</div><div class="etape-content"><div class="etape-title">Plan de traitement des risques</div><div class="etape-desc">Sélectionner contrôles pertinents (Annexe A), rédiger la Déclaration d'Applicabilité (SoA).</div></div></div>
+    <div class="etape-item"><div class="etape-num">5</div><div class="etape-content"><div class="etape-title">Mise en œuvre</div><div class="etape-desc">Déployer contrôles organisationnels, techniques et humains. Sensibilisation, MFA, segmentation réseau.</div></div></div>
+    <div class="etape-item"><div class="etape-num">6</div><div class="etape-content"><div class="etape-title">Surveillance et amélioration continue</div><div class="etape-desc">Audits internes, mesure d'efficacité, revues de direction. Cycle PDCA perpétuel.</div></div></div>
+  </div>
+</div>
+
+<div class="sep"></div>
+
+<div class="container" id="datasecure">
+  <div class="section-label">Section 3</div>
+  <h2>Cas d'étude — «&nbsp;DataSecure&nbsp;»</h2>
+  <p>PME d'Île-de-France fournissant des services de stockage et d'analyse de données pour les secteurs <strong>santé</strong> et <strong>finance</strong>. 60 employés, 2 centres de données (Paris + Lyon), plateforme SaaS cloud public. Objectif : certification ISO 27001 dans les 2 ans (exigences RGPD + NIS2).</p>
+
+  <h3 id="risques">Analyse de risques</h3>
+  <table class="risk-table">
+    <thead><tr><th>Risque identifié</th><th>Probabilité</th><th>Impact</th><th>Contrôles ISO 27002</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Ransomware via hameçonnage</strong></td><td><span class="risk-high">Élevée</span></td><td>Chiffrement données, interruption service, rançon</td><td style="font-family:'Fira Code',monospace;font-size:11px;color:var(--navy)">5.13, 5.23, 7.4</td></tr>
+      <tr><td><strong>Panne climatisation datacentre</strong></td><td><span class="risk-med">Moyenne</span></td><td>Indisponibilité et perte de données</td><td style="font-family:'Fira Code',monospace;font-size:11px;color:var(--navy)">7.9, 7.10</td></tr>
+      <tr><td><strong>Accès non autorisé aux BDD</strong></td><td><span class="risk-med">Moyenne</span></td><td>Divulgation données sensibles, sanctions RGPD</td><td style="font-family:'Fira Code',monospace;font-size:11px;color:var(--navy)">5.16, 5.18, 8.9</td></tr>
+      <tr><td><strong>Erreur humaine lors déploiement</strong></td><td><span class="risk-low">Faible</span></td><td>Altération disponibilité ou intégrité</td><td style="font-family:'Fira Code',monospace;font-size:11px;color:var(--navy)">8.32, 8.25</td></tr>
+      <tr><td><strong>Non-conformité RGPD / NIS2</strong></td><td><span class="risk-med">Moyenne</span></td><td>Amendes, perte d'image</td><td style="font-family:'Fira Code',monospace;font-size:11px;color:var(--navy)">5.25, 5.26</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="sep"></div>
+
+<div class="container" id="audit">
+  <div class="section-label">Section 4</div>
+  <h2>Simulation d'audit de conformité (ISO 19011)</h2>
+  <table class="audit-table">
+    <thead><tr><th>Domaine</th><th>Constat</th><th>Classification</th><th>Recommandation</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Documentation SMSI</strong></td><td>Politique existante, SoA détaillée, mais fréquence de révision non indiquée</td><td><span class="badge badge-minor">Écart mineur</span></td><td>Ajouter clause précisant la périodicité de révision</td></tr>
+      <tr><td><strong>Gestion des accès</strong></td><td>RBAC en place, mais absence de MFA sur console d'administration</td><td><span class="badge badge-major">Écart majeur</span></td><td>Déployer MFA sur toutes les consoles critiques</td></tr>
+      <tr><td><strong>Continuité d'activité</strong></td><td>Plans formalisés, tests 1×/an, mais pas de test croisé inter-sites</td><td><span class="badge badge-opport">Opportunité</span></td><td>Exercices de basculement bi-annuels Paris ↔ Lyon</td></tr>
+      <tr><td><strong>Sensibilisation</strong></td><td>Campagne annuelle, faible participation nouveaux arrivants, absence de test phishing</td><td><span class="badge badge-minor">Écart mineur</span></td><td>Formation obligatoire arrivée + simulations phishing</td></tr>
+      <tr><td><strong>Mesure & amélioration</strong></td><td>Indicateurs définis, rapports disponibles, manque indicateur satisfaction client</td><td><span class="badge badge-opport">Opportunité</span></td><td>Intégrer satisfaction clients dans revues de direction</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="sep"></div>
+
+<div class="container" id="limites">
+  <div class="section-label">Section 5</div>
+  <h2>Difficultés et limites</h2>
+  <div class="two-col">
+    <div>
+      <h3 style="color:var(--red)">Difficultés de mise en œuvre</h3>
+      <div class="etape-list">
+        <div class="etape-item" style="border-left:2px solid var(--red)"><div class="etape-content"><div class="etape-title">Ressources limitées</div><div class="etape-desc">Recrutement d'experts coûteux. PME : prioriser les mesures critiques selon risques.</div></div></div>
+        <div class="etape-item" style="border-left:2px solid var(--red)"><div class="etape-content"><div class="etape-title">Culture d'entreprise</div><div class="etape-desc">Nécessite implication continue de la direction et adhésion totale du personnel.</div></div></div>
+        <div class="etape-item" style="border-left:2px solid var(--red)"><div class="etape-content"><div class="etape-title">Maintien dans le temps</div><div class="etape-desc">Audits et mises à jour régulières difficiles en période de forte activité.</div></div></div>
+      </div>
+    </div>
+    <div>
+      <h3 style="color:var(--green)">Facteurs clés de succès</h3>
+      <div class="etape-list">
+        <div class="etape-item" style="border-left:2px solid var(--green)"><div class="etape-content"><div class="etape-title">Implication de la direction</div><div class="etape-desc">Leadership fort : allouer ressources, valoriser sécurité comme avantage concurrentiel.</div></div></div>
+        <div class="etape-item" style="border-left:2px solid var(--green)"><div class="etape-content"><div class="etape-title">Approche basée sur les risques</div><div class="etape-desc">Mesures proportionnées et justifiées — éviter l'approche purement bureaucratique.</div></div></div>
+        <div class="etape-item" style="border-left:2px solid var(--green)"><div class="etape-content"><div class="etape-title">Intégration aux processus</div><div class="etape-desc">Aligner SMSI avec DevSecOps, méthodes agiles, ITIL pour faciliter l'adoption.</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sep"></div>
+
+<div class="container" id="conclusion">
+  <div class="section-label">Section 6</div>
+  <h2>Conclusion</h2>
+  <div class="intro-box">La norme ISO/IEC 27001:2022 constitue aujourd'hui le référentiel international pour établir un SMSI. Au-delà de la certification, elle offre un cadre de gouvernance pour gérer les risques et instaurer une culture de sécurité durable.</div>
+  <div class="concl-grid">
+    <div class="concl-card"><div class="concl-icon">📐</div><div class="concl-title">Cadre structuré</div><div class="concl-text">93 contrôles en 4 domaines, PDCA, 10 clauses — méthodologie éprouvée internationalement.</div></div>
+    <div class="concl-card"><div class="concl-icon">🔄</div><div class="concl-title">Amélioration continue</div><div class="concl-text">Le cycle PDCA garantit l'adaptation permanente aux nouvelles menaces et réglementations.</div></div>
+    <div class="concl-card"><div class="concl-icon">🏢</div><div class="concl-title">Cas DataSecure</div><div class="concl-text">Écart majeur : MFA manquante. Écarts mineurs : fréquence révision, phishing. Plan établi.</div></div>
+    <div class="concl-card"><div class="concl-icon">⚠️</div><div class="concl-title">Limite fondamentale</div><div class="concl-text">La certification démontre la conformité du management, pas l'absence d'incident.</div></div>
+  </div>
+</div>
+
+<footer>
+  <div>Projet <strong>ISO/IEC 27001</strong> — Sécurité des Accès Distants</div>
+  <div><strong>Daouda TOGOLA</strong> · Master Cyberdéfense · INSA Hauts-de-France · <strong>2025–2026</strong></div>
+</footer>
+</body>
+</html>

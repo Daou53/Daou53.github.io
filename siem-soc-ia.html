@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIEM → SOC → IA — Daouda Togola</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#05070d;--bg2:#0c0f18;--bg3:#131826;--bg4:#1a2035;--primary:#4f8ef7;--primary-dim:rgba(79,142,247,0.1);--primary-mid:rgba(79,142,247,0.25);--cyan:#22d3ee;--green:#10b981;--amber:#f59e0b;--red:#ef4444;--purple:#a78bfa;--text:#94a3b8;--text-bright:#e2e8f0;--text-dim:#475569;--border:#1e2d45;--border2:#2a3f5e;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:15px;line-height:1.8;font-weight:300;}
+
+/* BACK NAV */
+.back-nav{position:fixed;top:0;left:0;right:0;z-index:500;background:rgba(5,7,13,0.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:.8rem 2rem;display:flex;align-items:center;justify-content:space-between;}
+.back-logo{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--primary);letter-spacing:2px;text-decoration:none;}
+.back-btn{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim);text-decoration:none;letter-spacing:2px;border:1px solid var(--border);padding:5px 12px;transition:all .2s;}
+.back-btn:hover{border-color:var(--primary);color:var(--primary);}
+
+/* COVER */
+.cover{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:8rem 4rem 5rem;position:relative;overflow:hidden;}
+.cover-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 20% 50%,rgba(79,142,247,0.08) 0%,transparent 60%),radial-gradient(ellipse 50% 50% at 80% 20%,rgba(34,211,238,0.05) 0%,transparent 60%);}
+.cover-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(79,142,247,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(79,142,247,0.03) 1px,transparent 1px);background-size:60px 60px;}
+.cover-inner{position:relative;z-index:1;max-width:800px;}
+.cover-kicker{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:4px;color:var(--primary);text-transform:uppercase;margin-bottom:2rem;display:flex;align-items:center;gap:10px;}
+.cover-kicker::before{content:'';width:30px;height:1px;background:var(--primary);}
+.cover-title{font-size:clamp(2.5rem,6vw,5.5rem);font-weight:800;color:var(--text-bright);line-height:1;letter-spacing:-2px;margin-bottom:1rem;}
+.cover-title .arr{color:var(--primary);margin:0 0.2em;}
+.cover-title .ia{background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.cover-subtitle{font-family:'Crimson Pro',serif;font-size:1.3rem;font-style:italic;color:var(--text);margin:1.5rem 0 3rem;line-height:1.7;max-width:600px;}
+.cover-meta{display:flex;gap:2.5rem;flex-wrap:wrap;padding-top:2rem;border-top:1px solid var(--border);}
+.cover-meta-item{display:flex;flex-direction:column;gap:4px;}
+.cover-meta-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;}
+.cover-meta-value{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-bright);}
+
+/* NAV */
+nav{position:sticky;top:42px;z-index:100;background:rgba(5,7,13,0.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 4rem;display:flex;overflow-x:auto;scrollbar-width:none;}
+nav::-webkit-scrollbar{display:none;}
+nav a{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--text-dim);text-decoration:none;padding:1rem 0.9rem;border-bottom:2px solid transparent;white-space:nowrap;transition:all 0.2s;}
+nav a:hover{color:var(--primary);border-bottom-color:var(--primary);}
+
+/* LAYOUT */
+.container{max-width:960px;margin:0 auto;padding:5rem 4rem;}
+.section-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--primary);text-transform:uppercase;margin-bottom:0.8rem;}
+h2{font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:700;color:var(--text-bright);line-height:1.2;margin-bottom:2rem;}
+h3{font-size:1.05rem;font-weight:600;color:var(--primary);margin:2.5rem 0 0.8rem;text-transform:uppercase;letter-spacing:1px;}
+h4{font-size:1rem;font-weight:600;color:var(--amber);margin:1.5rem 0 0.5rem;}
+p{margin-bottom:1rem;}
+.sep{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:5rem 0;}
+.info-box{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--primary);padding:1.5rem 2rem;margin-bottom:2rem;font-family:'Crimson Pro',serif;font-size:1.05rem;color:var(--text);line-height:1.9;}
+.flow{display:flex;align-items:center;gap:0;margin:2rem 0;flex-wrap:wrap;}
+.flow-item{background:var(--bg2);border:1px solid var(--border);padding:1.2rem 1.8rem;flex:1;min-width:160px;}
+.flow-item-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-bottom:4px;}
+.flow-item-title{font-size:1.1rem;font-weight:700;color:var(--text-bright);}
+.flow-item.active{border-color:var(--primary);background:var(--primary-dim);}
+.flow-item.active .flow-item-title{color:var(--primary);}
+.flow-arr{font-size:1.5rem;color:var(--primary);padding:0 0.5rem;flex-shrink:0;}
+.limit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin:1.5rem 0;}
+.limit-card{background:var(--bg2);border:1px solid var(--border);border-top:2px solid var(--red);padding:1.5rem;}
+.limit-num{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--red);letter-spacing:2px;text-transform:uppercase;margin-bottom:0.6rem;display:block;}
+.limit-title{font-weight:600;color:var(--text-bright);margin-bottom:0.4rem;font-size:0.95rem;}
+.limit-text{font-size:13px;color:var(--text-dim);line-height:1.6;}
+.perf-table{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:13px;}
+.perf-table th{background:var(--primary-dim);color:var(--primary);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:10px 14px;text-align:left;border-bottom:1px solid var(--primary-mid);}
+.perf-table td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top;}
+.perf-table tr:hover td{background:var(--bg3);}
+.metric-old{color:var(--red);font-family:'JetBrains Mono',monospace;font-size:12px;}
+.metric-new{color:var(--green);font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;}
+.maturity-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border);margin:1.5rem 0;}
+.maturity-card{background:var(--bg2);padding:1.5rem;}
+.maturity-level{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--cyan);text-transform:uppercase;margin-bottom:0.5rem;display:block;}
+.maturity-title{font-weight:600;color:var(--text-bright);margin-bottom:0.4rem;}
+.maturity-desc{font-size:12.5px;color:var(--text-dim);}
+.maturity-card.leader{border-left:3px solid var(--green);}
+.ai-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--border);margin:1.5rem 0;}
+.ai-card{background:var(--bg2);padding:1.5rem;transition:background 0.2s;}
+.ai-card:hover{background:var(--bg3);}
+.ai-icon{font-size:1.6rem;margin-bottom:0.6rem;}
+.ai-title{font-weight:600;color:var(--text-bright);margin-bottom:0.4rem;font-size:0.95rem;}
+.ai-desc{font-size:13px;color:var(--text-dim);line-height:1.6;}
+.ai-stat{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--green);margin-top:0.6rem;}
+.code-wrap{background:#010409;border:1px solid var(--border);border-left:3px solid var(--cyan);margin:1.5rem 0;overflow:hidden;}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:var(--bg3);border-bottom:1px solid var(--border);}
+.code-lang{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--cyan);text-transform:uppercase;}
+.code-dots{display:flex;gap:5px;}
+.code-dot{width:8px;height:8px;border-radius:50%;}
+.code-dot:nth-child(1){background:#ff5f57;}.code-dot:nth-child(2){background:#febc2e;}.code-dot:nth-child(3){background:#28c840;}
+pre{padding:1.2rem 1.5rem;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.8;color:#8b949e;}
+.kw{color:#ff7b72;}.val{color:#a5d6ff;}.str{color:#a8d8a8;}.cmt{color:#484f58;}.fn{color:#d2a8ff;}
+.result-box{background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.2);border-left:3px solid var(--green);padding:1rem 1.5rem;margin:1.5rem 0;font-size:13.5px;}
+.result-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--green);text-transform:uppercase;margin-bottom:4px;display:block;}
+.workflow{background:var(--bg2);border:1px solid var(--border);padding:1.5rem;margin:1.5rem 0;}
+.workflow-title{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--amber);text-transform:uppercase;margin-bottom:1rem;display:block;}
+.workflow-step{display:flex;gap:1rem;padding:0.8rem 0;border-bottom:1px solid var(--border);font-size:13.5px;}
+.workflow-step:last-child{border-bottom:none;}
+.wf-num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--primary);background:var(--primary-dim);border:1px solid var(--primary-mid);padding:2px 8px;height:fit-content;flex-shrink:0;margin-top:2px;}
+.nist-table{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:13px;}
+.nist-table th{background:rgba(167,139,250,0.08);color:var(--purple);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:10px 14px;text-align:left;border-bottom:1px solid rgba(167,139,250,0.2);}
+.nist-table td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top;}
+.nist-fn{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--purple);font-weight:500;}
+.comp-table{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:13px;}
+.comp-table th{background:var(--bg3);color:var(--text-dim);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);}
+.comp-table td{padding:10px 14px;border-bottom:1px solid var(--border);}
+.concl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;margin:2rem 0;}
+.concl-card{background:var(--bg2);border:1px solid var(--border);padding:1.5rem;}
+.concl-icon{font-size:1.8rem;margin-bottom:0.8rem;}
+.concl-title{font-weight:600;color:var(--text-bright);font-size:0.95rem;margin-bottom:0.4rem;}
+.concl-text{font-size:12.5px;color:var(--text-dim);line-height:1.6;}
+footer{border-top:1px solid var(--border);padding:2rem 4rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);}
+footer span{color:var(--primary);}
+@media(max-width:768px){.container,.cover{padding:3rem 1.5rem;}nav{padding:0 1rem;top:42px;}footer{padding:2rem 1.5rem;flex-direction:column;text-align:center;}.maturity-grid{grid-template-columns:1fr;}.flow{flex-direction:column;}.flow-arr{transform:rotate(90deg);}}
+</style>
+</head>
+<body>
+
+<div class="back-nav">
+  <a href="index.html" class="back-logo">DT_SEC</a>
+  <a href="index.html" class="back-btn">← Portfolio</a>
+</div>
+
+<section class="cover">
+  <div class="cover-bg"></div>
+  <div class="cover-grid"></div>
+  <div class="cover-inner">
+    <div class="cover-kicker">INSA Hauts-de-France · Master Cyberdéfense · 2025–2026</div>
+    <div class="cover-title">SIEM <span class="arr">→</span> SOC <span class="arr">→</span> <span class="ia">IA</span></div>
+    <p class="cover-subtitle">Vers quoi vont se diriger les nouvelles détections d'intrusions — De la corrélation de logs à l'alliance homme-machine augmentée par l'intelligence artificielle.</p>
+    <div class="cover-meta">
+      <div class="cover-meta-item"><span class="cover-meta-label">Réalisé par</span><span class="cover-meta-value">Daouda TOGOLA</span></div>
+      <div class="cover-meta-item"><span class="cover-meta-label">Établissement</span><span class="cover-meta-value">INSA Hauts-de-France</span></div>
+      <div class="cover-meta-item"><span class="cover-meta-label">Année</span><span class="cover-meta-value">2025–2026</span></div>
+    </div>
+  </div>
+</section>
+
+<nav>
+  <a href="#intro">Introduction</a>
+  <a href="#siem">SIEM</a>
+  <a href="#soc">SOC</a>
+  <a href="#ia">IA</a>
+  <a href="#futur">Modèle futur</a>
+  <a href="#poc">POC</a>
+  <a href="#resultats">Résultats</a>
+  <a href="#conclusion">Conclusion</a>
+</nav>
+
+<div class="container" id="intro">
+  <div class="section-label">1 — Introduction</div>
+  <h2>Du SIEM réactif au SOC cognitif augmenté par l'IA</h2>
+  <div class="info-box">En 2026, le paysage de la cybersécurité est marqué par une industrialisation massive du cybercrime. Les cyber-extorsions ont triplé depuis 2020, les attaques par IA offensive se multiplient, et les périmètres de défense traditionnels ont éclaté avec le cloud hybride et le télétravail généralisé. Une organisation moyenne produit plusieurs téraoctets de logs chaque jour — un volume humainement intraitable.</div>
+  <h4>Problématique centrale</h4>
+  <p>Comment passer d'une posture réactive centrée sur l'outil (SIEM) à une posture cognitive et prédictive reposant sur une alliance homme-machine (SOC augmenté par l'IA) ?</p>
+  <div class="flow">
+    <div class="flow-item"><span class="flow-item-label">Ère 1</span><div class="flow-item-title">SIEM</div></div>
+    <div class="flow-arr">→</div>
+    <div class="flow-item"><span class="flow-item-label">Ère 2</span><div class="flow-item-title">SOC</div></div>
+    <div class="flow-arr">→</div>
+    <div class="flow-item active"><span class="flow-item-label">Ère 3</span><div class="flow-item-title">IA / SOC 3.0</div></div>
+    <div class="flow-arr">→</div>
+    <div class="flow-item"><span class="flow-item-label">Futur</span><div class="flow-item-title">NG-SIEM + SOAR</div></div>
+  </div>
+</div>
+
+<div class="sep"></div>
+
+<div class="container" id="siem">
+  <div class="section-label">2 — SIEM</div>
+  <h2>Les systèmes de détection traditionnels</h2>
+  <p>Le <strong style="color:var(--text-bright)">Security Information and Event Management (SIEM)</strong> est la pierre angulaire technologique historique de la surveillance de sécurité. Il collecte, normalise et corrèle les logs provenant de sources hétérogènes.</p>
+  <h4>Les 3 piliers du SIEM classique</h4>
+  <div class="ai-grid">
+    <div class="ai-card"><div class="ai-icon">📥</div><div class="ai-title">1. Collection</div><div class="ai-desc">Agrégation centralisée de millions d'événements bruts provenant de toutes les sources du SI.</div></div>
+    <div class="ai-card"><div class="ai-icon">🔄</div><div class="ai-title">2. Normalisation</div><div class="ai-desc">Transformation de formats disparates (syslog, CEF, JSON, LEEF…) en schéma unifié et exploitable.</div></div>
+    <div class="ai-card"><div class="ai-icon">🔗</div><div class="ai-title">3. Corrélation par règles</div><div class="ai-desc">Algorithmes déterministes. Ex : "5 échecs de connexion + 1 succès = Bruteforce". Logique booléenne.</div></div>
+  </div>
+  <h3>Limites opérationnelles</h3>
+  <div class="limit-grid">
+    <div class="limit-card"><span class="limit-num">Limite 01</span><div class="limit-title">Fatigue d'alerte</div><div class="limit-text">40% des alertes jamais traitées. Un analyste Tier 1 examine 500+ alertes/jour dont 95% non critiques.</div></div>
+    <div class="limit-card"><span class="limit-num">Limite 02</span><div class="limit-title">Cécité face à l'inconnu</div><div class="limit-text">Réactifs et rétrospectifs. Attaque zéro-day, APT, mouvement latéral lent = aucune alerte.</div></div>
+    <div class="limit-card"><span class="limit-num">Limite 03</span><div class="limit-title">Vitesse d'investigation</div><div class="limit-text">Analyse manuelle : 5–20 minutes par incident. L'attaquant a déjà pivoté ou exfiltré.</div></div>
+    <div class="limit-card"><span class="limit-num">Limite 04</span><div class="limit-title">Coût de propriété</div><div class="limit-text">SIEM entreprise : 100k€+ annuels en licences seules. ROI faible si peu d'incidents évités.</div></div>
+  </div>
+</div>
+
+<div class="sep"></div>
+
+<div class="container" id="soc">
+  <div class="section-label">3 — SOC</div>
+  <h2>Le SOC : une approche organisationnelle</h2>
+  <p>Un <strong style="color:var(--text-bright)">Security Operations Center (SOC)</strong> est une fonction organisationnelle complète intégrant personnes, processus et technologies pour détecter, enquêter et répondre aux incidents 24h/7j.</p>
+  <h3>Matrice de Maturation SOC (2025 — SANS Survey)</h3>
+  <div class="maturity-grid">
+    <div class="maturity-card"><span class="maturity-level">Niveau 1 — Basique</span><div class="maturity-title">Alertes & triage manuel</div><div class="maturity-desc">Alert fatigue chronique, temps de réponse lent, réaction manuelle à chaque incident.</div></div>
+    <div class="maturity-card"><span class="maturity-level">Niveau 2 — Géré</span><div class="maturity-title">Playbooks basiques</div><div class="maturity-desc">Automatisation partielle. 85% incident response déclenché par alertes — posture réactive.</div></div>
+    <div class="maturity-card"><span class="maturity-level">Niveau 3 — Mature</span><div class="maturity-title">AI/ML + SOAR + UEBA</div><div class="maturity-desc">Threat hunting régulier, behavioral modeling, anomaly detection par ML.</div></div>
+    <div class="maturity-card leader"><span class="maturity-level">Niveau 4 — Intelligence-Driven ★</span><div class="maturity-title">Adversary profiling</div><div class="maturity-desc">TTP-based hunting, full automation avec tactical intel. Leaders 2025 : niveaux 3–4.</div></div>
+  </div>
+</div>
+
+<div class="sep"></div>
+
+<div class="container" id="ia">
+  <div class="section-label">4 — Intelligence Artificielle</div>
+  <h2>L'apport de l'IA à la détection d'intrusions</h2>
+  <div class="info-box">L'IA ne remplace pas les outils existants, mais agit comme une couche d'intelligence supplémentaire venant transformer la manière dont les données sont analysées et les décisions prises.</div>
+  <h3>Techniques opérationnelles</h3>
+  <div class="ai-grid">
+    <div class="ai-card"><div class="ai-icon">🎯</div><div class="ai-title">Apprentissage Supervisé</div><div class="ai-desc">Entraînement sur données étiquetées. Cas d'usage : détection de malware, classification.</div></div>
+    <div class="ai-card"><div class="ai-icon">🔍</div><div class="ai-title">Apprentissage Non-Supervisé</div><div class="ai-desc">Détection d'anomalies statistiques sans étiquettes. Cas d'usage : comportements inhabituels.</div></div>
+    <div class="ai-card"><div class="ai-icon">🧬</div><div class="ai-title">Deep Learning</div><div class="ai-desc">Réseaux neuronaux multi-couches. <div class="ai-stat">Réduit faux positifs de 99% vs IDS classiques</div></div></div>
+    <div class="ai-card"><div class="ai-icon">👤</div><div class="ai-title">UEBA</div><div class="ai-desc">Baselines ML de comportement "normal", détecte les écarts. <div class="ai-stat">+67% détection insider threats</div></div></div>
+  </div>
+  <h3>Apports mesurables</h3>
+  <table class="perf-table">
+    <thead><tr><th>Capacité</th><th>Sans IA</th><th>Avec IA</th></tr></thead>
+    <tbody>
+      <tr><td>Fenêtre de détection (MTTD)</td><td class="metric-old">11 jours</td><td class="metric-new">&lt; 24h</td></tr>
+      <tr><td>Faux positifs</td><td class="metric-old">95%</td><td class="metric-new">1–5%</td></tr>
+      <tr><td>Temps d'investigation par alerte</td><td class="metric-old">45 min</td><td class="metric-new">5 min</td></tr>
+      <tr><td>Temps de réponse P1 (MTTR)</td><td class="metric-old">Jours</td><td class="metric-new">15–30 min</td></tr>
+      <tr><td>Alertes quotidiennes traitées</td><td class="metric-old">3 832/jour</td><td class="metric-new">&lt; 100 alertes</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="sep"></div>
+
+<div class="container" id="futur">
+  <div class="section-label">5 — Modèle Futur</div>
+  <h2>SOC 3.0 — Partenariat Humain-IA</h2>
+  <p>Le modèle SOC 3.0 reconceptualise le rôle humain. L'IA élève les analystes de "Alert Jockey" à "Threat Hunter".</p>
+  <table class="comp-table">
+    <thead><tr><th>Compétence traditionnelle</th><th>Compétence SOC 3.0</th></tr></thead>
+    <tbody>
+      <tr><td>Tuning manuel des règles SIEM</td><td style="color:var(--cyan)">Validation et raffinement des modèles ML</td></tr>
+      <tr><td>Triage manuel d'alertes en masse</td><td style="color:var(--cyan)">Interprétation contextuelle et jugement stratégique</td></tr>
+      <tr><td>Playbooks statiques précodés</td><td style="color:var(--cyan)">Ajustement dynamique de recommandations IA</td></tr>
+      <tr><td>Knowledge disparate d'outils</td><td style="color:var(--cyan)">Data literacy, interprétation IA/ML, MLOps</td></tr>
+    </tbody>
+  </table>
+  <h3>SOAR + IA — Workflow augmenté</h3>
+  <div class="workflow">
+    <span class="workflow-title">Exemple — Ransomware détecté</span>
+    <div class="workflow-step"><div class="wf-num">1</div><div>Alerte : "Potential ransomware detected on fileshare-01" — <strong style="color:var(--red)">Score IA : 95/100</strong></div></div>
+    <div class="workflow-step"><div class="wf-num">2</div><div>Automatique : Isoler le serveur du réseau (quarantaine)</div></div>
+    <div class="workflow-step"><div class="wf-num">3</div><div>Automatique : Capturer la mémoire RAM + Snapshot disque</div></div>
+    <div class="workflow-step"><div class="wf-num">4</div><div style="color:var(--amber)">⏸ Attente approbation Humain (&lt; 2 min)</div></div>
+    <div class="workflow-step"><div class="wf-num">5</div><div>Après validation : Sandbox analyse + Blocage IP firewall</div></div>
+    <div class="workflow-step"><div class="wf-num">6</div><div>Alerte CISO + notification protocol</div></div>
+  </div>
+  <h3>Gouvernance — NIST AI Risk Management Framework</h3>
+  <table class="nist-table">
+    <thead><tr><th>Function</th><th>Responsabilité clé</th><th>Résultat attendu</th></tr></thead>
+    <tbody>
+      <tr><td class="nist-fn">Govern</td><td>Établir culture, politiques, rôles pour risk management IA</td><td>CISO définit la tolérance au risque</td></tr>
+      <tr><td class="nist-fn">Map</td><td>Identifier contexte et tous risques/bénéfices du système IA</td><td>Inventaire des systèmes IA, modèle de menaces</td></tr>
+      <tr><td class="nist-fn">Measure</td><td>Évaluer et analyser la performance et fiabilité des systèmes IA</td><td>Métriques de fairness, sécurité et robustesse</td></tr>
+      <tr><td class="nist-fn">Manage</td><td>Implémenter contrôles, monitoring continu</td><td>Plan de réponse aux incidents IA, pistes d'audit</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="sep"></div>
+
+<div class="container" id="poc">
+  <div class="section-label">6 — POC</div>
+  <h2>Proof of Concept — Enrichissement IA des alertes Wazuh</h2>
+  <div class="info-box">Objectif : transformer des alertes techniques générées par Wazuh en analyses compréhensibles par un analyste SOC, grâce à un script Python interfacé avec un LLM via API.</div>
+  <div class="workflow">
+    <span class="workflow-title">Pipeline : Attaque SSH → Alerte enrichie par IA</span>
+    <div class="workflow-step"><div class="wf-num">1</div><div>Attaque par force brute SSH lancée depuis Kali Linux</div></div>
+    <div class="workflow-step"><div class="wf-num">2</div><div>Agent Wazuh transmet les événements au Wazuh Manager</div></div>
+    <div class="workflow-step"><div class="wf-num">3</div><div>Wazuh applique ses règles → génère alerte JSON</div></div>
+    <div class="workflow-step"><div class="wf-num">4</div><div>Script Python envoie l'alerte à l'API LLM (gpt-4o-mini)</div></div>
+    <div class="workflow-step"><div class="wf-num">5</div><div>L'IA retourne une analyse structurée → enregistrée dans ai_enrich.log</div></div>
+  </div>
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-lang">Python 3 — ai_enrich.py</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+    <pre><span class="cmt">#!/usr/bin/env python3</span>
+<span class="kw">import</span> sys, json, requests
+
+MODEL = <span class="str">"gpt-4o-mini"</span>
+
+<span class="kw">def</span> <span class="fn">analyze</span>(alert):
+    prompt = <span class="str">f"""
+Tu es un analyste SOC. Analyse cette alerte et fournis :
+1. Type d'attaque
+2. Niveau de risque
+3. Ce qui s'est produit
+4. Actions immédiates
+5. Recommandations long terme
+Alert: {json.dumps(alert, indent=2)}
+"""</span>
+    r = requests.<span class="fn">post</span>(<span class="str">"https://api.openai.com/v1/chat/completions"</span>,
+                     headers=headers, json={<span class="str">"model"</span>: MODEL,
+                     <span class="str">"messages"</span>: [{<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: prompt}]}, timeout=<span class="val">30</span>)
+    <span class="kw">return</span> r.json()[<span class="str">"choices"</span>][<span class="val">0</span>][<span class="str">"message"</span>][<span class="str">"content"</span>]</pre>
+  </div>
+</div>
+
+<div class="sep"></div>
+
+<div class="container" id="resultats">
+  <div class="section-label">7 — Résultats</div>
+  <h2>Alerte enrichie par l'IA</h2>
+  <div class="code-wrap">
+    <div class="code-header"><span class="code-lang">Sortie IA — Analyse enrichie</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+    <pre><span class="val">1. Type d'attaque</span> : Tentative d'accès non autorisé via SSH
+
+<span class="val">2. Niveau de risque</span> : Modéré — peut indiquer tentative d'intrusion
+
+<span class="val">3. Ce qui s'est produit</span> : Authentification SSH échouée sur 192.168.72.138.
+
+<span class="val">4. Actions immédiates</span> :
+   - Vérifier journaux SSH pour identifier l'origine
+   - Bloquer l'IP source si suspecte ou tentatives répétées
+   - Informer l'équipe de sécurité
+
+<span class="val">5. Recommandations long terme</span> :
+   - Listes blanches IP autorisées pour SSH
+   - Authentification par clé publique
+   - Surveiller régulièrement les journaux d'accès</pre>
+  </div>
+  <table class="perf-table">
+    <thead><tr><th>Critère</th><th>Sans IA</th><th>Avec IA</th></tr></thead>
+    <tbody>
+      <tr><td>Lisibilité de l'alerte</td><td class="metric-old">Faible (JSON brut)</td><td class="metric-new">Élevée (analyse structurée)</td></tr>
+      <tr><td>Temps d'analyse</td><td class="metric-old">~10 min</td><td class="metric-new">~1 min</td></tr>
+      <tr><td>Priorisation</td><td class="metric-old">Difficile (bruit)</td><td class="metric-new">Facilitée (score + contexte)</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="sep"></div>
+
+<div class="container" id="conclusion">
+  <div class="section-label">8 — Conclusion</div>
+  <h2>Synthèse et recommandations</h2>
+  <div class="info-box">En 2026, la détection d'intrusions devient un <strong>partenariat homme-machine</strong> : l'IA traite la masse, l'humain conserve le jugement. Le modèle cible est le SOC 3.0 / NG-SIEM / SOAR.</div>
+  <div class="concl-grid">
+    <div class="concl-card"><div class="concl-icon">🏗️</div><div class="concl-title">SIEM reste indispensable</div><div class="concl-text">Évolue vers NG-SIEM enrichi par l'IA. Ne disparaît pas.</div></div>
+    <div class="concl-card"><div class="concl-icon">🧠</div><div class="concl-title">IA = couche d'augmentation</div><div class="concl-text">Détection comportementale, UEBA/ML, enrichissement contextuel, triage automatisé.</div></div>
+    <div class="concl-card"><div class="concl-icon">🤝</div><div class="concl-title">Partenariat Humain-IA</div><div class="concl-text">L'IA recommande et prépare — l'humain valide pour les décisions irréversibles.</div></div>
+    <div class="concl-card"><div class="concl-icon">📋</div><div class="concl-title">3 prérequis non négociables</div><div class="concl-text">Gouvernance NIST AI RMF · Formation équipes · Audit des modèles avant production.</div></div>
+  </div>
+</div>
+
+<footer>
+  <div><span>Daouda TOGOLA</span> · SIEM → SOC → IA</div>
+  <div>Master Cyberdéfense · INSA Hauts-de-France · <span>2025–2026</span></div>
+</footer>
+</body>
+</html>
