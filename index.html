@@ -44,7 +44,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 
 /* PROFILE PILLS */
 .profile-pills{display:flex;gap:.8rem;flex-wrap:wrap;margin-bottom:2.5rem;animation:fadeUp .8s ease .4s both;}
-.pill{display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:8px 16px;border:1px solid;border-radius:2px;cursor:default;}
+.pill{display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:8px 16px;border:1px solid;border-radius:2px;}
 .pill-soc{border-color:rgba(56,189,248,.35);color:var(--blue);background:rgba(56,189,248,.05);}
 .pill-net{border-color:rgba(251,146,60,.35);color:var(--orange);background:rgba(251,146,60,.05);}
 .pill-sec{border-color:rgba(0,232,122,.35);color:var(--green);background:var(--gdim);}
@@ -478,37 +478,37 @@ footer{position:relative;z-index:1;background:var(--bg2);border-top:1px solid va
         </div>
       </a>
 
-      <div class="proj-card" style="cursor:default;">
+      <a href="siem-soc-ia.html" class="proj-card">
         <div class="proj-accent" style="background:linear-gradient(90deg,var(--green),var(--blue))"></div>
         <div class="proj-body">
-          <div class="proj-category">SOC · IA · Automatisation</div>
-          <div class="proj-title">SOC/SIEM IA — Enrichissement Wazuh</div>
-          <div class="proj-desc">Script Python d'enrichissement JSON avec modèle IA via API pour triage automatique. Intégration VirusTotal. Réduction du temps d'analyse de 10 min à 1 min.</div>
+          <div class="proj-category">SOC · IA · M2 INSA</div>
+          <div class="proj-title">SIEM → SOC → IA</div>
+          <div class="proj-desc">Étude prospective : évolution de la détection d'intrusions vers le SOC 3.0 augmenté par l'IA. POC Python d'enrichissement automatique des alertes Wazuh via LLM.</div>
           <div class="proj-stack">
-            <span class="ptag">Python</span><span class="ptag">Wazuh</span><span class="ptag">VirusTotal API</span><span class="ptag">IA API</span><span class="ptag">JSON</span>
+            <span class="ptag">Python</span><span class="ptag">Wazuh</span><span class="ptag">LLM API</span><span class="ptag">SOAR</span><span class="ptag">UEBA</span><span class="ptag">NG-SIEM</span>
           </div>
           <div class="proj-footer">
-            <span class="proj-type" style="color:var(--dim)">Projet personnel</span>
-            <span class="proj-arrow" style="opacity:.3">→</span>
+            <span class="proj-type" style="color:var(--green)">Rapport complet →</span>
+            <span class="proj-arrow">→</span>
           </div>
         </div>
-      </div>
+      </a>
 
-      <div class="proj-card" style="cursor:default;">
+      <a href="smsi-iso27001.html" class="proj-card">
         <div class="proj-accent" style="background:linear-gradient(90deg,var(--yellow),var(--orange))"></div>
         <div class="proj-body">
-          <div class="proj-category">Gouvernance · Conformité</div>
-          <div class="proj-title">SMSI selon ISO/IEC 27001</div>
-          <div class="proj-desc">Analyse de risques EBIOS RM, définition du périmètre SMSI, choix des mesures de sécurité, audit simulé ISO 19011 et plan d'amélioration continue.</div>
+          <div class="proj-category">Gouvernance · Conformité · M2 INSA</div>
+          <div class="proj-title">SMSI — ISO/IEC 27001:2022</div>
+          <div class="proj-desc">Mise en œuvre d'un SMSI : analyse de risques EBIOS RM, Déclaration d'Applicabilité, audit simulé ISO 19011 sur le cas DataSecure.</div>
           <div class="proj-stack">
-            <span class="ptag">ISO 27001</span><span class="ptag">EBIOS RM</span><span class="ptag">ISO 19011</span><span class="ptag">Audit</span>
+            <span class="ptag">ISO 27001</span><span class="ptag">EBIOS RM</span><span class="ptag">ISO 19011</span><span class="ptag">RGPD</span><span class="ptag">NIS2</span>
           </div>
           <div class="proj-footer">
-            <span class="proj-type" style="color:var(--dim)">Projet académique</span>
-            <span class="proj-arrow" style="opacity:.3">→</span>
+            <span class="proj-type" style="color:var(--yellow)">Rapport complet →</span>
+            <span class="proj-arrow">→</span>
           </div>
         </div>
-      </div>
+      </a>
 
     </div>
   </div>
@@ -637,7 +637,8 @@ footer{position:relative;z-index:1;background:var(--bg2);border-top:1px solid va
   <div class="f-links">
     <a href="https://github.com/Daou53" target="_blank">GitHub ↗</a>
     <a href="https://linkedin.com/in/daouda-togola-334523228" target="_blank">LinkedIn ↗</a>
-    <a href="https://app.hackthebox.com" target="_blank">HackTheBox ↗</a>
+    <a href="https://tryhackme.com/p/daouda" target="_blank">TryHackMe — Top 1% ↗</a>
+    <a href="https://profile.hackthebox.com/profile/019cb65d-c6e4-72c2-9cf5-ba22e21f5d16" target="_blank">HackTheBox ↗</a>
   </div>
 </footer>
 
