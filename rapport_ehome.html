@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projet E-HOME — Domotique & Sécurité IoT</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f4ef;
+  --bg2: #eeeae2;
+  --bg3: #e5e0d5;
+  --ink: #1a1714;
+  --ink-dim: #6b6560;
+  --ink-light: #9e9890;
+  --orange: #d4521a;
+  --orange-dim: rgba(212,82,26,0.1);
+  --orange-mid: rgba(212,82,26,0.25);
+  --blue: #1a4fd4;
+  --green: #1a8c4a;
+  --border: #d8d3ca;
+  --border2: #c8c2b8;
+  --white: #ffffff;
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  font-weight: 300;
+}
+
+/* ─── COVER ─── */
+.cover {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  position: relative;
+  overflow: hidden;
+}
+.cover-left {
+  background: var(--orange);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 4rem;
+  position: relative;
+  overflow: hidden;
+}
+.cover-left::before {
+  content: '';
+  position: absolute;
+  top: -100px; left: -100px;
+  width: 500px; height: 500px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.07);
+}
+.cover-left::after {
+  content: '';
+  position: absolute;
+  bottom: -80px; right: -80px;
+  width: 300px; height: 300px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.1);
+}
+.cover-year {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: auto;
+  padding-top: 1rem;
+}
+.cover-house {
+  font-size: 8rem;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 1;
+  animation: float 4s ease-in-out infinite;
+}
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.cover-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.6);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  position: relative; z-index: 1;
+}
+.cover-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(3rem, 6vw, 5rem);
+  font-weight: 700;
+  color: white;
+  line-height: 1;
+  margin-bottom: 1rem;
+  position: relative; z-index: 1;
+}
+.cover-right {
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4rem;
+  border-left: 1px solid var(--border);
+}
+.cover-right-top {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--ink-light);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1.5rem;
+  margin-bottom: 2rem;
+}
+.cover-subtitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-style: italic;
+  color: var(--ink-dim);
+  margin-bottom: 3rem;
+  line-height: 1.5;
+}
+.cover-info { display: flex; flex-direction: column; gap: 1.2rem; }
+.cover-info-row { display: flex; gap: 1rem; align-items: baseline; }
+.cover-info-key {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--ink-light);
+  text-transform: uppercase;
+  width: 120px;
+  flex-shrink: 0;
+}
+.cover-info-val {
+  font-size: 14px;
+  color: var(--ink);
+  font-weight: 500;
+}
+.cover-tech-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+}
+.tech-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 4px 12px;
+  border: 1px solid var(--border2);
+  color: var(--ink-dim);
+  background: var(--white);
+}
+.tech-tag.orange {
+  border-color: var(--orange);
+  color: var(--orange);
+  background: var(--orange-dim);
+}
+
+/* ─── NAV ─── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(247,244,239,0.96);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 3rem;
+  display: flex; align-items: center;
+  overflow-x: auto; scrollbar-width: none;
+}
+nav::-webkit-scrollbar { display: none; }
+nav a {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--ink-light);
+  text-decoration: none;
+  padding: 1rem 1rem;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+nav a:hover { color: var(--orange); border-bottom-color: var(--orange); }
+
+/* ─── LAYOUT ─── */
+.container { max-width: 960px; margin: 0 auto; padding: 5rem 3rem; }
+
+/* ─── HEADERS ─── */
+.section-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: var(--orange);
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+}
+h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.2;
+  margin-bottom: 2rem;
+}
+h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--orange);
+  margin: 2rem 0 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+h4 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 1.5rem 0 0.5rem;
+}
+p { margin-bottom: 1rem; }
+
+/* ─── SEP ─── */
+.sep {
+  border: none;
+  height: 1px;
+  background: var(--border);
+  margin: 4rem 0;
+}
+
+/* ─── INTRO BOX ─── */
+.intro-box {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--orange);
+  padding: 2rem 2.5rem;
+  margin-bottom: 3rem;
+  font-size: 1.05rem;
+  line-height: 1.9;
+  color: var(--ink-dim);
+}
+
+/* ─── DOMAIN CARDS ─── */
+.domain-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  margin: 2rem 0;
+}
+.domain-card {
+  background: var(--white);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  transition: background 0.2s;
+}
+.domain-card:hover { background: var(--bg2); }
+.domain-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+.domain-title {
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+}
+.domain-text { font-size: 13px; color: var(--ink-dim); line-height: 1.6; }
+
+/* ─── TECH BLOCKS ─── */
+.tech-block {
+  background: var(--white);
+  border: 1px solid var(--border);
+  margin: 1.5rem 0;
+  overflow: hidden;
+}
+.tech-block-header {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.tech-block-icon { font-size: 1.3rem; }
+.tech-block-title {
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 1rem;
+}
+.tech-block-badge {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--orange);
+  background: var(--orange-dim);
+  border: 1px solid var(--orange-mid);
+  padding: 2px 8px;
+  margin-left: auto;
+}
+.tech-block-body { padding: 1.5rem; font-size: 13.5px; }
+
+/* ─── SPEC TABLE ─── */
+.spec-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 13px;
+}
+.spec-table th {
+  background: var(--bg2);
+  color: var(--orange);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.spec-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.spec-table tr:last-child td { border-bottom: none; }
+.spec-table tr:hover td { background: var(--bg); }
+.spec-key {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-dim);
+  white-space: nowrap;
+}
+
+/* ─── PROBLEM / SOLUTION ─── */
+.prob-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+.prob-card {
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+}
+.prob-card.danger { border-left: 3px solid #dc2626; background: #fef2f2; }
+.prob-card.safe { border-left: 3px solid var(--green); background: #f0fdf4; }
+.prob-card-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+  display: block;
+}
+.prob-card.danger .prob-card-label { color: #dc2626; }
+.prob-card.safe .prob-card-label { color: var(--green); }
+.prob-card ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--ink-dim);
+}
+.prob-card ul li::before { content: '→ '; color: var(--orange); }
+.prob-card.safe ul li::before { content: '✓ '; color: var(--green); }
+.prob-card.danger ul li::before { content: '✗ '; color: #dc2626; }
+
+/* ─── SOLUTION CARDS ─── */
+.sol-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+.sol-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+}
+.sol-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--orange);
+  background: var(--orange-dim);
+  border: 1px solid var(--orange-mid);
+  display: inline-block;
+  padding: 2px 8px;
+  margin-bottom: 0.8rem;
+}
+.sol-title { font-weight: 600; color: var(--ink); margin-bottom: 0.4rem; }
+.sol-text { font-size: 13px; color: var(--ink-dim); }
+
+/* ─── FOOTER ─── */
+footer {
+  background: var(--orange);
+  padding: 2.5rem 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: rgba(255,255,255,0.7);
+}
+footer strong { color: white; }
+
+@media (max-width: 768px) {
+  .cover { grid-template-columns: 1fr; }
+  .cover-left { padding: 3rem 2rem; min-height: 50vh; }
+  .cover-right { padding: 3rem 2rem; }
+  .domain-grid { grid-template-columns: 1fr; }
+  .prob-grid { grid-template-columns: 1fr; }
+  .container { padding: 3rem 1.5rem; }
+  nav { padding: 0 1rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<section class="cover">
+  <div class="cover-left">
+    <div class="cover-year">INSA Hauts-de-France · LP RT · 2023–2024</div>
+    <div class="cover-house">🏠</div>
+    <div class="cover-label">Projet académique</div>
+    <div class="cover-title">E-HOME</div>
+  </div>
+  <div class="cover-right">
+    <div class="cover-right-top">Licence professionnelle Réseaux &amp; Télécommunications</div>
+    <div class="cover-subtitle">Domotique, sécurité IoT et technologies de la maison connectée</div>
+    <div class="cover-info">
+      <div class="cover-info-row">
+        <span class="cover-info-key">Réalisé par</span>
+        <span class="cover-info-val">M'hamadi Mohamed · Togola Daouda · Soule Mbika Deen</span>
+      </div>
+      <div class="cover-info-row">
+        <span class="cover-info-key">Encadrée par</span>
+        <span class="cover-info-val">Mme. Chakour Laila</span>
+      </div>
+      <div class="cover-info-row">
+        <span class="cover-info-key">Établissement</span>
+        <span class="cover-info-val">INSA Hauts-de-France · Université Polytechnique</span>
+      </div>
+      <div class="cover-info-row">
+        <span class="cover-info-key">Année</span>
+        <span class="cover-info-val">2023 – 2024</span>
+      </div>
+    </div>
+    <div class="cover-tech-tags">
+      <span class="tech-tag orange">Wi-Fi</span>
+      <span class="tech-tag orange">Zigbee</span>
+      <span class="tech-tag orange">Bluetooth</span>
+      <span class="tech-tag">KNX</span>
+      <span class="tech-tag">Modbus</span>
+      <span class="tech-tag">Z-Wave</span>
+      <span class="tech-tag">IoT</span>
+      <span class="tech-tag">CPL</span>
+    </div>
+  </div>
+</section>
+
+<!-- NAV -->
+<nav>
+  <a href="#intro">Introduction</a>
+  <a href="#domotique">Domotique</a>
+  <a href="#domaines">Domaines</a>
+  <a href="#technologies">Technologies</a>
+  <a href="#filaires">Filaires</a>
+  <a href="#sansfil">Sans fil</a>
+  <a href="#problematique">Problématique</a>
+  <a href="#solutions">Solutions</a>
+  <a href="#conclusion">Conclusion</a>
+</nav>
+
+<!-- ─── INTRODUCTION ─── -->
+<div class="container" id="intro">
+  <div class="section-label">Introduction générale</div>
+  <h2>L'habitat intelligent<br>au cœur de notre quotidien</h2>
+
+  <div class="intro-box">
+    L'évolution rapide de la technologie numérique a profondément transformé notre mode de vie, propulsant nos domiciles au cœur de l'innovation technologique. Cette convergence entre la technologie et nos espaces domestiques traditionnels, accentuée par les avancées de la domotique, induit des changements notables dans notre quotidien.
+  </div>
+
+  <p>Face à ces évolutions technologiques et à nos nouvelles habitudes de vie, la restructuration des environnements résidentiels et professionnels s'avère incontournable. Alors que la majeure partie de la population consacre une part significative de son temps à la maison, l'impact de l'habitat sur la qualité de vie devient de plus en plus prépondérant.</p>
+  <p>Dans ce contexte, l'amélioration de la sécurité et du confort à domicile émerge comme une <strong>mission sociale cruciale</strong>.</p>
+</div>
+
+<hr class="sep">
+
+<!-- ─── DOMOTIQUE ─── -->
+<div class="container" id="domotique">
+  <div class="section-label">Section 2</div>
+  <h2>Généralités sur la domotique</h2>
+
+  <h3>Définition</h3>
+  <p>La domotique, contraction des mots <em>"domus"</em> (maison en latin) et <em>"informatique"</em>, englobe toutes les technologies et les systèmes visant à <strong>automatiser et centraliser le contrôle des équipements domestiques</strong>. Elle regroupe des techniques de gestion automatisée applicables à tout type de bâtiment.</p>
+  <p>Un système domotique facilite la communication avec des télécommandes ou des boutons poussoirs, simplifiant ainsi le contrôle de la maison — gestion de l'éclairage, manipulation des volets motorisés, arrosage automatique, remplissage de piscine…</p>
+
+  <h3>Historique</h3>
+  <div class="tech-block">
+    <div class="tech-block-body">
+      <table class="spec-table">
+        <thead><tr><th>Période</th><th>Évolution</th></tr></thead>
+        <tbody>
+          <tr><td class="spec-key">Années 1970–1980</td><td>Introduction de l'informatique personnelle et des microprocesseurs pour créer des systèmes programmables domestiques</td></tr>
+          <tr><td class="spec-key">Décennies suivantes</td><td>Émergence des normes X10, KNX et Zigbee pour l'interopérabilité. Internet permet le contrôle à distance</td></tr>
+          <tr><td class="spec-key">Années 2010</td><td>Smartphones rendent la domotique accessible. IA et IoT ajoutent contrôle vocal et automatisation par apprentissage</td></tr>
+          <tr><td class="spec-key">Aujourd'hui</td><td>Thermostats intelligents, serrures connectées, caméras, ampoules intelligentes. Marché estimé à 150 Mrd€ en 2025</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ─── DOMAINES ─── -->
+<div class="container" id="domaines">
+  <div class="section-label">Section 3</div>
+  <h2>Domaines d'application</h2>
+
+  <div class="domain-grid">
+    <div class="domain-card">
+      <div class="domain-icon">🔒</div>
+      <div class="domain-title">Sécurité</div>
+      <div class="domain-text">Surveillance vidéo, systèmes d'alarme intelligents, serrures connectées, capteurs de mouvement, poignées biométriques, détecteurs de fumée. Contrôle à distance via smartphone ou tablette.</div>
+    </div>
+    <div class="domain-card">
+      <div class="domain-icon">⚡</div>
+      <div class="domain-title">Gestion d'énergie</div>
+      <div class="domain-text">Réduction jusqu'à 10% de la consommation énergétique. Automatisation du chauffage, éclairage, arrosage. Scénarios personnalisés pour minimiser les pertes thermiques.</div>
+    </div>
+    <div class="domain-card">
+      <div class="domain-icon">🛋️</div>
+      <div class="domain-title">Confort</div>
+      <div class="domain-text">Contrôle de tous les équipements à distance. Retour dans une maison préchauffée, eau chaude prête, tâches routinières automatisées. Accessibilité pour personnes à mobilité réduite.</div>
+    </div>
+  </div>
+
+  <div class="intro-box" style="margin-top:2rem">
+    La domotique de sécurité intègre capteurs de mouvement, de bris de glace et d'ouverture, volets motorisés (simulant une présence), microphones ultrasensibles et caméras discrètes dans un système centralisé offrant tranquillité d'esprit aux occupants, même absents.
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ─── TECHNOLOGIES ─── -->
+<div class="container" id="technologies">
+  <div class="section-label">Section 4</div>
+  <h2>Technologies utilisées</h2>
+
+  <p>La centralisation des commandes est le corps du système domotique. Les appareils mis en réseau se reconnaissent et dialoguent entre eux. Trois familles technologiques coexistent et peuvent être combinées :</p>
+
+  <div class="domain-grid" style="margin-bottom:3rem">
+    <div class="domain-card">
+      <div class="domain-icon">🔌</div>
+      <div class="domain-title">Technologies filaires (bus)</div>
+      <div class="domain-text">Câble BUS reliant capteurs, appareils de commande et actionneurs. Communication et transmission via ce fil physique.</div>
+    </div>
+    <div class="domain-card">
+      <div class="domain-icon">⚡</div>
+      <div class="domain-title">Courant porteur (CPL)</div>
+      <div class="domain-text">Transfert de données via le réseau électrique existant. Fiabilité parfois contestée — peut parasiter d'autres transmissions.</div>
+    </div>
+    <div class="domain-card">
+      <div class="domain-icon">📶</div>
+      <div class="domain-title">Technologies sans fil</div>
+      <div class="domain-text">Ondes radio RF ou infrarouge. Wi-Fi, Zigbee, Bluetooth, Z-Wave… Connectivité mobile et pratique.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── TECHNOLOGIES FILAIRES ─── -->
+<div class="container" id="filaires">
+  <div class="section-label">Section 4.1</div>
+  <h2>Technologies filaires (bus)</h2>
+
+  <!-- KNX -->
+  <div class="tech-block">
+    <div class="tech-block-header">
+      <div class="tech-block-icon">🏗️</div>
+      <div class="tech-block-title">Technologie KNX</div>
+      <span class="tech-block-badge">Standard international</span>
+    </div>
+    <div class="tech-block-body">
+      <p>La norme Konnex (KNX) permet la gestion automatisée et décentralisée des systèmes technologiques de divers types de structures : bâtiments commerciaux, industries, bureaux, habitations, lieux publics, écoles.</p>
+      <h4>Deux couches techniques principales</h4>
+      <table class="spec-table">
+        <thead><tr><th>Couche</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="spec-key">BCU (Bus Coupler Unit)</td>
+            <td>Micro-processeur + mémoire de stockage du programme destiné au produit attaché (interrupteur, détecteur, sonde…)</td>
+          </tr>
+          <tr>
+            <td class="spec-key">Couche KNX</td>
+            <td>Système de communication normalisé (filaire ou radio) permettant à tous les composants de se connecter, échanger informations, analyser et traiter</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="color:var(--ink-dim);font-size:13px;margin-top:1rem">Applications : éclairage, volets/stores, chauffage, air conditionné, audio/vidéo, comptage d'énergie, anti-intrusion, portier vidéo, irrigation…</p>
+    </div>
+  </div>
+
+  <!-- Modbus -->
+  <div class="tech-block">
+    <div class="tech-block-header">
+      <div class="tech-block-icon">⚙️</div>
+      <div class="tech-block-title">Technologie Modbus</div>
+      <span class="tech-block-badge">Depuis 1979</span>
+    </div>
+    <div class="tech-block-body">
+      <p>Protocole de communication basé sur une architecture maître/esclave ou client/serveur. Développé en 1979 par Gould-Modicon. La version Modbus TCP fait partie de la norme CEI 61158 depuis 2007.</p>
+      <h4>Principe maître-esclave</h4>
+      <table class="spec-table">
+        <tbody>
+          <tr><td class="spec-key">Maître unique</td><td>Un seul maître connecté au réseau à la fois</td></tr>
+          <tr><td class="spec-key">Initiative</td><td>Seul le maître peut initier la communication et envoyer des requêtes</td></tr>
+          <tr><td class="spec-key">Adressage</td><td>Individuel (adresse spécifique) ou diffusion (adresse 0)</td></tr>
+          <tr><td class="spec-key">Esclaves</td><td>Répondent uniquement — ne peuvent pas initier de communication</td></tr>
+        </tbody>
+      </table>
+      <h4>3 modes de communication</h4>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:0.5rem">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;padding:4px 12px;background:var(--bg2);border:1px solid var(--border);color:var(--ink-dim)">Modbus ASCII</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;padding:4px 12px;background:var(--bg2);border:1px solid var(--border);color:var(--ink-dim)">Modbus RTU (RS-485/RS-232)</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;padding:4px 12px;background:var(--orange-dim);border:1px solid var(--orange-mid);color:var(--orange)">Modbus TCP/IP</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── TECHNOLOGIES SANS FIL ─── -->
+<div class="container" id="sansfil">
+  <div class="section-label">Section 4.3</div>
+  <h2>Technologies sans fil</h2>
+
+  <!-- Wi-Fi -->
+  <div class="tech-block">
+    <div class="tech-block-header">
+      <div class="tech-block-icon">📶</div>
+      <div class="tech-block-title">Wi-Fi (IEEE 802.11)</div>
+      <span class="tech-block-badge">Fréquences 2.4 / 5 / 6 GHz</span>
+    </div>
+    <div class="tech-block-body">
+      <p>Le Wi-Fi (Wireless Fidelity) est utilisé pour créer des réseaux internes et comme accès Internet haut débit. Un routeur Wi-Fi connecté via modem ADSL/câble permet à plusieurs appareils de se connecter et communiquer sans fil.</p>
+      <table class="spec-table">
+        <thead><tr><th>Mode</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="spec-key">Infrastructure</td><td>Clients sans fil connectés à un point d'accès (mode par défaut)</td></tr>
+          <tr><td class="spec-key">Ad hoc</td><td>Clients connectés entre eux sans point d'accès</td></tr>
+        </tbody>
+      </table>
+      <div class="prob-grid" style="margin-top:1rem">
+        <div class="prob-card safe">
+          <span class="prob-card-label">Avantages</span>
+          <ul>
+            <li>Connectivité sans câbles</li>
+            <li>Rapide et stable</li>
+            <li>Contrôle à distance via apps</li>
+            <li>Largement répandu</li>
+          </ul>
+        </div>
+        <div class="prob-card danger">
+          <span class="prob-card-label">Inconvénients</span>
+          <ul>
+            <li>Consommation d'énergie élevée</li>
+            <li>Interférences possibles</li>
+            <li>Portée limitée</li>
+            <li>Risques de sécurité</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Zigbee -->
+  <div class="tech-block">
+    <div class="tech-block-header">
+      <div class="tech-block-icon">🐝</div>
+      <div class="tech-block-title">Zigbee (IEEE 802.15.4)</div>
+      <span class="tech-block-badge">Réseau maillé · AES 128 bits</span>
+    </div>
+    <div class="tech-block-body">
+      <p>Le nom Zigbee signifie <em>"Zig Zag like a bee"</em>. Protocole conçu pour des applications à faible consommation d'énergie, faible débit et courte portée. Les appareils forment un réseau maillé robuste avec redondance des chemins.</p>
+      <table class="spec-table">
+        <thead><tr><th>Fréquence</th><th>Zone</th></tr></thead>
+        <tbody>
+          <tr><td class="spec-key">868 MHz</td><td>Europe</td></tr>
+          <tr><td class="spec-key">915 MHz</td><td>Australie et États-Unis</td></tr>
+          <tr><td class="spec-key">2,4 GHz</td><td>Mondial</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:13px;color:var(--ink-dim);margin-top:1rem">Utilisations : éclairage intelligent, systèmes de sécurité domestique, surveillance environnementale, contrôles industriels, applications médicales, détecteurs de fumée. Chiffrement AES 128 bits intégré.</p>
+      <div class="prob-grid" style="margin-top:1rem">
+        <div class="prob-card safe">
+          <span class="prob-card-label">Avantages</span>
+          <ul>
+            <li>Faible consommation d'énergie</li>
+            <li>Supporte des centaines d'appareils</li>
+            <li>Réseau maillé robuste</li>
+            <li>Sécurité AES 128 bits</li>
+          </ul>
+        </div>
+        <div class="prob-card danger">
+          <span class="prob-card-label">Inconvénients</span>
+          <ul>
+            <li>Portée limitée (10–20 m)</li>
+            <li>Non universel (pas tous les appareils)</li>
+            <li>Passerelle obligatoire</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bluetooth -->
+  <div class="tech-block">
+    <div class="tech-block-header">
+      <div class="tech-block-icon">📡</div>
+      <div class="tech-block-title">Bluetooth</div>
+      <span class="tech-block-badge">Créé en 1994 · 2,4 GHz</span>
+    </div>
+    <div class="tech-block-body">
+      <p>Créé en 1994 par Ericsson, le Bluetooth est une norme de télécommunication sans fil à courte portée pour l'échange de données entre dispositifs électroniques. Utilise une technique de "saut de fréquence" pour éviter les interférences dans la bande 2,4 GHz.</p>
+      <p style="font-size:13px;color:var(--ink-dim)">Rôle en domotique : connectivité entre appareils intelligents, contrôle, surveillance et automatisation pour une expérience plus confortable, sécurisée et économe en énergie.</p>
+    </div>
+  </div>
+
+  <!-- Autres -->
+  <h3>Autres protocoles sans fil</h3>
+  <table class="spec-table">
+    <thead><tr><th>Protocole</th><th>Fréquence</th><th>Caractéristiques</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="spec-key">Z-Wave</td>
+        <td>868,42 MHz (EU)</td>
+        <td>Spécialement conçu pour la domotique. Faible consommation, portée étendue, résistance aux interférences. Réseau maillé.</td>
+      </tr>
+      <tr>
+        <td class="spec-key">HomeEasy</td>
+        <td>433,92 MHz</td>
+        <td>Communication bidirectionnelle entre dispositifs et contrôleur. Signalement d'état en retour.</td>
+      </tr>
+      <tr>
+        <td class="spec-key">X2D</td>
+        <td>868 MHz</td>
+        <td>Communication bidirectionnelle. Mixte (courant porteur ou radio). Mécanismes de sécurité contre interférences.</td>
+      </tr>
+      <tr>
+        <td class="spec-key">Io-Home</td>
+        <td>868–870 MHz</td>
+        <td>Retour d'informations bidirectionnel. Les appareils transmettent leur état et réponse aux commandes reçues.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<hr class="sep">
+
+<!-- ─── PROBLÉMATIQUE ─── -->
+<div class="container" id="problematique">
+  <div class="section-label">Section 5</div>
+  <h2>Problématique — Sécurité des données</h2>
+
+  <div class="intro-box">
+    <strong>Quels sont les enjeux pour garantir la sécurité des données dans le domaine de la domotique ?</strong><br><br>
+    La problématique est cruciale étant donné que les appareils connectés deviennent aussi vulnérables aux attaques de logiciels malveillants. En 2022, les logiciels malveillants IoT ont augmenté de 87%, atteignant le chiffre record de 112,3 millions de cas.
+  </div>
+
+  <div class="sol-grid">
+    <div class="sol-card">
+      <div class="sol-num">RISQUE 01</div>
+      <div class="sol-title">Protection de la vie privée</div>
+      <div class="sol-text">Les données collectées (horaires de travail, habitudes) attirent les pirates pour des attaques de phishing ou revente au plus offrant.</div>
+    </div>
+    <div class="sol-card">
+      <div class="sol-num">RISQUE 02</div>
+      <div class="sol-title">Sécurité physique</div>
+      <div class="sol-text">Un cambrioleur peut utiliser un logiciel de piratage pour déverrouiller une serrure connectée et entrer sans effraction.</div>
+    </div>
+    <div class="sol-card">
+      <div class="sol-num">RISQUE 03</div>
+      <div class="sol-title">Vulnérabilités des appareils</div>
+      <div class="sol-text">Exploitation d'une faille dans un thermostat intelligent pour contrôler le chauffage et augmenter la facture d'énergie.</div>
+    </div>
+    <div class="sol-card">
+      <div class="sol-num">RISQUE 04</div>
+      <div class="sol-title">Sécurité réseau</div>
+      <div class="sol-text">Un malware sur un ordinateur portable permet d'accéder à tous les appareils domotiques du même réseau Wi-Fi.</div>
+    </div>
+    <div class="sol-card">
+      <div class="sol-num">RISQUE 05</div>
+      <div class="sol-title">Intégration de nouveaux appareils</div>
+      <div class="sol-text">Un appareil non sécurisé ajouté au réseau domestique crée une nouvelle porte d'entrée pour les pirates.</div>
+    </div>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ─── SOLUTIONS ─── -->
+<div class="container" id="solutions">
+  <div class="section-label">Section 6</div>
+  <h2>Solutions possibles</h2>
+
+  <div class="sol-grid">
+    <div class="sol-card">
+      <div class="sol-num">SOL 01</div>
+      <div class="sol-title">Chiffrement des données</div>
+      <div class="sol-text">S'assurer que toutes les données échangées entre appareils et serveurs cloud sont chiffrées — illisibles pour quiconque les intercepte.</div>
+    </div>
+    <div class="sol-card">
+      <div class="sol-num">SOL 02</div>
+      <div class="sol-title">Authentification forte</div>
+      <div class="sol-text">Mots de passe complexes, authentification à deux facteurs, biométrie pour empêcher les accès non autorisés.</div>
+    </div>
+    <div class="sol-card">
+      <div class="sol-num">SOL 03</div>
+      <div class="sol-title">Mises à jour régulières</div>
+      <div class="sol-text">Installer les mises à jour logicielles dès leur disponibilité pour corriger les vulnérabilités et améliorer la protection.</div>
+    </div>
+    <div class="sol-card">
+      <div class="sol-num">SOL 04</div>
+      <div class="sol-title">Séparation des réseaux</div>
+      <div class="sol-text">Réseau Wi-Fi dédié aux appareils domotiques. Routeur avec pare-feu. Configuration de VLANs pour isoler les appareils.</div>
+    </div>
+    <div class="sol-card">
+      <div class="sol-num">SOL 05</div>
+      <div class="sol-title">Surveillance réseau</div>
+      <div class="sol-text">Utiliser Nmap ou Wireshark pour détecter les activités suspectes sur le réseau domotique.</div>
+    </div>
+    <div class="sol-card">
+      <div class="sol-num">SOL 06</div>
+      <div class="sol-title">Gestion des accès</div>
+      <div class="sol-text">Limiter l'accès aux appareils domotiques aux seuls utilisateurs autorisés. Former les utilisateurs aux risques.</div>
+    </div>
+    <div class="sol-card">
+      <div class="sol-num">SOL 07</div>
+      <div class="sol-title">Conformité RGPD</div>
+      <div class="sol-text">Respecter les réglementations de protection des données pour garantir un traitement responsable des données personnelles.</div>
+    </div>
+    <div class="sol-card">
+      <div class="sol-num">SOL 08</div>
+      <div class="sol-title">Tests de sécurité</div>
+      <div class="sol-text">Réaliser régulièrement des audits et tests de sécurité pour identifier les failles dans les appareils et systèmes domotiques.</div>
+    </div>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ─── CONCLUSION ─── -->
+<div class="container" id="conclusion">
+  <div class="section-label">Section 7</div>
+  <h2>Conclusion</h2>
+
+  <p>La domotique représente une <strong>avancée significative</strong> dans la gestion des équipements domestiques. Grâce à l'automatisation et à la centralisation du contrôle, elle améliore la sécurité, le confort et l'efficacité énergétique des habitations. Les technologies sans fil telles que le Wi-Fi, Zigbee et Bluetooth jouent un rôle essentiel dans cette évolution.</p>
+
+  <div class="intro-box" style="margin-top:2rem">
+    La sécurité des données dans la domotique est un défi majeur pour protéger la vie privée et éviter les attaques en ligne. Ce défi englobe la nécessité d'établir des règles strictes, d'accroître la sensibilisation des utilisateurs et d'adopter des technologies de protection avancées. Les fabricants doivent intégrer des mesures de sécurité de pointe dans leurs produits, et les autorités doivent mettre en place des règles pour guider l'industrie.
+  </div>
+</div>
+
+<footer>
+  <div>Projet <strong>E-HOME</strong> · Licence professionnelle Réseaux &amp; Télécommunications</div>
+  <div>M'hamadi Mohamed · <strong>Togola Daouda</strong> · Soule Mbika Deen · <strong>2023–2024</strong></div>
+</footer>
+
+</body>
+</html>

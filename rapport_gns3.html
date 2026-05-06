@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Infrastructure Réseau Sécurisée GNS3 — Togola Daouda</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Outfit:wght@300;400;500;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #07090e;
+  --bg2: #0d1117;
+  --bg3: #161b22;
+  --bg4: #1c2128;
+  --blue: #388bfd;
+  --blue-dim: rgba(56,139,253,0.12);
+  --blue-mid: rgba(56,139,253,0.3);
+  --cyan: #39d353;
+  --red: #f85149;
+  --amber: #e3b341;
+  --purple: #bc8cff;
+  --text: #8b949e;
+  --text-bright: #e6edf3;
+  --text-dim: #484f58;
+  --border: #21262d;
+  --border2: #30363d;
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  font-weight: 300;
+}
+
+/* ─── COVER ─── */
+.cover {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 5rem 4rem;
+}
+.cover::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(135deg, transparent 30%, rgba(56,139,253,0.04) 100%);
+}
+.cover-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(56,139,253,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56,139,253,0.04) 1px, transparent 1px);
+  background-size: 50px 50px;
+  mask-image: radial-gradient(ellipse 70% 70% at 80% 50%, black 0%, transparent 100%);
+}
+.cover-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 760px;
+}
+.cover-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: var(--blue);
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.cover-eyebrow::before {
+  content: '';
+  width: 24px; height: 1px;
+  background: var(--blue);
+}
+.cover h1 {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 800;
+  color: var(--text-bright);
+  line-height: 1.05;
+  margin-bottom: 1.5rem;
+  letter-spacing: -1px;
+}
+.cover h1 em {
+  font-style: normal;
+  background: linear-gradient(90deg, var(--blue), var(--purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.cover-desc {
+  font-family: 'Lora', serif;
+  font-size: 1.1rem;
+  color: var(--text);
+  max-width: 560px;
+  margin-bottom: 3rem;
+  line-height: 1.9;
+}
+.cover-meta-grid {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+}
+.cover-meta-item { display: flex; flex-direction: column; gap: 4px; }
+.cover-meta-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+.cover-meta-value {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--text-bright);
+}
+.cover-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2.5rem;
+}
+.badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 4px 12px;
+  border: 1px solid var(--border2);
+  color: var(--text-dim);
+}
+.badge.blue { border-color: var(--blue-mid); color: var(--blue); background: var(--blue-dim); }
+.badge.amber { border-color: rgba(227,179,65,0.3); color: var(--amber); background: rgba(227,179,65,0.08); }
+.badge.green { border-color: rgba(57,211,83,0.3); color: var(--cyan); background: rgba(57,211,83,0.08); }
+
+/* ─── NAV ─── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(7,9,14,0.95);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 4rem;
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+nav::-webkit-scrollbar { display: none; }
+nav a {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  text-decoration: none;
+  padding: 1rem 1rem;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+nav a:hover { color: var(--blue); border-bottom-color: var(--blue); }
+
+/* ─── LAYOUT ─── */
+.container { max-width: 960px; margin: 0 auto; padding: 5rem 4rem; }
+
+/* ─── SECTION HEADINGS ─── */
+.section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: var(--blue);
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+}
+h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+  font-weight: 700;
+  color: var(--text-bright);
+  line-height: 1.2;
+  margin-bottom: 2rem;
+}
+h3 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--blue);
+  margin: 2.5rem 0 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+h4 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--amber);
+  margin: 1.5rem 0 0.5rem;
+}
+p { margin-bottom: 1rem; }
+
+/* ─── SEP ─── */
+.sep {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  margin: 5rem 0;
+}
+
+/* ─── INFO BOX ─── */
+.info-box {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--blue);
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
+  font-family: 'Lora', serif;
+  font-size: 1rem;
+  color: var(--text);
+  line-height: 1.9;
+}
+
+/* ─── OBJECTIVES ─── */
+.obj-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 1.5rem 0;
+}
+.obj-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 1.2rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--border2);
+  font-size: 14px;
+  transition: border-left-color 0.2s;
+}
+.obj-item:hover { border-left-color: var(--blue); }
+.obj-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--blue);
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+/* ─── COMPONENT TABLE ─── */
+.comp-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 13px;
+}
+.comp-table th {
+  background: var(--blue-dim);
+  color: var(--blue);
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--blue-mid);
+}
+.comp-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.comp-table tr:hover td { background: var(--bg3); }
+.comp-name {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text-bright);
+}
+
+/* ─── VLAN TABLE ─── */
+.vlan-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 13px;
+}
+.vlan-table th {
+  background: rgba(57,211,83,0.08);
+  color: var(--cyan);
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid rgba(57,211,83,0.25);
+}
+.vlan-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.vlan-table tr:hover td { background: var(--bg3); }
+.vlan-id {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--cyan);
+  font-weight: 500;
+}
+.ip-addr {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--text-bright);
+}
+
+/* ─── CODE BLOCKS ─── */
+.code-wrap {
+  background: #010409;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--blue);
+  margin: 1.5rem 0;
+  overflow: hidden;
+}
+.code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+}
+.code-lang {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--blue);
+  text-transform: uppercase;
+}
+.code-dots { display: flex; gap: 5px; }
+.code-dot { width: 8px; height: 8px; border-radius: 50%; }
+.code-dot:nth-child(1) { background: #ff5f57; }
+.code-dot:nth-child(2) { background: #febc2e; }
+.code-dot:nth-child(3) { background: #28c840; }
+pre {
+  padding: 1.2rem 1.5rem;
+  overflow-x: auto;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  line-height: 1.8;
+  color: #8b949e;
+}
+.kw { color: #ff7b72; }
+.val { color: #a5d6ff; }
+.cmt { color: #484f58; }
+
+/* ─── STEP CARDS ─── */
+.config-block {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  margin: 1.5rem 0;
+  overflow: hidden;
+}
+.config-header {
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+  padding: 0.8rem 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.config-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--blue);
+  background: var(--blue-dim);
+  border: 1px solid var(--blue-mid);
+  padding: 2px 8px;
+}
+.config-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-bright);
+}
+.config-body { padding: 1.2rem 1.5rem; font-size: 13.5px; }
+
+/* ─── VLAN CONFIG LIST ─── */
+.vlan-config-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.vlan-config-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  padding: 1.2rem;
+}
+.vlan-config-id {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--cyan);
+  background: rgba(57,211,83,0.08);
+  border: 1px solid rgba(57,211,83,0.2);
+  display: inline-block;
+  padding: 2px 8px;
+  margin-bottom: 0.8rem;
+}
+.vlan-config-item {
+  display: flex;
+  gap: 0.8rem;
+  font-size: 12px;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.vlan-config-key {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--text-dim);
+  width: 80px;
+  flex-shrink: 0;
+}
+
+/* ─── FIREWALL RULES ─── */
+.fw-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 12px;
+}
+.fw-table th {
+  background: rgba(248,81,73,0.08);
+  color: var(--red);
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid rgba(248,81,73,0.25);
+}
+.fw-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  vertical-align: middle;
+}
+.fw-table tr:hover td { background: var(--bg3); }
+.action-accept { color: var(--cyan); }
+.action-deny { color: var(--red); }
+
+/* ─── RESULT BOXES ─── */
+.result-box {
+  background: rgba(57,211,83,0.05);
+  border: 1px solid rgba(57,211,83,0.2);
+  border-left: 3px solid var(--cyan);
+  padding: 1rem 1.5rem;
+  margin: 1.5rem 0;
+  font-size: 13.5px;
+}
+.result-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--cyan);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  display: block;
+}
+
+/* ─── HA STATUS ─── */
+.ha-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.ha-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+}
+.ha-role {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+  display: block;
+}
+.ha-card.primary .ha-role { color: var(--cyan); }
+.ha-card.secondary .ha-role { color: var(--text-dim); }
+.ha-hostname {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  color: var(--text-bright);
+  margin-bottom: 4px;
+}
+.ha-priority {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--blue);
+}
+
+/* ─── CONCLUSION ─── */
+.concl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+.concl-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+}
+.concl-icon { font-size: 1.8rem; margin-bottom: 0.8rem; }
+.concl-title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  color: var(--text-bright);
+  font-size: 0.95rem;
+  margin-bottom: 0.4rem;
+}
+.concl-text { font-size: 12.5px; color: var(--text-dim); line-height: 1.6; }
+
+/* ─── FOOTER ─── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 2rem 4rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+footer span { color: var(--blue); }
+
+@media (max-width: 768px) {
+  .container { padding: 3rem 1.5rem; }
+  .cover { padding: 3rem 1.5rem; }
+  nav { padding: 0 1rem; }
+  footer { padding: 2rem 1.5rem; flex-direction: column; text-align: center; }
+  .ha-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<section class="cover">
+  <div class="cover-grid"></div>
+  <div class="cover-inner">
+    <div class="cover-eyebrow">Rapport de projet · 2024–2025</div>
+    <h1>Infrastructure Réseau<br><em>Sécurisée</em> sous GNS3</h1>
+    <p class="cover-desc">Conception et mise en œuvre d'un laboratoire de cybersécurité complet : segmentation VLAN, haute disponibilité FortiGate HA, contrôleur de domaine Active Directory et serveur web en DMZ.</p>
+    <div class="cover-meta-grid">
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Auteur</span>
+        <span class="cover-meta-value">Togola Daouda</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Année</span>
+        <span class="cover-meta-value">2024 – 2025</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Simulateur</span>
+        <span class="cover-meta-value">GNS3 + GNS3 VM</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Pare-feu</span>
+        <span class="cover-meta-value">FortiGate VM × 2</span>
+      </div>
+    </div>
+    <div class="cover-badges">
+      <span class="badge blue">FortiOS HA</span>
+      <span class="badge blue">VLAN Segmentation</span>
+      <span class="badge green">Active Directory</span>
+      <span class="badge green">DMZ</span>
+      <span class="badge amber">Cisco 7200</span>
+      <span class="badge amber">Windows Server 2012</span>
+      <span class="badge">Ubuntu 20.04</span>
+      <span class="badge">DVWA</span>
+      <span class="badge">GPO</span>
+    </div>
+  </div>
+</section>
+
+<!-- NAV -->
+<nav>
+  <a href="#intro">Introduction</a>
+  <a href="#objectifs">Objectifs</a>
+  <a href="#materiel">Matériel</a>
+  <a href="#adressage">Adressage</a>
+  <a href="#routeur">Routeur Cisco</a>
+  <a href="#fortigate">FortiGate</a>
+  <a href="#vlan">VLANs</a>
+  <a href="#parefeu">Pare-feu</a>
+  <a href="#ha">Cluster HA</a>
+  <a href="#ad">Active Directory</a>
+  <a href="#dvwa">DMZ / DVWA</a>
+  <a href="#conclusion">Conclusion</a>
+</nav>
+
+<!-- ─── INTRO ─── -->
+<div class="container" id="intro">
+  <div class="section-label">Introduction</div>
+  <h2>Un laboratoire de cybersécurité réaliste</h2>
+
+  <div class="info-box">
+    Ce document présente, étape par étape, la création d'un laboratoire de cybersécurité dans GNS3. L'architecture couvre la segmentation VLAN, la haute-disponibilité de pare-feu (HA), un contrôleur de domaine Active Directory, et un serveur web en DMZ.
+  </div>
+
+  <!-- Objectifs -->
+  <div id="objectifs">
+    <h3>Objectifs du projet</h3>
+    <div class="obj-list">
+      <div class="obj-item"><div class="obj-dot"></div>Simuler un environnement d'entreprise sécurisé dans GNS3</div>
+      <div class="obj-item"><div class="obj-dot"></div>Mettre en place un cluster de deux FortiGate en mode HA active-passive</div>
+      <div class="obj-item"><div class="obj-dot"></div>Segmenter le réseau en VLANs (LAN, DMZ, Internet)</div>
+      <div class="obj-item"><div class="obj-dot"></div>Déployer un contrôleur de domaine Windows avec GPO</div>
+      <div class="obj-item"><div class="obj-dot"></div>Héberger un site web vulnérable (DVWA) sur Ubuntu en DMZ pour des scénarios de test d'intrusion</div>
+    </div>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ─── MATÉRIEL ─── -->
+<div class="container" id="materiel">
+  <div class="section-label">Section 4</div>
+  <h2>Matériel et outils</h2>
+
+  <table class="comp-table">
+    <thead>
+      <tr><th>Composant / Logiciel</th><th>Détails</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="comp-name">GNS3 + GNS3 VM</td><td>Dernière version — simulateur réseau principal</td></tr>
+      <tr><td class="comp-name">Cisco 7200</td><td>IOS 12.4(24)T5 · slot 0=2FE · 512 Mo RAM</td></tr>
+      <tr><td class="comp-name">FortiGate VM × 2</td><td>FortiOS .qcow2 · 2 Go RAM · 4 interfaces</td></tr>
+      <tr><td class="comp-name">Windows Server 2012 R2</td><td>ISO · AD DS · DNS · 4 Go RAM</td></tr>
+      <tr><td class="comp-name">Ubuntu 20.04 LTS</td><td>ISO · 4 Go RAM · Serveur web DVWA</td></tr>
+      <tr><td class="comp-name">Switch GNS3</td><td>Switch natif GNS3 pour la segmentation VLAN</td></tr>
+      <tr><td class="comp-name">Windows 10</td><td>ISO · Client du domaine</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<hr class="sep">
+
+<!-- ─── ADRESSAGE ─── -->
+<div class="container" id="adressage">
+  <div class="section-label">Section 5</div>
+  <h2>Plan d'adressage IP</h2>
+
+  <table class="vlan-table">
+    <thead>
+      <tr><th>VLAN</th><th>Rôle</th><th>Sous-réseau</th><th>Interface FortiGate</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="vlan-id">—</td>
+        <td>Interface FortiGate (admin)</td>
+        <td class="ip-addr">192.168.93.200/24</td>
+        <td style="color:var(--text-dim);font-family:'DM Mono',monospace;font-size:11px">Port 1</td>
+      </tr>
+      <tr>
+        <td class="vlan-id">—</td>
+        <td>WAN (vers Internet)</td>
+        <td class="ip-addr">192.168.1.2/24</td>
+        <td style="color:var(--text-dim);font-family:'DM Mono',monospace;font-size:11px">Port 2</td>
+      </tr>
+      <tr>
+        <td class="vlan-id">10</td>
+        <td>LAN 1 (AD-DS, VPCS)</td>
+        <td class="ip-addr">192.168.10.0/24</td>
+        <td style="color:var(--text-dim);font-family:'DM Mono',monospace;font-size:11px">Port 3</td>
+      </tr>
+      <tr>
+        <td class="vlan-id">20</td>
+        <td>LAN 2 (Windows client)</td>
+        <td class="ip-addr">192.168.20.0/24</td>
+        <td style="color:var(--text-dim);font-family:'DM Mono',monospace;font-size:11px">Port 3</td>
+      </tr>
+      <tr>
+        <td class="vlan-id">30</td>
+        <td>DMZ (serveur web)</td>
+        <td class="ip-addr">192.168.30.0/24</td>
+        <td style="color:var(--text-dim);font-family:'DM Mono',monospace;font-size:11px">Port 3</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<hr class="sep">
+
+<!-- ─── MISE EN OEUVRE ─── -->
+<div class="container" id="routeur">
+  <div class="section-label">Section 6</div>
+  <h2>Mise en œuvre détaillée</h2>
+
+  <!-- Routeur Cisco -->
+  <div class="config-block">
+    <div class="config-header">
+      <span class="config-num">6.1</span>
+      <span class="config-title">Configuration du Routeur Cisco 7200</span>
+    </div>
+    <div class="config-body">
+      <p>Configuration des interfaces FastEthernet du routeur Cisco 7200 pour assurer la connectivité WAN.</p>
+      <div class="code-wrap">
+        <div class="code-header">
+          <span class="code-lang">IOS — Configuration interfaces</span>
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+        </div>
+        <pre><span class="kw">enable</span>
+<span class="kw">configure terminal</span>
+interface FastEthernet0/0
+ <span class="kw">ip address</span> <span class="val">192.168.1.1 255.255.255.0</span>
+ <span class="kw">no shutdown</span>
+interface FastEthernet0/1
+ <span class="kw">ip address</span> <span class="val">10.10.10.1 255.255.255.0</span>
+ <span class="kw">no shutdown</span>
+<span class="kw">exit</span>
+<span class="kw">write memory</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- FortiGate -->
+  <div class="config-block" id="fortigate">
+    <div class="config-header">
+      <span class="config-num">6.2</span>
+      <span class="config-title">Configuration des FortiGate</span>
+    </div>
+    <div class="config-body">
+      <p>Configuration initiale via l'interface web <code style="font-family:'DM Mono',monospace;color:var(--blue);background:var(--bg3);padding:2px 6px">https://192.168.93.200</code> en mode administrateur.</p>
+      <div class="code-wrap">
+        <div class="code-header">
+          <span class="code-lang">FortiOS CLI — Port 1 (admin)</span>
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+        </div>
+        <pre><span class="kw">config system interface</span>
+<span class="kw">edit</span> port1
+ <span class="kw">set ip</span> <span class="val">192.168.93.200/24</span>
+ <span class="kw">set allowaccess</span> ping ssh
+<span class="kw">end</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- VLANs -->
+  <div class="config-block" id="vlan">
+    <div class="config-header">
+      <span class="config-num">6.3</span>
+      <span class="config-title">Création des interfaces VLAN sur le port3</span>
+    </div>
+    <div class="config-body">
+      <p>Création de trois interfaces VLAN sur le même port physique (port3) du FortiGate via <strong style="color:var(--text-bright)">Network → Interfaces → Create New</strong>.</p>
+      <div class="vlan-config-list">
+        <div class="vlan-config-card">
+          <span class="vlan-config-id">VLAN 10 — LAN1</span>
+          <div class="vlan-config-item"><span class="vlan-config-key">Name</span> VLAN10-LAN1</div>
+          <div class="vlan-config-item"><span class="vlan-config-key">Interface</span> port3</div>
+          <div class="vlan-config-item"><span class="vlan-config-key">VLAN ID</span> 10</div>
+          <div class="vlan-config-item"><span class="vlan-config-key">Rôle</span> LAN</div>
+          <div class="vlan-config-item"><span class="vlan-config-key">IP</span> 192.168.10.1/24</div>
+          <div class="vlan-config-item"><span class="vlan-config-key">Access</span> ping, SSH</div>
+          <div class="vlan-config-item"><span class="vlan-config-key">DHCP</span> Activé</div>
+        </div>
+        <div class="vlan-config-card">
+          <span class="vlan-config-id">VLAN 20 — LAN2</span>
+          <div class="vlan-config-item"><span class="vlan-config-key">Name</span> VLAN20</div>
+          <div class="vlan-config-item"><span class="vlan-config-key">Interface</span> port3</div>
+          <div class="vlan-config-item"><span class="vlan-config-key">VLAN ID</span> 20</div>
+          <div class="vlan-config-item"><span class="vlan-config-key">Rôle</span> LAN</div>
+          <div class="vlan-config-item"><span class="vlan-config-key">IP</span> 192.168.20.1/24</div>
+          <div class="vlan-config-item"><span class="vlan-config-key">Access</span> ping, SSH</div>
+          <div class="vlan-config-item"><span class="vlan-config-key">DHCP</span> Activé</div>
+        </div>
+        <div class="vlan-config-card">
+          <span class="vlan-config-id" style="color:var(--amber);border-color:rgba(227,179,65,0.2);background:rgba(227,179,65,0.06)">VLAN 30 — DMZ</span>
+          <div class="vlan-config-item"><span class="vlan-config-key">Name</span> VLAN30-DMZ</div>
+          <div class="vlan-config-item"><span class="vlan-config-key">Interface</span> port3</div>
+          <div class="vlan-config-item"><span class="vlan-config-key">VLAN ID</span> 30</div>
+          <div class="vlan-config-item"><span class="vlan-config-key">Rôle</span> DMZ</div>
+          <div class="vlan-config-item"><span class="vlan-config-key">IP</span> 192.168.30.1/24</div>
+          <div class="vlan-config-item"><span class="vlan-config-key">Access</span> ping, HTTP, HTTPS</div>
+        </div>
+      </div>
+      <p style="font-size:13px;color:var(--text-dim)">Chaque machine (VPCS, VM, etc.) est connectée à l'interface VLAN correspondante via le même port physique port3 du FortiGate, à travers un switch GNS3.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ─── PARE-FEU ─── -->
+<div class="container" id="parefeu">
+  <div class="section-label">Section 7</div>
+  <h2>Règles de pare-feu</h2>
+
+  <p>Les règles définissent les flux autorisés entre les zones LAN, DMZ et Internet. Configuration dans <strong style="color:var(--text-bright)">Policy &amp; Objects → Firewall Policy</strong>.</p>
+
+  <table class="fw-table">
+    <thead>
+      <tr><th>Règle</th><th>Source</th><th>Destination</th><th>Service</th><th>Action</th><th>NAT</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="color:var(--text-bright);font-family:'DM Mono',monospace;font-size:11px">LAN1_To_WAN</td>
+        <td style="color:var(--cyan)">VLAN 10</td>
+        <td>all</td>
+        <td>ALL</td>
+        <td class="action-accept">✓ ACCEPT</td>
+        <td style="color:var(--cyan)">ON</td>
+      </tr>
+      <tr>
+        <td style="color:var(--text-bright);font-family:'DM Mono',monospace;font-size:11px">lan2_to_lan1</td>
+        <td style="color:var(--cyan)">VLAN 20</td>
+        <td>VLAN 10</td>
+        <td>ALL</td>
+        <td class="action-accept">✓ ACCEPT</td>
+        <td style="color:var(--text-dim)">—</td>
+      </tr>
+      <tr>
+        <td style="color:var(--text-bright);font-family:'DM Mono',monospace;font-size:11px">lan2 → WAN</td>
+        <td style="color:var(--cyan)">VLAN 20</td>
+        <td>all</td>
+        <td>ALL</td>
+        <td class="action-accept">✓ ACCEPT</td>
+        <td style="color:var(--cyan)">ON</td>
+      </tr>
+      <tr>
+        <td style="color:var(--text-bright);font-family:'DM Mono',monospace;font-size:11px">Dmz_to_wan</td>
+        <td style="color:var(--amber)">VLAN 30</td>
+        <td>all</td>
+        <td>ALL</td>
+        <td class="action-accept">✓ ACCEPT</td>
+        <td style="color:var(--cyan)">ON</td>
+      </tr>
+      <tr>
+        <td style="color:var(--text-bright);font-family:'DM Mono',monospace;font-size:11px">Block_DMZ_lan1</td>
+        <td style="color:var(--amber)">VLAN 30</td>
+        <td>VLAN 10</td>
+        <td>ALL</td>
+        <td class="action-deny">✗ DENY</td>
+        <td style="color:var(--text-dim)">—</td>
+      </tr>
+      <tr>
+        <td style="color:var(--text-bright);font-family:'DM Mono',monospace;font-size:11px">block_dmz_lan2</td>
+        <td style="color:var(--amber)">VLAN 30</td>
+        <td>VLAN 10 + 20</td>
+        <td>ALL</td>
+        <td class="action-deny">✗ DENY</td>
+        <td style="color:var(--text-dim)">—</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="result-box">
+    <span class="result-label">✓ Logique sécurité</span>
+    La DMZ peut accéder à Internet mais <strong style="color:var(--text-bright)">pas aux réseaux LAN internes</strong>. Les VLANs LAN peuvent communiquer entre eux et avec Internet via NAT. Isolation complète de la zone DMZ.
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ─── CLUSTER HA ─── -->
+<div class="container" id="ha">
+  <div class="section-label">Section 9</div>
+  <h2>Cluster HA FortiGate</h2>
+
+  <p>Le cluster HA (High Availability) assure la continuité de service du pare-feu en cas de défaillance d'un nœud. Configuration dans <strong style="color:var(--text-bright)">System → HA</strong>.</p>
+
+  <table class="comp-table" style="margin:1.5rem 0">
+    <tbody>
+      <tr><td class="comp-name">Mode</td><td>Active-Passive</td></tr>
+      <tr><td class="comp-name">Groupe</td><td>CLUSTER1</td></tr>
+      <tr><td class="comp-name">Interfaces heartbeat</td><td>port4 + port5 (interconnectées entre les deux FortiGates)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="ha-grid">
+    <div class="ha-card primary">
+      <span class="ha-role">Nœud Primary (Master)</span>
+      <div class="ha-hostname">FortiGate-P</div>
+      <div class="ha-priority">Priorité : 150</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);margin-top:8px">FGVMEVKVHVYTJT67</div>
+    </div>
+    <div class="ha-card secondary">
+      <span class="ha-role">Nœud Secondary (Slave)</span>
+      <div class="ha-hostname">FortiGate-S</div>
+      <div class="ha-priority">Priorité : 128</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);margin-top:8px">FGVMEVKXX2SR6WW4C</div>
+    </div>
+  </div>
+
+  <div class="result-box">
+    <span class="result-label">✓ Résultat HA</span>
+    Cluster synchronisé et opérationnel. En cas de panne du nœud principal, le nœud secondaire prend automatiquement le relais — continuité de service garantie sans intervention manuelle.
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ─── ACTIVE DIRECTORY ─── -->
+<div class="container" id="ad">
+  <div class="section-label">Section 10</div>
+  <h2>Contrôleur de domaine Windows</h2>
+
+  <p>Le rôle <strong style="color:var(--text-bright)">AD DS</strong> centralise la gestion des utilisateurs, groupes, ordinateurs et stratégies de sécurité dans l'environnement Windows Server.</p>
+
+  <div class="config-block">
+    <div class="config-header">
+      <span class="config-num">10.1</span>
+      <span class="config-title">Installation Active Directory AD DS</span>
+    </div>
+    <div class="config-body">
+      <p>Via <strong style="color:var(--text-bright)">Server Manager → Add Roles → AD DS</strong>. Après installation, promotion du serveur en contrôleur de domaine.</p>
+      <table class="comp-table">
+        <tbody>
+          <tr><td class="comp-name">Opération</td><td>Ajouter une nouvelle forêt</td></tr>
+          <tr><td class="comp-name">Nom de domaine</td><td><code style="font-family:'DM Mono',monospace;color:var(--cyan)">lab.local</code></td></tr>
+          <tr><td class="comp-name">DNS</td><td>Installé automatiquement — résolution des noms pour les objets du domaine</td></tr>
+          <tr><td class="comp-name">Niveau fonctionnel</td><td>Windows Server 2012 R2</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="config-block">
+    <div class="config-header">
+      <span class="config-num">10.3</span>
+      <span class="config-title">GPO — Blocage des installeurs</span>
+    </div>
+    <div class="config-body">
+      <p>Stratégie de groupe pour empêcher les utilisateurs d'installer des logiciels depuis les dossiers restreints.</p>
+      <div class="obj-list">
+        <div class="obj-item"><div class="obj-dot"></div>Ouvrir la console GPMC · Créer une nouvelle GPO</div>
+        <div class="obj-item"><div class="obj-dot"></div>Navigation : Configuration ordinateur → Paramètres Windows → Paramètres de sécurité → Stratégies de contrôle des applications</div>
+        <div class="obj-item"><div class="obj-dot"></div>Créer une nouvelle règle de chemin avec le path : <code style="font-family:'DM Mono',monospace;color:var(--cyan);background:var(--bg3);padding:2px 6px">C:\Users\*\Downloads\</code></div>
+        <div class="obj-item"><div class="obj-dot"></div>Les utilisateurs ne peuvent plus exécuter d'installateurs depuis les dossiers restreints</div>
+      </div>
+      <div class="result-box">
+        <span class="result-label">✓ Résultat</span>
+        GPO appliquée avec succès — politique de sécurité centralisée sur tous les postes du domaine lab.local.
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ─── DVWA ─── -->
+<div class="container" id="dvwa">
+  <div class="section-label">Section 11</div>
+  <h2>Déploiement DVWA en DMZ</h2>
+
+  <div class="info-box">
+    L'application <strong>DVWA (Damn Vulnerable Web Application)</strong> a été installée sur le serveur Ubuntu situé dans la DMZ (192.168.30.x) pour enrichir le laboratoire et permettre des scénarios de tests d'intrusion dans les prochaines étapes.
+  </div>
+
+  <div class="concl-grid">
+    <div class="concl-card">
+      <div class="concl-icon">🎯</div>
+      <div class="concl-title">Objectif</div>
+      <div class="concl-text">Simuler un site web volontairement vulnérable pour tester la détection d'intrusions.</div>
+    </div>
+    <div class="concl-card">
+      <div class="concl-icon">🔍</div>
+      <div class="concl-title">Tests SIEM</div>
+      <div class="concl-text">Analyse SIEM et détection des attaques via les logs du FortiGate et Wazuh.</div>
+    </div>
+    <div class="concl-card">
+      <div class="concl-icon">🛡️</div>
+      <div class="concl-title">Protection réseau</div>
+      <div class="concl-text">Validation des règles de pare-feu FortiGate face aux attaques web réelles.</div>
+    </div>
+    <div class="concl-card">
+      <div class="concl-icon">🔗</div>
+      <div class="concl-title">Intégration</div>
+      <div class="concl-text">Passerelle vers le projet Wazuh IDS/XDR déployé en Master 2 Cyberdéfense.</div>
+    </div>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ─── CONCLUSION ─── -->
+<div class="container" id="conclusion">
+  <div class="section-label">Section 12</div>
+  <h2>Conclusion</h2>
+
+  <p>Ce projet GNS3 a permis de concevoir un environnement réseau sécurisé et réaliste, intégrant un pare-feu FortiGate en haute disponibilité, une segmentation LAN/DMZ via VLANs, ainsi que des services clés comme Active Directory et un serveur web.</p>
+
+  <div class="concl-grid">
+    <div class="concl-card">
+      <div class="concl-icon">🔒</div>
+      <div class="concl-title">FortiGate HA</div>
+      <div class="concl-text">Cluster active-passive opérationnel. Basculement automatique en cas de panne.</div>
+    </div>
+    <div class="concl-card">
+      <div class="concl-icon">🗂️</div>
+      <div class="concl-title">Segmentation VLAN</div>
+      <div class="concl-text">LAN1, LAN2, DMZ isolés avec politiques de filtrage précises.</div>
+    </div>
+    <div class="concl-card">
+      <div class="concl-icon">🪟</div>
+      <div class="concl-title">Active Directory</div>
+      <div class="concl-text">Domaine lab.local déployé avec GPO de sécurité et DNS intégré.</div>
+    </div>
+    <div class="concl-card">
+      <div class="concl-icon">🌐</div>
+      <div class="concl-title">DMZ Web</div>
+      <div class="concl-text">DVWA déployé en DMZ pour des tests d'intrusion contrôlés.</div>
+    </div>
+    <div class="concl-card">
+      <div class="concl-icon">🔜</div>
+      <div class="concl-title">Prochaine étape</div>
+      <div class="concl-text">Intégration de Wazuh IDS/XDR pour la supervision et la réponse aux incidents.</div>
+    </div>
+  </div>
+
+  <div class="result-box" style="margin-top:2rem">
+    <span class="result-label">Bilan</span>
+    Les politiques de sécurité mises en place (NAT, filtrage inter-VLAN, GPO) ont permis de simuler des scénarios proches du monde professionnel, tout en renforçant les compétences en administration réseau et cybersécurité.
+  </div>
+</div>
+
+<footer>
+  <div><span>Togola Daouda</span> — Infrastructure Réseau Sécurisée sous GNS3</div>
+  <div>Master 2 Cyberdéfense · INSA Hauts-de-France · <span>2024–2025</span></div>
+</footer>
+
+</body>
+</html>
