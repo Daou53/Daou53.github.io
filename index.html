@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Daouda Togola — Ingénieur Cybersécurité</title>
+<title>Daouda Togola — Ingénieur Cybersécurité · Analyste SOC</title>
+<meta name="description" content="Daouda Togola, ingénieur cybersécurité diplômé d'un Master 2 Cyberdéfense (INSA Hauts-de-France), certifié BTL1. SOC, SIEM Wazuh, sécurité Active Directory. Disponible immédiatement en CDI.">
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -57,6 +58,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .btn-p{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:12px 28px;background:var(--green);color:#000;text-decoration:none;font-weight:700;transition:opacity .2s,transform .2s;display:inline-block;}
 .btn-p:hover{opacity:.85;transform:translateY(-2px);}
 .btn-s{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:12px 28px;border:1px solid var(--blight);color:var(--text);text-decoration:none;transition:border-color .2s,color .2s;}
+.btn-s{display:inline-block;}
 .btn-s:hover{border-color:var(--green);color:var(--green);}
 
 /* HERO STATS */
@@ -192,11 +194,11 @@ footer{position:relative;z-index:1;background:var(--bg2);border-top:1px solid va
   <div class="hero-glow"></div>
   <div class="hero-glow2"></div>
   <div class="hero-content">
-    <div class="hero-available"><span class="pulse"></span>Disponible en CDI — Septembre 2026</div>
+    <div class="hero-available"><span class="pulse"></span>Disponible immédiatement en CDI · Hauts-de-France / Paris / hybride</div>
     <h1 class="hero-name">Daouda<br><em>Togola</em></h1>
-    <p class="hero-role">Ingénieur Cybersécurité · 3 ans d'expérience · INSA Hauts-de-France M2</p>
+    <p class="hero-role">Ingénieur Cybersécurité · Master 2 Cyberdéfense (INSA HdF) · Certifié BTL1</p>
     <p class="hero-desc">
-      Ingénieur cybersécurité polyvalent avec une expérience concrète en <strong>déploiement SOC/SIEM</strong>, <strong>administration réseau et Active Directory</strong>, et <strong>tests d'intrusion</strong>. Capable de répondre à des postes variés selon le besoin de l'entreprise.
+      Jeune diplômé en cyberdéfense, orienté <strong>détection et réponse aux incidents</strong>. Six mois sur une infrastructure réelle : <strong>SIEM Wazuh avec 31 agents</strong>, alertes critiques ramenées de 85 à 0 par jour, <strong>durcissement Active Directory</strong> (score PingCastle de 100 à 15). Base solide en systèmes, réseaux et Microsoft 365, complétée par la pratique offensive (HTB, TryHackMe Top 1 %).
     </p>
 
     <!-- 3 profils -->
@@ -208,15 +210,15 @@ footer{position:relative;z-index:1;background:var(--bg2);border-top:1px solid va
 
     <div class="hero-actions">
       <a href="#projects" class="btn-p">Voir mes Projets</a>
-      <a href="#ctf" class="btn-s">CTF Writeups</a>
+      <a href="mailto:dtogola92@gmail.com" class="btn-s">Contact</a>
     </div>
   </div>
 
   <div class="hero-stats">
     <div class="hstat"><span class="hstat-num">3+</span><span class="hstat-lbl">Ans expérience</span></div>
-    <div class="hstat"><span class="hstat-num">10</span><span class="hstat-lbl">Projets réalisés</span></div>
-    <div class="hstat"><span class="hstat-num">5</span><span class="hstat-lbl">CTF Writeups</span></div>
-    <div class="hstat"><span class="hstat-num">6</span><span class="hstat-lbl">Certifications</span></div>
+    <div class="hstat"><span class="hstat-num">31</span><span class="hstat-lbl">Agents Wazuh supervisés</span></div>
+    <div class="hstat"><span class="hstat-num">85→0</span><span class="hstat-lbl">Alertes critiques / jour</span></div>
+    <div class="hstat"><span class="hstat-num">100→15</span><span class="hstat-lbl">Score de risque PingCastle</span></div>
   </div>
 </section>
 
@@ -230,25 +232,29 @@ footer{position:relative;z-index:1;background:var(--bg2);border-top:1px solid va
 
       <!-- CIMES -->
       <div class="exp-card cimes" style="grid-column:span 2">
-        <div class="exp-date">Mars — Août 2026</div>
-        <div class="exp-role">Stagiaire Ingénieur Cybersécurité — SOC, Sécurité SI & Infrastructure</div>
-        <div class="exp-company">CIMES · Valenciennes</div>
+        <div class="exp-date">Mars — Août 2026 · 6 mois</div>
+        <div class="exp-role">Ingénieur Cybersécurité SOC (stage de fin d'études)</div>
+        <div class="exp-company">CIMES France · Valenciennes</div>
         <ul class="exp-items">
-          <li>Déploiement SIEM Wazuh 3 nœuds (Manager / Indexer / Dashboard) sur Rocky Linux 9 — architecture SOC PME complète</li>
-          <li>Développement moteur EDR : création de règles MITRE ATT&CK (T1059, T1218, T1003, T1547, T1071) — réduction des faux positifs de 85 à 0 alertes critiques/jour</li>
-          <li>Active Response : quarantaine automatique malwares, blocage SSH brute force, enrichissement IOC via VirusTotal API</li>
-          <li>Déploiement Sysmon (SwiftOnSecurity), surveillance AD via Event IDs critiques, FIM temps réel Linux/Windows</li>
-          <li>Administration Active Directory : GPO déploiement/sécurité, gestion OUs, comptes privilégiés — hardening selon référentiel ANSSI</li>
-          <li>Administration Microsoft 365 : Exchange Online, MFA, Entra ID, Conditional Access, DLP</li>
-          <li>Gestion Hyper-V : 3 VMs Rocky Linux hébergeant le SIEM Wazuh, maintenance et supervision</li>
-          <li>Création règles firewall FortiGate et intégration alertes au SIEM</li>
-          <li>Résolution incidents Azure AD Connect : diagnostic synchronisation identités (UPN, ProxyAddresses)</li>
-          <li>Rédaction documentation : runbook infrastructure, PSSI, journal de bord, procédures incident response</li>
+          <li>Déploiement d'une architecture Wazuh distribuée sur 3 VM Rocky Linux (Manager / Indexer / Dashboard) supervisant 31 agents Windows et Linux</li>
+          <li>Création de règles de détection personnalisées mappées MITRE ATT&amp;CK (T1059, T1218, T1003, T1547, T1071, T1053)</li>
+          <li>Tuning via plus de 50 règles : alertes critiques ramenées de 85 à 0 par jour, sans perte de visibilité</li>
+          <li>Active Response : quarantaine automatique des malwares (VirusTotal API), blocage des brute force SSH, FIM temps réel Linux/Windows</li>
+          <li>Intégration des journaux Office 365 / Azure AD et FortiGate dans Wazuh, surveillance des connexions suspectes, résolution d'un incident messagerie</li>
+          <li>Dashboards SOC OpenSearch : alertes par niveau, tactiques MITRE ATT&amp;CK, top IP et règles, évolution temporelle</li>
+          <li>Audit Active Directory avec PingCastle, score passé de 100 à 15 : correction des délégations Kerberos, nettoyage des SPN orphelins, désactivation des comptes inactifs, revue des comptes privilégiés</li>
+          <li>12 GPO de sécurité déployées : SMB Signing, désactivation LLMNR/NBT-NS, journalisation PowerShell, blocage USB, Sysmon (SwiftOnSecurity), Hardened UNC Paths (NETLOGON/SYSVOL), travaux sur LAPS</li>
+          <li>Déploiement automatisé sur le parc Windows via GPO et PowerShell (agents Wazuh, NinjaRMM, Synology)</li>
+          <li>Microsoft 365 et identités : Exchange Online, MFA, Entra ID, résolution des conflits de synchronisation Azure AD Connect (UPN, ProxyAddresses)</li>
+          <li>Création de règles firewall FortiGate et analyse de la sécurité réseau</li>
+          <li>Environnement HPC à forte exigence de disponibilité : analyse d'impact avant chaque changement, surveillance post-changement</li>
+          <li>Documentation : runbooks Wazuh et PRA, procédures de réponse aux incidents, PSSI, rapport d'audit, journal de bord</li>
         </ul>
         <div class="exp-tags">
-          <span class="etag hi">Wazuh XDR</span><span class="etag hi">MITRE ATT&CK</span><span class="etag hi">Active Directory</span>
-          <span class="etag hi">FortiGate</span><span class="etag hi">Microsoft 365</span><span class="etag hi">Hyper-V</span>
-          <span class="etag">VirusTotal API</span><span class="etag">Sysmon</span><span class="etag">FIM</span><span class="etag">ANSSI</span><span class="etag">Azure AD</span>
+          <span class="etag hi">Wazuh XDR</span><span class="etag hi">MITRE ATT&amp;CK</span><span class="etag hi">Active Directory</span>
+          <span class="etag hi">PingCastle</span><span class="etag hi">FortiGate</span><span class="etag hi">Microsoft 365</span>
+          <span class="etag">Kerberos</span><span class="etag">GPO</span><span class="etag">Sysmon</span><span class="etag">OpenSearch</span>
+          <span class="etag">VirusTotal API</span><span class="etag">Entra ID</span><span class="etag">Hyper-V</span><span class="etag">PowerShell</span><span class="etag">ANSSI</span>
         </div>
       </div>
 
@@ -317,8 +323,9 @@ footer{position:relative;z-index:1;background:var(--bg2);border-top:1px solid va
         <div class="sk-title">SOC & SIEM / XDR</div>
         <div class="sk-tags">
           <span class="stag hi">Wazuh XDR</span><span class="stag hi">Splunk</span><span class="stag hi">Elastic Stack</span>
-          <span class="stag">Sysmon</span><span class="stag">Sigma</span><span class="stag">Yara</span>
-          <span class="stag">MITRE ATT&CK</span><span class="stag">TheHive</span><span class="stag">FIM</span>
+          <span class="stag hi">MITRE ATT&amp;CK</span><span class="stag">Microsoft Defender</span><span class="stag">Microsoft Sentinel / KQL</span>
+          <span class="stag">OpenSearch Dashboards</span><span class="stag">Suricata</span><span class="stag">Sysmon</span>
+          <span class="stag">Sigma</span><span class="stag">Yara</span><span class="stag">Active Response</span><span class="stag">FIM</span>
         </div>
       </div>
 
@@ -333,12 +340,32 @@ footer{position:relative;z-index:1;background:var(--bg2);border-top:1px solid va
       </div>
 
       <div class="sk-card">
-        <div class="sk-icon">🌐</div>
-        <div class="sk-title">Réseau & Infrastructure</div>
+        <div class="sk-icon">🔑</div>
+        <div class="sk-title">Sécurité Active Directory</div>
         <div class="sk-tags">
-          <span class="stag hi">Active Directory</span><span class="stag hi">Azure AD</span><span class="stag hi">FortiGate</span>
-          <span class="stag">Cisco</span><span class="stag">PfSense</span><span class="stag">VLAN / VPN</span>
-          <span class="stag">Hyper-V</span><span class="stag">VMware</span><span class="stag">GNS3</span>
+          <span class="stag hi">Active Directory</span><span class="stag hi">PingCastle</span><span class="stag hi">GPO de sécurité</span>
+          <span class="stag">Kerberos / SPN</span><span class="stag">LAPS</span><span class="stag">Hardened UNC Paths</span>
+          <span class="stag">Azure AD Connect</span><span class="stag">BloodHound</span><span class="stag">ANSSI</span>
+        </div>
+      </div>
+
+      <div class="sk-card">
+        <div class="sk-icon">🔍</div>
+        <div class="sk-title">Forensics &amp; Réponse à incident</div>
+        <div class="sk-tags">
+          <span class="stag hi">Incident Response</span><span class="stag hi">Threat Hunting</span><span class="stag hi">Phishing Analysis</span>
+          <span class="stag">Wireshark</span><span class="stag">Volatility</span><span class="stag">TheHive</span>
+          <span class="stag">Investigation IOC</span><span class="stag">Playbooks</span>
+        </div>
+      </div>
+
+      <div class="sk-card">
+        <div class="sk-icon">🌐</div>
+        <div class="sk-title">Réseau &amp; Infrastructure</div>
+        <div class="sk-tags">
+          <span class="stag hi">FortiGate</span><span class="stag hi">Cisco</span><span class="stag hi">Windows Server / Linux</span>
+          <span class="stag">FortiSwitch / FortiAP</span><span class="stag">PfSense</span><span class="stag">VLAN / VPN</span>
+          <span class="stag">TCP/IP · DNS · DHCP</span><span class="stag">Hyper-V</span><span class="stag">VMware</span><span class="stag">Veeam</span>
         </div>
       </div>
 
@@ -354,10 +381,11 @@ footer{position:relative;z-index:1;background:var(--bg2);border-top:1px solid va
 
       <div class="sk-card">
         <div class="sk-icon">⚡</div>
-        <div class="sk-title">Scripting & Automatisation</div>
+        <div class="sk-title">Scripting &amp; Automatisation</div>
         <div class="sk-tags">
-          <span class="stag hi">Python</span><span class="stag hi">PowerShell</span><span class="stag">Bash</span>
-          <span class="stag">API SOC</span><span class="stag">VirusTotal API</span><span class="stag">JSON Enrichissement</span>
+          <span class="stag hi">Python</span><span class="stag hi">PowerShell</span><span class="stag hi">Bash</span>
+          <span class="stag">API VirusTotal</span><span class="stag">Enrichissement JSON</span><span class="stag">SQL</span>
+          <span class="stag">Git</span><span class="stag">Docker</span><span class="stag">Ansible (bases)</span>
         </div>
       </div>
 
@@ -366,8 +394,8 @@ footer{position:relative;z-index:1;background:var(--bg2);border-top:1px solid va
         <div class="sk-title">Gouvernance & Conformité</div>
         <div class="sk-tags">
           <span class="stag hi">ISO 27001</span><span class="stag hi">EBIOS RM</span>
-          <span class="stag">NIS2</span><span class="stag">ANSSI</span><span class="stag">PCI-DSS</span>
-          <span class="stag">RGPD</span><span class="stag">CIS Benchmark</span>
+          <span class="stag">ISO 19011</span><span class="stag">NIS2</span><span class="stag">ANSSI</span>
+          <span class="stag">RGPD</span><span class="stag">PSSI</span><span class="stag">PRA</span>
         </div>
       </div>
 
@@ -627,19 +655,23 @@ footer{position:relative;z-index:1;background:var(--bg2);border-top:1px solid va
     <div class="s-label">Certifications & Formation</div>
     <h2 class="s-title">Diplômes & Certifs</h2>
 
-    <div class="sub-label">Certifications</div>
+    <div class="sub-label">Certifications et parcours</div>
     <div class="certs-grid">
+      <div class="cert-item"><div class="cert-logo">🛡️</div><div class="cert-info"><div class="cert-name">Blue Team Level 1 (BTL1)</div><div class="cert-issuer">Centri (ex-Security Blue Team)</div></div><div class="cert-year">2026</div></div>
+      <div class="cert-item"><div class="cert-logo">📘</div><div class="cert-info"><div class="cert-name">Microsoft SC-200 (en préparation)</div><div class="cert-issuer">Microsoft</div></div><div class="cert-year">2026</div></div>
       <div class="cert-item"><div class="cert-logo">🎯</div><div class="cert-info"><div class="cert-name">SOC Analyst CDSA Path</div><div class="cert-issuer">HackTheBox</div></div><div class="cert-year">2026</div></div>
       <div class="cert-item"><div class="cert-logo">💀</div><div class="cert-info"><div class="cert-name">Penetration Tester CPTS Path</div><div class="cert-issuer">HackTheBox</div></div><div class="cert-year">2025</div></div>
       <div class="cert-item"><div class="cert-logo">🔒</div><div class="cert-info"><div class="cert-name">Fortinet Certified Fundamentals</div><div class="cert-issuer">Fortinet</div></div><div class="cert-year">2025</div></div>
       <div class="cert-item"><div class="cert-logo">🛡️</div><div class="cert-info"><div class="cert-name">SOC Level 1</div><div class="cert-issuer">TryHackMe</div></div><div class="cert-year">2024</div></div>
+      <div class="cert-item"><div class="cert-logo">🏆</div><div class="cert-info"><div class="cert-name">Classement Top 1 %</div><div class="cert-issuer">TryHackMe</div></div><div class="cert-year">2026</div></div>
+      <div class="cert-item"><div class="cert-logo">🧭</div><div class="cert-info"><div class="cert-name">SOC Analyst Learning Path</div><div class="cert-issuer">LetsDefend</div></div><div class="cert-year"></div></div>
       <div class="cert-item"><div class="cert-logo">🌐</div><div class="cert-info"><div class="cert-name">JR Pentesting & Web Pentesting</div><div class="cert-issuer">TryHackMe</div></div><div class="cert-year">2024–2025</div></div>
       <div class="cert-item"><div class="cert-logo">☁️</div><div class="cert-info"><div class="cert-name">AWS Cloud</div><div class="cert-issuer">Orange Digital Center</div></div><div class="cert-year">2023</div></div>
     </div>
 
     <div class="sub-label">Formation Académique</div>
     <div class="certs-grid">
-      <div class="cert-item"><div class="cert-logo">🎓</div><div class="cert-info"><div class="cert-name">Master 2 Cyberdéfense & Sécurité SI</div><div class="cert-issuer">INSA Hauts-de-France · Valenciennes</div></div><div class="cert-year">2025–2026</div></div>
+      <div class="cert-item"><div class="cert-logo">🎓</div><div class="cert-info"><div class="cert-name">Master Cyberdéfense &amp; Sécurité SI (M1 + M2) — diplômé</div><div class="cert-issuer">INSA Hauts-de-France · Valenciennes</div></div><div class="cert-year">2024–2026</div></div>
       <div class="cert-item"><div class="cert-logo">📡</div><div class="cert-info"><div class="cert-name">Licence Pro Réseaux & Télécoms</div><div class="cert-issuer">INSA Hauts-de-France · Valenciennes</div></div><div class="cert-year">2023–2024</div></div>
       <div class="cert-item"><div class="cert-logo">📱</div><div class="cert-info"><div class="cert-name">BTS Télécommunications option Informatique</div><div class="cert-issuer">CSFE Sousse · Tunisie</div></div><div class="cert-year">2018–2020</div></div>
     </div>
@@ -651,10 +683,11 @@ footer{position:relative;z-index:1;background:var(--bg2);border-top:1px solid va
 <footer id="contact">
   <div class="f-copy">© 2026 Daouda Togola · Ingénieur Cybersécurité · Master 2 INSA Hauts-de-France</div>
   <div class="f-links">
-    <a href="https://github.com/Daou53" target="_blank">GitHub ↗</a>
-    <a href="https://linkedin.com/in/daouda-togola-334523228" target="_blank">LinkedIn ↗</a>
-    <a href="https://tryhackme.com/p/daouda" target="_blank">TryHackMe — Top 1% ↗</a>
-    <a href="https://profile.hackthebox.com/profile/019cb65d-c6e4-72c2-9cf5-ba22e21f5d16" target="_blank">HackTheBox ↗</a>
+    <a href="mailto:dtogola92@gmail.com">dtogola92@gmail.com</a>
+    <a href="https://github.com/Daou53" target="_blank" rel="noopener">GitHub ↗</a>
+    <a href="https://linkedin.com/in/daouda-togola-334523228" target="_blank" rel="noopener">LinkedIn ↗</a>
+    <a href="https://tryhackme.com/p/daouda" target="_blank" rel="noopener">TryHackMe — Top 1% ↗</a>
+    <a href="https://profile.hackthebox.com/profile/019cb65d-c6e4-72c2-9cf5-ba22e21f5d16" target="_blank" rel="noopener">HackTheBox ↗</a>
   </div>
 </footer>
 
