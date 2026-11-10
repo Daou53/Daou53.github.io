@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab IAM Entra ID &amp; AD hybride — Daouda Togola</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060809;--bg2:#0b0e12;--bg3:#10151c;--green:#00e87a;--blue:#38bdf8;--red:#f43f5e;--orange:#fb923c;--yellow:#fbbf24;--purple:#a78bfa;--text:#cbd5e1;--text-dim:#475569;--text-bright:#f1f5f9;--border:#1e293b;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.7;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 3rem;background:rgba(6,8,9,0.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--green);letter-spacing:2px;text-decoration:none;}
+.nav-back{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);text-decoration:none;letter-spacing:2px;border:1px solid var(--border);padding:6px 14px;transition:all 0.2s;}
+.nav-back:hover{border-color:var(--green);color:var(--green);}
+.hero{padding:8rem 3rem 4rem;position:relative;overflow:hidden;border-bottom:1px solid var(--border);}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,232,122,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,232,122,0.03) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 0%,transparent 100%);}
+.hero-inner{position:relative;z-index:1;max-width:900px;margin:0 auto;}
+.breadcrumb{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem;}
+.breadcrumb a{color:var(--green);text-decoration:none;}
+.hero-type{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--green);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:8px;}
+.type-dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+h1{font-family:'Syne',sans-serif;font-size:clamp(2rem,5vw,4rem);font-weight:800;color:var(--text-bright);line-height:1.1;margin-bottom:1rem;}
+.hero-sub{font-size:16px;color:var(--text-dim);font-weight:300;line-height:1.8;max-width:700px;margin-bottom:2rem;border-left:2px solid var(--green);padding-left:1.2rem;}
+.meta-row{display:flex;flex-wrap:wrap;gap:1.5rem;margin-top:1.5rem;}
+.meta-item{display:flex;flex-direction:column;gap:2px;}
+.meta-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;}
+.meta-value{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text-bright);}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:1.5rem;}
+.tag{font-family:'Share Tech Mono',monospace;font-size:9px;padding:3px 10px;border:1px solid var(--border);color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;}
+.tag.green{border-color:rgba(0,232,122,0.3);color:var(--green);}
+.tag.blue{border-color:rgba(56,189,248,0.3);color:var(--blue);}
+.tag.orange{border-color:rgba(251,146,60,0.3);color:var(--orange);}
+main{max-width:900px;margin:0 auto;padding:4rem 3rem;}
+.toc{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--green);padding:1.5rem;margin-bottom:3rem;}
+.toc-title{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--green);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;}
+.toc-list{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.toc-list a{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text-dim);text-decoration:none;letter-spacing:1px;transition:color 0.2s;}
+.toc-list a:hover{color:var(--green);}
+.toc-list a::before{content:'→ ';color:var(--green);}
+.section{margin-bottom:4rem;}
+.section-header{display:flex;align-items:center;gap:1rem;margin-bottom:2rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.section-num{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--green);background:rgba(0,232,122,0.08);border:1px solid rgba(0,232,122,0.2);padding:4px 10px;letter-spacing:2px;flex-shrink:0;}
+h2{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:700;color:var(--text-bright);}
+h3{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--text-bright);margin:2rem 0 1rem;}
+p{font-size:14px;color:var(--text);line-height:1.8;margin-bottom:1rem;font-weight:300;}
+.code-block{background:#040608;border:1px solid var(--border);border-left:3px solid var(--green);margin:1.5rem 0;overflow:hidden;}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:rgba(0,232,122,0.04);border-bottom:1px solid var(--border);}
+.code-lang{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--green);letter-spacing:2px;text-transform:uppercase;}
+.code-dots{display:flex;gap:4px;}
+.code-dot{width:7px;height:7px;border-radius:50%;}
+.code-dot:nth-child(1){background:#ff5f57;}
+.code-dot:nth-child(2){background:#febc2e;}
+.code-dot:nth-child(3){background:#28c840;}
+pre{padding:1.2rem 1.5rem;overflow-x:auto;font-family:'Share Tech Mono',monospace;font-size:12px;line-height:1.8;color:var(--text);}
+.highlight-box{background:rgba(0,232,122,0.04);border-left:3px solid var(--green);padding:1rem 1.5rem;margin:1.5rem 0;font-size:13px;}
+.highlight-box.info{border-left-color:var(--blue);background:rgba(56,189,248,0.04);}
+.highlight-box.warning{border-left-color:var(--orange);background:rgba(251,146,60,0.04);}
+.result-card{background:var(--bg2);border:1px solid var(--border);padding:1.5rem;margin:1.5rem 0;}
+.result-title{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:0.8rem;}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;}
+.result-item{display:flex;flex-direction:column;gap:4px;}
+.result-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:1px;}
+.result-value{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text-bright);}
+.result-value.success{color:var(--green);}
+.result-value.danger{color:var(--red);}
+table{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:13px;}
+th{background:rgba(0,232,122,0.06);color:var(--green);padding:10px 14px;text-align:left;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;border-bottom:2px solid var(--green);}
+td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text);font-size:13px;}
+tr:hover td{background:rgba(0,232,122,0.02);}
+footer{border-top:1px solid var(--border);padding:2rem 3rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;}
+.footer-copy{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);}
+.footer-link{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);text-decoration:none;transition:color 0.2s;}
+.footer-link:hover{color:var(--green);}
+@media(max-width:768px){nav{padding:1rem 1.5rem;}.hero,.main{padding-left:1.5rem;padding-right:1.5rem;}main{padding:2rem 1.5rem;}}
+.flow{display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center;margin:1.5rem 0;font-family:'Share Tech Mono',monospace;font-size:11px;}
+.flow-node{border:1px solid var(--border);background:var(--bg2);padding:8px 14px;color:var(--text-bright);letter-spacing:1px;}
+.flow-node.blue{border-color:rgba(56,189,248,0.4);color:var(--blue);}
+.flow-node.green{border-color:rgba(0,232,122,0.4);color:var(--green);}
+.flow-arrow{color:var(--text-dim);}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">DT_SEC</a>
+  <a href="index.html" class="nav-back">← Retour</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <div class="breadcrumb"><a href="index.html">Portfolio</a> / TP & Projets / IAM Entra ID</div>
+    <div class="hero-type"><span class="type-dot"></span>Lab personnel — Identity & Access Management</div>
+    <h1>IAM — Microsoft Entra ID<br>& Active Directory hybride</h1>
+    <p class="hero-sub">Mise en place d'une gestion des identités et des accès sur un environnement hybride Active Directory / Entra ID : synchronisation des annuaires, authentification forte dans une logique Zero Trust, et gouvernance des accès à privilèges avec Entra ID PIM.</p>
+    <div class="meta-row">
+      <div class="meta-item"><span class="meta-label">Type</span><span class="meta-value">Lab personnel</span></div>
+      <div class="meta-item"><span class="meta-label">Environnement</span><span class="meta-value">Tenant Entra ID d'essai</span></div>
+      <div class="meta-item"><span class="meta-label">Domaine</span><span class="meta-value">IAM · Zero Trust</span></div>
+      <div class="meta-item"><span class="meta-label">Année</span><span class="meta-value">2026</span></div>
+    </div>
+    <div class="tags">
+      <span class="tag blue">Entra ID</span>
+      <span class="tag blue">Active Directory</span>
+      <span class="tag blue">Azure AD Connect</span>
+      <span class="tag green">MFA</span>
+      <span class="tag green">SSO</span>
+      <span class="tag green">Conditional Access</span>
+      <span class="tag orange">Entra ID PIM</span>
+      <span class="tag orange">Zero Trust</span>
+      <span class="tag">RBAC</span>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="toc">
+    <div class="toc-title">// Table des matières</div>
+    <ul class="toc-list">
+      <li><a href="#contexte">01 — Contexte & Objectifs</a></li>
+      <li><a href="#architecture">02 — Architecture hybride</a></li>
+      <li><a href="#sync">03 — Synchronisation Azure AD Connect</a></li>
+      <li><a href="#auth">04 — MFA, SSO & Conditional Access</a></li>
+      <li><a href="#pim">05 — Accès à privilèges avec PIM</a></li>
+      <li><a href="#supervision">06 — Supervision des authentifications</a></li>
+      <li><a href="#conclusion">07 — Bilan & compétences</a></li>
+    </ul>
+  </div>
+
+  <div class="highlight-box info">
+    <strong>Note.</strong> Ce projet a été réalisé sur un tenant Entra ID en période d'essai, qui a expiré avant que je puisse en conserver les captures. La page documente donc la démarche, l'architecture et les configurations mises en œuvre plutôt que des copies d'écran.
+  </div>
+
+  <section class="section" id="contexte">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2>Contexte & Objectifs</h2>
+    </div>
+    <p>La gestion des identités et des accès (IAM) est au cœur de la sécurité d'un système d'information moderne : c'est elle qui détermine <em>qui</em> peut accéder à <em>quoi</em>, <em>quand</em> et <em>dans quelles conditions</em>. Ce lab visait à pratiquer l'IAM dans un contexte hybride représentatif des entreprises d'aujourd'hui, où un annuaire Active Directory on‑premise coexiste avec un tenant Entra ID dans le cloud.</p>
+    <div class="result-card">
+      <div class="result-title">// Objectifs du lab</div>
+      <div class="result-grid">
+        <div class="result-item"><span class="result-label">Identités</span><span class="result-value">Unifier AD et Entra ID</span></div>
+        <div class="result-item"><span class="result-label">Authentification</span><span class="result-value">MFA, SSO, accès conditionnel</span></div>
+        <div class="result-item"><span class="result-label">Modèle</span><span class="result-value">Approche Zero Trust</span></div>
+        <div class="result-item"><span class="result-label">Privilèges</span><span class="result-value">Gouvernance des rôles (PIM)</span></div>
+        <div class="result-item"><span class="result-label">Visibilité</span><span class="result-value">Analyse des logs d'authentification</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="architecture">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2>Architecture hybride</h2>
+    </div>
+    <p>L'architecture repose sur un annuaire <strong style="color:var(--blue)">Active Directory</strong> local, source d'autorité pour les comptes, synchronisé vers un tenant <strong style="color:var(--blue)">Microsoft Entra ID</strong> grâce à <strong>Azure AD Connect</strong>. Les utilisateurs disposent ainsi d'une identité unique, utilisable aussi bien sur les ressources on‑premise que sur les applications cloud (Microsoft 365 et applications SaaS).</p>
+    <div class="flow">
+      <span class="flow-node blue">Active Directory<br>(on-premise)</span>
+      <span class="flow-arrow">──▶</span>
+      <span class="flow-node">Azure AD Connect</span>
+      <span class="flow-arrow">──▶</span>
+      <span class="flow-node blue">Entra ID<br>(cloud)</span>
+      <span class="flow-arrow">──▶</span>
+      <span class="flow-node green">Apps M365 / SaaS</span>
+    </div>
+    <div class="highlight-box">
+      Principe directeur : <strong>une identité, des accès contrôlés</strong>. L'utilisateur s'authentifie une seule fois (SSO) et chaque accès est évalué dynamiquement selon le contexte (Zero Trust).
+    </div>
+  </section>
+
+  <section class="section" id="sync">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2>Synchronisation Azure AD Connect</h2>
+    </div>
+    <p>Azure AD Connect assure la synchronisation des comptes utilisateurs, des groupes et des accès entre Active Directory et Entra ID. La configuration passe par le choix de la méthode d'authentification et le filtrage des objets à synchroniser.</p>
+    <table>
+      <thead>
+        <tr><th>Élément</th><th>Rôle</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Synchronisation de hachage de mot de passe (PHS)</td><td>Authentification cloud sans exposer l'AD</td></tr>
+        <tr><td>Filtrage par unité d'organisation</td><td>Ne remonter que les objets pertinents</td></tr>
+        <tr><td>Synchronisation des groupes</td><td>Réutiliser les groupes AD pour les accès cloud</td></tr>
+        <tr><td>UPN cohérent</td><td>Même identifiant on-premise et cloud (SSO)</td></tr>
+      </tbody>
+    </table>
+    <div class="highlight-box info">
+      La synchronisation est le socle de l'identité hybride : sans elle, pas de SSO ni de politique d'accès unifiée entre le local et le cloud.
+    </div>
+  </section>
+
+  <section class="section" id="auth">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2>MFA, SSO & Conditional Access</h2>
+    </div>
+    <p>La sécurisation de l'authentification suit une logique <strong style="color:var(--green)">Zero Trust</strong> : ne jamais faire confiance par défaut, toujours vérifier. Trois briques se combinent.</p>
+    <h3>SSO — Authentification unique</h3>
+    <p>Grâce à l'identité hybride, l'utilisateur se connecte une seule fois et accède à l'ensemble de ses applications sans ressaisir ses identifiants, ce qui réduit la fatigue de connexion et les mots de passe faibles.</p>
+    <h3>MFA — Authentification multifacteur</h3>
+    <p>Un second facteur (application Microsoft Authenticator, notification push ou code) est exigé en complément du mot de passe, ce qui bloque la très grande majorité des attaques par vol de mot de passe.</p>
+    <h3>Conditional Access — Accès conditionnel</h3>
+    <p>Des politiques évaluent chaque tentative de connexion selon le contexte, et décident d'autoriser, de bloquer ou d'exiger un facteur supplémentaire.</p>
+    <div class="result-card">
+      <div class="result-title">// Signaux évalués par les politiques</div>
+      <div class="result-grid">
+        <div class="result-item"><span class="result-label">Utilisateur / groupe</span><span class="result-value">Qui se connecte</span></div>
+        <div class="result-item"><span class="result-label">Application</span><span class="result-value">À quelle ressource</span></div>
+        <div class="result-item"><span class="result-label">Localisation / IP</span><span class="result-value">D'où vient la connexion</span></div>
+        <div class="result-item"><span class="result-label">État de l'appareil</span><span class="result-value">Conforme / géré ou non</span></div>
+        <div class="result-item"><span class="result-label">Niveau de risque</span><span class="result-value">Connexion jugée risquée</span></div>
+        <div class="result-item"><span class="result-label">Décision</span><span class="result-value success">Autoriser · MFA · Bloquer</span></div>
+      </div>
+    </div>
+    <div class="highlight-box">
+      Exemple de politique : exiger le MFA pour toute connexion à un compte à privilèges, et bloquer les connexions depuis des localisations non approuvées.
+    </div>
+  </section>
+
+  <section class="section" id="pim">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2>Accès à privilèges avec Entra ID PIM</h2>
+    </div>
+    <p>Les comptes à hauts privilèges (administrateurs) sont la cible prioritaire des attaquants. <strong style="color:var(--orange)">Privileged Identity Management (PIM)</strong> applique le principe du moindre privilège dans le temps : au lieu d'un rôle d'administrateur permanent, l'utilisateur ne l'active qu'au besoin.</p>
+    <h3>Just-In-Time (JIT)</h3>
+    <p>Le rôle est attribué de façon <strong>éligible</strong> et non permanente. L'utilisateur doit l'<em>activer</em> pour une durée limitée, souvent avec justification et validation d'un approbateur, puis le rôle se désactive automatiquement.</p>
+    <table>
+      <thead>
+        <tr><th>Sans PIM</th><th>Avec PIM (JIT)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Rôle admin permanent</td><td style="color:var(--green)">Rôle éligible, activé à la demande</td></tr>
+        <tr><td>Privilèges exposés en continu</td><td style="color:var(--green)">Fenêtre d'exposition limitée dans le temps</td></tr>
+        <tr><td>Peu de traçabilité</td><td style="color:var(--green)">Activation justifiée, approuvée, journalisée</td></tr>
+      </tbody>
+    </table>
+    <div class="highlight-box warning">
+      Bénéfice sécurité : réduire drastiquement la surface d'attaque liée aux comptes à privilèges, tout en gardant une traçabilité complète des élévations.
+    </div>
+  </section>
+
+  <section class="section" id="supervision">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <h2>Supervision des authentifications</h2>
+    </div>
+    <p>La dernière brique consiste à exploiter les journaux d'Entra ID pour détecter les comportements anormaux et améliorer en continu la posture IAM.</p>
+    <div class="result-card">
+      <div class="result-title">// Logs analysés</div>
+      <div class="result-grid">
+        <div class="result-item"><span class="result-label">Journaux de connexion</span><span class="result-value">Succès, échecs, MFA</span></div>
+        <div class="result-item"><span class="result-label">Journaux d'audit</span><span class="result-value">Changements de rôles & accès</span></div>
+        <div class="result-item"><span class="result-label">Connexions à risque</span><span class="result-value">IP inhabituelles, voyage impossible</span></div>
+        <div class="result-item"><span class="result-label">Activations PIM</span><span class="result-value">Qui a élevé, quand, pourquoi</span></div>
+      </div>
+    </div>
+    <p>Cette analyse débouche sur des recommandations concrètes de sécurisation : renforcement des politiques d'accès conditionnel, revue des comptes dormants, et durcissement des rôles à privilèges.</p>
+  </section>
+
+  <section class="section" id="conclusion">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <h2>Bilan & compétences</h2>
+    </div>
+    <p>Ce lab m'a permis de pratiquer une démarche IAM complète dans un environnement hybride représentatif du monde de l'entreprise, et de relier chaque brique à un objectif de sécurité clair plutôt qu'à une simple configuration.</p>
+    <div class="result-card">
+      <div class="result-title">// Compétences mises en œuvre</div>
+      <div class="result-grid">
+        <div class="result-item"><span class="result-label">Identité hybride</span><span class="result-value success">✓ AD + Entra ID + AAD Connect</span></div>
+        <div class="result-item"><span class="result-label">Authentification forte</span><span class="result-value success">✓ MFA · SSO</span></div>
+        <div class="result-item"><span class="result-label">Zero Trust</span><span class="result-value success">✓ Conditional Access</span></div>
+        <div class="result-item"><span class="result-label">PAM</span><span class="result-value success">✓ PIM · JIT · gouvernance</span></div>
+        <div class="result-item"><span class="result-label">Supervision</span><span class="result-value success">✓ Analyse des logs</span></div>
+        <div class="result-item"><span class="result-label">Posture</span><span class="result-value">Moindre privilège</span></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-copy">Daouda Togola · Lab IAM Entra ID & Active Directory hybride · 2026</div>
+  <a href="index.html" class="footer-link">← Retour au portfolio</a>
+</footer>
+</body>
+</html>
