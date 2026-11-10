@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sécurité des systèmes embarqués (DVID) — Daouda Togola</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060809;--bg2:#0b0e12;--bg3:#10151c;--green:#00e87a;--blue:#38bdf8;--red:#f43f5e;--orange:#fb923c;--yellow:#fbbf24;--purple:#a78bfa;--text:#cbd5e1;--text-dim:#475569;--text-bright:#f1f5f9;--border:#1e293b;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.7;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 3rem;background:rgba(6,8,9,0.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--green);letter-spacing:2px;text-decoration:none;}
+.nav-back{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);text-decoration:none;letter-spacing:2px;border:1px solid var(--border);padding:6px 14px;transition:all 0.2s;}
+.nav-back:hover{border-color:var(--green);color:var(--green);}
+.hero{padding:8rem 3rem 4rem;position:relative;overflow:hidden;border-bottom:1px solid var(--border);}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,232,122,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,232,122,0.03) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 0%,transparent 100%);}
+.hero-inner{position:relative;z-index:1;max-width:900px;margin:0 auto;}
+.breadcrumb{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem;}
+.breadcrumb a{color:var(--green);text-decoration:none;}
+.hero-type{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--green);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:8px;}
+.type-dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+h1{font-family:'Syne',sans-serif;font-size:clamp(2rem,5vw,4rem);font-weight:800;color:var(--text-bright);line-height:1.1;margin-bottom:1rem;}
+.hero-sub{font-size:16px;color:var(--text-dim);font-weight:300;line-height:1.8;max-width:700px;margin-bottom:2rem;border-left:2px solid var(--green);padding-left:1.2rem;}
+.meta-row{display:flex;flex-wrap:wrap;gap:1.5rem;margin-top:1.5rem;}
+.meta-item{display:flex;flex-direction:column;gap:2px;}
+.meta-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;}
+.meta-value{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text-bright);}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:1.5rem;}
+.tag{font-family:'Share Tech Mono',monospace;font-size:9px;padding:3px 10px;border:1px solid var(--border);color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;}
+.tag.green{border-color:rgba(0,232,122,0.3);color:var(--green);}
+.tag.blue{border-color:rgba(56,189,248,0.3);color:var(--blue);}
+.tag.orange{border-color:rgba(251,146,60,0.3);color:var(--orange);}
+main{max-width:900px;margin:0 auto;padding:4rem 3rem;}
+.toc{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--green);padding:1.5rem;margin-bottom:3rem;}
+.toc-title{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--green);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;}
+.toc-list{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.toc-list a{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text-dim);text-decoration:none;letter-spacing:1px;transition:color 0.2s;}
+.toc-list a:hover{color:var(--green);}
+.toc-list a::before{content:'→ ';color:var(--green);}
+.section{margin-bottom:4rem;}
+.section-header{display:flex;align-items:center;gap:1rem;margin-bottom:2rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.section-num{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--green);background:rgba(0,232,122,0.08);border:1px solid rgba(0,232,122,0.2);padding:4px 10px;letter-spacing:2px;flex-shrink:0;}
+h2{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:700;color:var(--text-bright);}
+h3{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--text-bright);margin:2rem 0 1rem;}
+p{font-size:14px;color:var(--text);line-height:1.8;margin-bottom:1rem;font-weight:300;}
+.code-block{background:#040608;border:1px solid var(--border);border-left:3px solid var(--green);margin:1.5rem 0;overflow:hidden;}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:rgba(0,232,122,0.04);border-bottom:1px solid var(--border);}
+.code-lang{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--green);letter-spacing:2px;text-transform:uppercase;}
+.code-dots{display:flex;gap:4px;}
+.code-dot{width:7px;height:7px;border-radius:50%;}
+.code-dot:nth-child(1){background:#ff5f57;}
+.code-dot:nth-child(2){background:#febc2e;}
+.code-dot:nth-child(3){background:#28c840;}
+pre{padding:1.2rem 1.5rem;overflow-x:auto;font-family:'Share Tech Mono',monospace;font-size:12px;line-height:1.8;color:var(--text);}
+.highlight-box{background:rgba(0,232,122,0.04);border-left:3px solid var(--green);padding:1rem 1.5rem;margin:1.5rem 0;font-size:13px;}
+.highlight-box.info{border-left-color:var(--blue);background:rgba(56,189,248,0.04);}
+.highlight-box.warning{border-left-color:var(--orange);background:rgba(251,146,60,0.04);}
+.result-card{background:var(--bg2);border:1px solid var(--border);padding:1.5rem;margin:1.5rem 0;}
+.result-title{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:0.8rem;}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;}
+.result-item{display:flex;flex-direction:column;gap:4px;}
+.result-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:1px;}
+.result-value{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text-bright);}
+.result-value.success{color:var(--green);}
+.result-value.danger{color:var(--red);}
+table{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:13px;}
+th{background:rgba(0,232,122,0.06);color:var(--green);padding:10px 14px;text-align:left;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;border-bottom:2px solid var(--green);}
+td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text);font-size:13px;}
+tr:hover td{background:rgba(0,232,122,0.02);}
+footer{border-top:1px solid var(--border);padding:2rem 3rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;}
+.footer-copy{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);}
+.footer-link{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);text-decoration:none;transition:color 0.2s;}
+.footer-link:hover{color:var(--green);}
+@media(max-width:768px){nav{padding:1rem 1.5rem;}.hero,.main{padding-left:1.5rem;padding-right:1.5rem;}main{padding:2rem 1.5rem;}}
+.pdf-btn{display:inline-flex;align-items:center;gap:10px;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:1px;color:var(--bg);background:var(--green);padding:12px 22px;text-decoration:none;text-transform:uppercase;transition:all 0.2s;border:1px solid var(--green);margin:0.5rem 0;}
+.pdf-btn:hover{background:transparent;color:var(--green);}
+.pdf-btn .ic{font-size:15px;}
+.mod-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:1.5rem 0;}
+.mod{border:1px solid var(--border);background:var(--bg2);border-top:3px solid var(--blue);padding:1.2rem;}
+.mod-k{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:2px;margin-bottom:0.5rem;}
+.mod-t{font-family:'Syne',sans-serif;font-weight:700;color:var(--text-bright);font-size:1rem;margin-bottom:0.4rem;}
+.mod-d{font-size:12px;color:var(--text-dim);line-height:1.6;}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">DT_SEC</a>
+  <a href="index.html" class="nav-back">← Retour</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <div class="breadcrumb"><a href="index.html">Portfolio</a> / TP & Projets / Sécurité systèmes embarqués</div>
+    <div class="hero-type"><span class="type-dot"></span>TP Hardware Hacking — IoT / DVID</div>
+    <h1>Sécurité des systèmes<br>embarqués — DVID</h1>
+    <p class="hero-sub">Travaux pratiques de hacking matériel sur la carte DVID (Damn Vulnerable IoT Device, microcontrôleur ATmega328p) : écoute et exploitation de liaisons UART, extraction et analyse de firmware, attaques Bluetooth BLE et exploitation de l'interface web embarquée.</p>
+    <div class="meta-row">
+      <div class="meta-item"><span class="meta-label">Type</span><span class="meta-value">Compte rendu de TP</span></div>
+      <div class="meta-item"><span class="meta-label">Établissement</span><span class="meta-value">INSA Hauts-de-France</span></div>
+      <div class="meta-item"><span class="meta-label">Année</span><span class="meta-value">2024–2025</span></div>
+      <div class="meta-item"><span class="meta-label">Binôme</span><span class="meta-value">Togola · Touré</span></div>
+    </div>
+    <div class="tags">
+      <span class="tag blue">UART</span>
+      <span class="tag blue">Firmware</span>
+      <span class="tag blue">ATmega328p</span>
+      <span class="tag green">Bluetooth BLE</span>
+      <span class="tag orange">Reverse Engineering</span>
+      <span class="tag orange">binwalk</span>
+      <span class="tag">avrdude</span>
+      <span class="tag">SimAVR</span>
+      <span class="tag">Kali Linux</span>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="toc">
+    <div class="toc-title">// Table des matières</div>
+    <ul class="toc-list">
+      <li><a href="#contexte">01 — Contexte & Matériel</a></li>
+      <li><a href="#uart">02 — Module 1 : Liaison UART</a></li>
+      <li><a href="#firmware">03 — Module 2 : Analyse de firmware</a></li>
+      <li><a href="#bluetooth">04 — Module 3 : Bluetooth BLE</a></li>
+      <li><a href="#web">05 — Module 4 : Interface web embarquée</a></li>
+      <li><a href="#conclusion">06 — Bilan & compétences</a></li>
+    </ul>
+  </div>
+
+  <div class="highlight-box info">
+    <strong>Compte rendu complet disponible.</strong> Cette page synthétise les quatre modules. Le rapport détaillé (17 pages, avec captures, commandes et flags obtenus) est téléchargeable ci‑dessous.
+    <div style="margin-top:1rem">
+      <a class="pdf-btn" href="docs/securite-systeme-embarque-dvid.pdf" target="_blank"><span class="ic">⬇</span> Télécharger le compte rendu (PDF · 17 p.)</a>
+    </div>
+  </div>
+
+  <section class="section" id="contexte">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2>Contexte & Matériel</h2>
+    </div>
+    <p>L'objectif de ce TP était d'aborder la sécurité des objets connectés par la pratique, en attaquant une carte volontairement vulnérable, la <strong style="color:var(--blue)">DVID</strong> (Damn Vulnerable IoT Device). Chaque module cible une surface d'attaque différente d'un système embarqué : l'interface de debug, le firmware, la radio et l'application web. L'enjeu est de comprendre comment un attaquant extrait des secrets d'un composant matériel que l'on croit fermé.</p>
+    <div class="result-card">
+      <div class="result-title">// Environnement technique</div>
+      <div class="result-grid">
+        <div class="result-item"><span class="result-label">Cible</span><span class="result-value">Carte DVID (ATmega328p)</span></div>
+        <div class="result-item"><span class="result-label">Interface</span><span class="result-value">Dongle UART · programmeur USBasp</span></div>
+        <div class="result-item"><span class="result-label">Radio</span><span class="result-value">Clé BLE · nRF Connect (Android)</span></div>
+        <div class="result-item"><span class="result-label">Poste attaquant</span><span class="result-value">Kali Linux</span></div>
+        <div class="result-item"><span class="result-label">Outils firmware</span><span class="result-value">avrdude · strings · binwalk · SimAVR</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="uart">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2>Module 1 — Liaison UART</h2>
+    </div>
+    <p>Le premier module établit une communication série UART avec la carte : identification des broches, câblage croisé (RX ↔ TX) et flashage du firmware avec <strong>avrdude</strong> via le programmeur USBasp. Une fois la liaison ouverte, l'écoute du port série permet de récupérer les messages émis par le microcontrôleur, et donc un premier flag.</p>
+    <div class="highlight-box">
+      Principe clé : une interface de debug (UART) laissée accessible est une porte d'entrée directe sur le fonctionnement interne d'un équipement embarqué.
+    </div>
+  </section>
+
+  <section class="section" id="firmware">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2>Module 2 — Analyse de firmware</h2>
+    </div>
+    <p>Le cœur du TP : extraire le firmware de la carte, puis l'analyser pour en tirer des secrets. Plusieurs techniques sont mises en œuvre, de la plus simple à la plus avancée.</p>
+    <div class="mod-grid">
+      <div class="mod">
+        <div class="mod-k">2.1 — FIND THE DATASHEET</div>
+        <div class="mod-t">Écoute série</div>
+        <div class="mod-d">Identification du bon pin de sortie et lecture du mot de passe transmis sur la liaison série via un script Python.</div>
+      </div>
+      <div class="mod">
+        <div class="mod-k">2.2 / 2.3 — HARDCODED</div>
+        <div class="mod-t">Secrets en dur</div>
+        <div class="mod-d">Dump du firmware avec avrdude, puis extraction des chaînes avec <code style="color:var(--green)">strings</code> pour révéler un mot de passe stocké en dur.</div>
+      </div>
+      <div class="mod">
+        <div class="mod-k">2.4 — EEPROM</div>
+        <div class="mod-t">Simulation AVR</div>
+        <div class="mod-d">Analyse du dialogue firmware ↔ EEPROM en simulation avec SimAVR et visualisation des signaux dans GTKWave.</div>
+      </div>
+      <div class="mod">
+        <div class="mod-k">2.5 — GARGOYLE</div>
+        <div class="mod-t">Reverse binwalk</div>
+        <div class="mod-d">Extraction du système de fichiers d'un firmware avec <code style="color:var(--green)">binwalk</code>, puis recherche des secrets dans /etc/shadow.</div>
+      </div>
+    </div>
+    <div class="highlight-box warning">
+      Enseignement : un firmware embarque souvent bien plus que du code — identifiants en clair, clés, systèmes de fichiers entiers — accessibles dès lors qu'on peut le dumper.
+    </div>
+  </section>
+
+  <section class="section" id="bluetooth">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2>Module 3 — Bluetooth BLE</h2>
+    </div>
+    <p>Ce module explore la surface radio de l'objet connecté via le Bluetooth Low Energy, en lecture puis en écriture sur une caractéristique GATT spécifique (<code style="color:var(--blue)">0000ffe1</code>), à l'aide d'une clé BLE et de l'application nRF Connect.</p>
+    <table>
+      <thead>
+        <tr><th>Mode</th><th>Action</th><th>Résultat</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>RX (lecture)</td><td>Lecture de la caractéristique BLE / champ « Device Name »</td><td>Récupération du mot de passe (flag)</td></tr>
+        <tr><td>TX (écriture)</td><td>Écriture d'un mot de passe dans la caractéristique</td><td>Déblocage de l'OTP affiché par la carte</td></tr>
+      </tbody>
+    </table>
+    <div class="highlight-box">
+      La radio BLE est une surface d'attaque à part entière : des caractéristiques GATT mal protégées exposent lecture et écriture de données sensibles à portée radio.
+    </div>
+  </section>
+
+  <section class="section" id="web">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2>Module 4 — Interface web embarquée</h2>
+    </div>
+    <p>Beaucoup d'objets connectés exposent une interface web d'administration. Ce module cible les vulnérabilités web classiques de cette interface.</p>
+    <h3>Injection SQL (SQLi)</h3>
+    <p>La détection se fait par une simple apostrophe provoquant une erreur SQL. L'exploitation, par requêtes <code style="color:var(--orange)">UNION</code>, permet d'énumérer les tables et colonnes puis d'extraire les comptes utilisateurs, dont les condensats de mots de passe — ensuite cassés via une base de hachages (CrackStation).</p>
+    <h3>CSRF (Cross-Site Request Forgery)</h3>
+    <p>Le formulaire de changement de mot de passe ne comporte aucun jeton anti‑CSRF : une page piégée envoyant une simple requête vers l'application, ouverte par un utilisateur authentifié, suffit à modifier son mot de passe à son insu.</p>
+    <div class="highlight-box warning">
+      L'interface web d'un objet connecté hérite de toutes les failles du web classique — et les conséquences sont physiques quand elle pilote un équipement.
+    </div>
+  </section>
+
+  <section class="section" id="conclusion">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <h2>Bilan & compétences</h2>
+    </div>
+    <p>Ce TP m'a fait parcourir l'ensemble des surfaces d'attaque d'un système embarqué, du niveau matériel (UART, firmware, EEPROM) au niveau applicatif (BLE, web). C'est une approche très concrète de la sécurité IoT, qui montre pourquoi la défense doit couvrir toute la chaîne — du silicium jusqu'à l'interface utilisateur.</p>
+    <div class="result-card">
+      <div class="result-title">// Compétences mises en œuvre</div>
+      <div class="result-grid">
+        <div class="result-item"><span class="result-label">Interface matérielle</span><span class="result-value success">✓ UART · flashage avrdude</span></div>
+        <div class="result-item"><span class="result-label">Firmware</span><span class="result-value success">✓ Dump · strings · binwalk</span></div>
+        <div class="result-item"><span class="result-label">Simulation</span><span class="result-value success">✓ SimAVR · GTKWave</span></div>
+        <div class="result-item"><span class="result-label">Radio</span><span class="result-value success">✓ BLE RX / TX · GATT</span></div>
+        <div class="result-item"><span class="result-label">Web</span><span class="result-value success">✓ SQLi · CSRF</span></div>
+        <div class="result-item"><span class="result-label">Posture</span><span class="result-value">Sécurité offensive IoT</span></div>
+      </div>
+    </div>
+    <div style="margin-top:1.5rem">
+      <a class="pdf-btn" href="docs/securite-systeme-embarque-dvid.pdf" target="_blank"><span class="ic">⬇</span> Lire le compte rendu complet (PDF · 17 p.)</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-copy">Daouda Togola · TP Sécurité des systèmes embarqués (DVID) · INSA · 2024–2025</div>
+  <a href="index.html" class="footer-link">← Retour au portfolio</a>
+</footer>
+</body>
+</html>
