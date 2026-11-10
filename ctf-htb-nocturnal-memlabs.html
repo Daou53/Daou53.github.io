@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CTF HTB Nocturnal &amp; MemLabs Lab 5 — Daouda Togola</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060809;--bg2:#0b0e12;--bg3:#10151c;--green:#00e87a;--blue:#38bdf8;--red:#f43f5e;--orange:#fb923c;--yellow:#fbbf24;--purple:#a78bfa;--text:#cbd5e1;--text-dim:#475569;--text-bright:#f1f5f9;--border:#1e293b;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.7;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 3rem;background:rgba(6,8,9,0.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--green);letter-spacing:2px;text-decoration:none;}
+.nav-back{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);text-decoration:none;letter-spacing:2px;border:1px solid var(--border);padding:6px 14px;transition:all 0.2s;}
+.nav-back:hover{border-color:var(--green);color:var(--green);}
+.hero{padding:8rem 3rem 4rem;position:relative;overflow:hidden;border-bottom:1px solid var(--border);}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,232,122,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,232,122,0.03) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 0%,transparent 100%);}
+.hero-inner{position:relative;z-index:1;max-width:900px;margin:0 auto;}
+.breadcrumb{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem;}
+.breadcrumb a{color:var(--green);text-decoration:none;}
+.hero-type{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--green);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:8px;}
+.type-dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+h1{font-family:'Syne',sans-serif;font-size:clamp(2rem,5vw,4rem);font-weight:800;color:var(--text-bright);line-height:1.1;margin-bottom:1rem;}
+.hero-sub{font-size:16px;color:var(--text-dim);font-weight:300;line-height:1.8;max-width:700px;margin-bottom:2rem;border-left:2px solid var(--green);padding-left:1.2rem;}
+.meta-row{display:flex;flex-wrap:wrap;gap:1.5rem;margin-top:1.5rem;}
+.meta-item{display:flex;flex-direction:column;gap:2px;}
+.meta-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;}
+.meta-value{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text-bright);}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:1.5rem;}
+.tag{font-family:'Share Tech Mono',monospace;font-size:9px;padding:3px 10px;border:1px solid var(--border);color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;}
+.tag.green{border-color:rgba(0,232,122,0.3);color:var(--green);}
+.tag.blue{border-color:rgba(56,189,248,0.3);color:var(--blue);}
+.tag.orange{border-color:rgba(251,146,60,0.3);color:var(--orange);}
+main{max-width:900px;margin:0 auto;padding:4rem 3rem;}
+.toc{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--green);padding:1.5rem;margin-bottom:3rem;}
+.toc-title{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--green);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;}
+.toc-list{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.toc-list a{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text-dim);text-decoration:none;letter-spacing:1px;transition:color 0.2s;}
+.toc-list a:hover{color:var(--green);}
+.toc-list a::before{content:'→ ';color:var(--green);}
+.section{margin-bottom:4rem;}
+.section-header{display:flex;align-items:center;gap:1rem;margin-bottom:2rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.section-num{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--green);background:rgba(0,232,122,0.08);border:1px solid rgba(0,232,122,0.2);padding:4px 10px;letter-spacing:2px;flex-shrink:0;}
+h2{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:700;color:var(--text-bright);}
+h3{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--text-bright);margin:2rem 0 1rem;}
+p{font-size:14px;color:var(--text);line-height:1.8;margin-bottom:1rem;font-weight:300;}
+.code-block{background:#040608;border:1px solid var(--border);border-left:3px solid var(--green);margin:1.5rem 0;overflow:hidden;}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:rgba(0,232,122,0.04);border-bottom:1px solid var(--border);}
+.code-lang{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--green);letter-spacing:2px;text-transform:uppercase;}
+.code-dots{display:flex;gap:4px;}
+.code-dot{width:7px;height:7px;border-radius:50%;}
+.code-dot:nth-child(1){background:#ff5f57;}
+.code-dot:nth-child(2){background:#febc2e;}
+.code-dot:nth-child(3){background:#28c840;}
+pre{padding:1.2rem 1.5rem;overflow-x:auto;font-family:'Share Tech Mono',monospace;font-size:12px;line-height:1.8;color:var(--text);}
+.highlight-box{background:rgba(0,232,122,0.04);border-left:3px solid var(--green);padding:1rem 1.5rem;margin:1.5rem 0;font-size:13px;}
+.highlight-box.info{border-left-color:var(--blue);background:rgba(56,189,248,0.04);}
+.highlight-box.warning{border-left-color:var(--orange);background:rgba(251,146,60,0.04);}
+.result-card{background:var(--bg2);border:1px solid var(--border);padding:1.5rem;margin:1.5rem 0;}
+.result-title{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:0.8rem;}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;}
+.result-item{display:flex;flex-direction:column;gap:4px;}
+.result-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:1px;}
+.result-value{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text-bright);}
+.result-value.success{color:var(--green);}
+.result-value.danger{color:var(--red);}
+table{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:13px;}
+th{background:rgba(0,232,122,0.06);color:var(--green);padding:10px 14px;text-align:left;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;border-bottom:2px solid var(--green);}
+td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text);font-size:13px;}
+tr:hover td{background:rgba(0,232,122,0.02);}
+footer{border-top:1px solid var(--border);padding:2rem 3rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;}
+.footer-copy{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);}
+.footer-link{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);text-decoration:none;transition:color 0.2s;}
+.footer-link:hover{color:var(--green);}
+@media(max-width:768px){nav{padding:1rem 1.5rem;}.hero,.main{padding-left:1.5rem;padding-right:1.5rem;}main{padding:2rem 1.5rem;}}
+.pdf-btn{display:inline-flex;align-items:center;gap:10px;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:1px;color:var(--bg);background:var(--green);padding:12px 22px;text-decoration:none;text-transform:uppercase;transition:all 0.2s;border:1px solid var(--green);margin:0.5rem 0;}
+.pdf-btn:hover{background:transparent;color:var(--green);}
+.pdf-btn .ic{font-size:15px;}
+.chain{display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;margin:1.5rem 0;font-family:'Share Tech Mono',monospace;font-size:11px;}
+.chain-node{border:1px solid var(--border);background:var(--bg2);padding:7px 12px;color:var(--text-bright);letter-spacing:1px;}
+.chain-node.r{border-color:rgba(244,63,94,0.4);color:var(--red);}
+.chain-arrow{color:var(--text-dim);}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">DT_SEC</a>
+  <a href="index.html" class="nav-back">← Retour</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <div class="breadcrumb"><a href="index.html">Portfolio</a> / Writeups / HTB Nocturnal & MemLabs</div>
+    <div class="hero-type"><span class="type-dot"></span>CTF Writeup — Pentest Web & Forensic mémoire</div>
+    <h1>CTF — HTB Nocturnal<br>& MemLabs Lab 5</h1>
+    <p class="hero-sub">Deux challenges complémentaires : la machine HackTheBox « Nocturnal », une cible web exploitée par énumération et référence directe à un objet (IDOR) jusqu'à la récupération d'identifiants, et MemLabs Lab 5, une analyse forensique d'un dump mémoire Windows avec Volatility.</p>
+    <div class="meta-row">
+      <div class="meta-item"><span class="meta-label">Type</span><span class="meta-value">Writeup CTF</span></div>
+      <div class="meta-item"><span class="meta-label">Plateformes</span><span class="meta-value">HackTheBox · MemLabs</span></div>
+      <div class="meta-item"><span class="meta-label">Année</span><span class="meta-value">2024–2025</span></div>
+      <div class="meta-item"><span class="meta-label">Auteur</span><span class="meta-value">Daouda Togola</span></div>
+    </div>
+    <div class="tags">
+      <span class="tag red">IDOR</span>
+      <span class="tag red">Énumération web</span>
+      <span class="tag orange">nmap</span>
+      <span class="tag orange">Gobuster</span>
+      <span class="tag orange">ffuf</span>
+      <span class="tag orange">Burp Suite</span>
+      <span class="tag blue">Volatility</span>
+      <span class="tag blue">Forensic mémoire</span>
+      <span class="tag">Kali Linux</span>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="toc">
+    <div class="toc-title">// Table des matières</div>
+    <ul class="toc-list">
+      <li><a href="#intro">01 — Les deux challenges</a></li>
+      <li><a href="#recon">02 — Nocturnal : reconnaissance</a></li>
+      <li><a href="#idor">03 — Nocturnal : IDOR & credentials</a></li>
+      <li><a href="#admin">04 — Nocturnal : panneau d'administration</a></li>
+      <li><a href="#memlabs">05 — MemLabs Lab 5 : forensic mémoire</a></li>
+      <li><a href="#conclusion">06 — Bilan & compétences</a></li>
+    </ul>
+  </div>
+
+  <div class="highlight-box info">
+    <strong>Writeup complet disponible.</strong> Cette page synthétise la démarche. Le rapport détaillé (9 pages, avec captures et commandes) est téléchargeable ci‑dessous.
+    <div style="margin-top:1rem">
+      <a class="pdf-btn" href="docs/ctf-htb-nocturnal-memlabs.pdf" target="_blank"><span class="ic">⬇</span> Télécharger le writeup (PDF · 9 p.)</a>
+    </div>
+  </div>
+
+  <section class="section" id="intro">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2>Les deux challenges</h2>
+    </div>
+    <p>Ce rapport regroupe deux exercices qui couvrent deux facettes du métier : l'<strong style="color:var(--red)">offensif web</strong> avec la machine HackTheBox « Nocturnal », et la <strong style="color:var(--blue)">réponse à incident / forensic</strong> avec le dump mémoire de MemLabs Lab 5. L'un cherche à entrer dans un système, l'autre à reconstituer ce qui s'y est passé.</p>
+    <div class="result-card">
+      <div class="result-title">// Vue d'ensemble</div>
+      <div class="result-grid">
+        <div class="result-item"><span class="result-label">HTB Nocturnal</span><span class="result-value">Pentest web · IDOR</span></div>
+        <div class="result-item"><span class="result-label">Cible</span><span class="result-value">10.10.11.64 (web + SSH)</span></div>
+        <div class="result-item"><span class="result-label">MemLabs Lab 5</span><span class="result-value">Forensic mémoire Windows</span></div>
+        <div class="result-item"><span class="result-label">Outil clé</span><span class="result-value">Volatility</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="recon">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2>Nocturnal — Reconnaissance</h2>
+    </div>
+    <p>La phase de reconnaissance commence par un scan <strong>nmap</strong> de la cible, qui révèle deux services : un serveur web sur le port 80 et SSH sur le port 22. L'énumération du site avec <strong>Gobuster</strong> permet ensuite de cartographier les pages et points d'entrée de l'application.</p>
+    <div class="chain">
+      <span class="chain-node r">nmap (ports/services)</span>
+      <span class="chain-arrow">▶</span>
+      <span class="chain-node r">Gobuster (pages)</span>
+      <span class="chain-arrow">▶</span>
+      <span class="chain-node r">Analyse du workflow</span>
+    </div>
+    <p>En créant un compte basique, j'ai pu comprendre le fonctionnement de l'application : inscription, puis upload et téléchargement de fichiers.</p>
+  </section>
+
+  <section class="section" id="idor">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2>Nocturnal — IDOR & récupération de credentials</h2>
+    </div>
+    <p>L'analyse de l'URL de téléchargement révèle la faille centrale : une <strong style="color:var(--red)">référence directe à un objet non sécurisée (IDOR)</strong>. Le paramètre <code style="color:var(--orange);background:rgba(251,146,60,0.08);padding:2px 6px;font-family:'Share Tech Mono',monospace">username</code> permet d'accéder aux fichiers d'autres utilisateurs — à condition de connaître leur nom.</p>
+    <p>Plutôt que de deviner les noms à la main, l'outil <strong>ffuf</strong> a servi à énumérer les valeurs du paramètre, révélant plusieurs utilisateurs dont <strong>amanda</strong>. Parmi ses fichiers, un document <code style="color:var(--orange);background:rgba(251,146,60,0.08);padding:2px 6px;font-family:'Share Tech Mono',monospace">privacy.odt</code> a attiré l'attention.</p>
+    <div class="highlight-box warning">
+      Un fichier ODT est une archive : en extrayant son contenu et en lisant le <code style="font-family:'Share Tech Mono',monospace">content.xml</code>, un mot de passe apparaissait en clair au milieu du balisage — ouvrant l'accès au panneau d'administration.
+    </div>
+  </section>
+
+  <section class="section" id="admin">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2>Nocturnal — Panneau d'administration</h2>
+    </div>
+    <p>Une fois dans l'interface d'administration, plusieurs pistes d'exploitation ont été testées de façon méthodique avec <strong>Burp Suite</strong> :</p>
+    <table>
+      <thead>
+        <tr><th>Tentative</th><th>Résultat</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Injection de commandes via le champ « mot de passe »</td><td>Bloquée (filtrage en place)</td></tr>
+        <tr><td>Inclusion de fichier (LFI), manuelle et via ffuf</td><td>Sans succès</td></tr>
+        <tr><td>Brute force SSH (amanda, tobias)</td><td>Infructueux et trop long — abandonné</td></tr>
+      </tbody>
+    </table>
+    <div class="highlight-box info">
+      L'intérêt pédagogique est ici autant dans les <strong>impasses documentées</strong> que dans les réussites : tester, constater le filtrage, et savoir changer d'approche fait partie intégrante de la démarche d'un pentester.
+    </div>
+  </section>
+
+  <section class="section" id="memlabs">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2>MemLabs Lab 5 — Forensic mémoire</h2>
+    </div>
+    <p>Le second challenge change complètement de posture : il s'agit d'analyser un dump de mémoire vive Windows avec <strong style="color:var(--blue)">Volatility</strong> pour reconstituer l'activité de la machine.</p>
+    <div class="chain">
+      <span class="chain-node b">imageinfo (profil)</span>
+      <span class="chain-arrow">▶</span>
+      <span class="chain-node b">pslist (processus)</span>
+      <span class="chain-arrow">▶</span>
+      <span class="chain-node b">cmdline (lancement)</span>
+      <span class="chain-arrow">▶</span>
+      <span class="chain-node b">iehistory</span>
+    </div>
+    <p>La démarche : identifier d'abord le bon profil (<code style="color:var(--blue);background:rgba(56,189,248,0.08);padding:2px 6px;font-family:'Share Tech Mono',monospace">Win7SP1x64</code>) via <code style="font-family:'Share Tech Mono',monospace">imageinfo</code>, puis lister les processus. Deux éléments ressortent comme suspects : <strong>WinRAR.exe</strong>, qui trahit la présence d'une archive en mémoire, et plusieurs instances de <strong>notepad.exe</strong>, dont une pointant vers un exécutable inattendu.</p>
+    <div class="highlight-box">
+      L'analyse des lignes de commande (<code style="font-family:'Share Tech Mono',monospace">cmdline</code>) montre que WinRAR a ouvert une archive au nom encodé en Base64. Le plugin <code style="font-family:'Share Tech Mono',monospace">iehistory</code> a ensuite permis de poursuivre la piste vers les données cachées.
+    </div>
+  </section>
+
+  <section class="section" id="conclusion">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <h2>Bilan & compétences</h2>
+    </div>
+    <p>Ces deux challenges illustrent la double casquette que je travaille activement sur HackTheBox et MemLabs : savoir exploiter une application web, mais aussi savoir analyser un système compromis après coup. Le fil rouge est la méthode — observer, émettre des hypothèses, les tester, et documenter aussi bien les succès que les impasses.</p>
+    <div class="result-card">
+      <div class="result-title">// Compétences mises en œuvre</div>
+      <div class="result-grid">
+        <div class="result-item"><span class="result-label">Reconnaissance</span><span class="result-value success">✓ nmap · Gobuster</span></div>
+        <div class="result-item"><span class="result-label">Fuzzing</span><span class="result-value success">✓ ffuf</span></div>
+        <div class="result-item"><span class="result-label">Exploitation web</span><span class="result-value success">✓ IDOR · Burp Suite</span></div>
+        <div class="result-item"><span class="result-label">Analyse de fichiers</span><span class="result-value success">✓ ODT / content.xml</span></div>
+        <div class="result-item"><span class="result-label">Forensic mémoire</span><span class="result-value success">✓ Volatility</span></div>
+        <div class="result-item"><span class="result-label">Posture</span><span class="result-value">Offensif + DFIR</span></div>
+      </div>
+    </div>
+    <div style="margin-top:1.5rem">
+      <a class="pdf-btn" href="docs/ctf-htb-nocturnal-memlabs.pdf" target="_blank"><span class="ic">⬇</span> Lire le writeup complet (PDF · 9 p.)</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-copy">Daouda Togola · Writeup CTF — HTB Nocturnal & MemLabs Lab 5 · 2024–2025</div>
+  <a href="index.html" class="footer-link">← Retour au portfolio</a>
+</footer>
+</body>
+</html>
