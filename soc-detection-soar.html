@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOC Detection &amp; SOAR (Wazuh · Shuffle · IRIS) — Daouda Togola</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060809;--bg2:#0b0e12;--bg3:#10151c;--green:#00e87a;--blue:#38bdf8;--red:#f43f5e;--orange:#fb923c;--yellow:#fbbf24;--purple:#a78bfa;--text:#cbd5e1;--text-dim:#475569;--text-bright:#f1f5f9;--border:#1e293b;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.7;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 3rem;background:rgba(6,8,9,0.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--green);letter-spacing:2px;text-decoration:none;}
+.nav-back{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);text-decoration:none;letter-spacing:2px;border:1px solid var(--border);padding:6px 14px;transition:all 0.2s;}
+.nav-back:hover{border-color:var(--green);color:var(--green);}
+.hero{padding:8rem 3rem 4rem;position:relative;overflow:hidden;border-bottom:1px solid var(--border);}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,232,122,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,232,122,0.03) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 0%,transparent 100%);}
+.hero-inner{position:relative;z-index:1;max-width:900px;margin:0 auto;}
+.breadcrumb{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem;}
+.breadcrumb a{color:var(--green);text-decoration:none;}
+.hero-type{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--green);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:8px;}
+.type-dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+h1{font-family:'Syne',sans-serif;font-size:clamp(2rem,5vw,4rem);font-weight:800;color:var(--text-bright);line-height:1.1;margin-bottom:1rem;}
+.hero-sub{font-size:16px;color:var(--text-dim);font-weight:300;line-height:1.8;max-width:700px;margin-bottom:2rem;border-left:2px solid var(--green);padding-left:1.2rem;}
+.meta-row{display:flex;flex-wrap:wrap;gap:1.5rem;margin-top:1.5rem;}
+.meta-item{display:flex;flex-direction:column;gap:2px;}
+.meta-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;}
+.meta-value{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text-bright);}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:1.5rem;}
+.tag{font-family:'Share Tech Mono',monospace;font-size:9px;padding:3px 10px;border:1px solid var(--border);color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;}
+.tag.green{border-color:rgba(0,232,122,0.3);color:var(--green);}
+.tag.blue{border-color:rgba(56,189,248,0.3);color:var(--blue);}
+.tag.orange{border-color:rgba(251,146,60,0.3);color:var(--orange);}
+main{max-width:900px;margin:0 auto;padding:4rem 3rem;}
+.toc{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--green);padding:1.5rem;margin-bottom:3rem;}
+.toc-title{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--green);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;}
+.toc-list{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.toc-list a{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text-dim);text-decoration:none;letter-spacing:1px;transition:color 0.2s;}
+.toc-list a:hover{color:var(--green);}
+.toc-list a::before{content:'→ ';color:var(--green);}
+.section{margin-bottom:4rem;}
+.section-header{display:flex;align-items:center;gap:1rem;margin-bottom:2rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.section-num{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--green);background:rgba(0,232,122,0.08);border:1px solid rgba(0,232,122,0.2);padding:4px 10px;letter-spacing:2px;flex-shrink:0;}
+h2{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:700;color:var(--text-bright);}
+h3{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--text-bright);margin:2rem 0 1rem;}
+p{font-size:14px;color:var(--text);line-height:1.8;margin-bottom:1rem;font-weight:300;}
+.code-block{background:#040608;border:1px solid var(--border);border-left:3px solid var(--green);margin:1.5rem 0;overflow:hidden;}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:rgba(0,232,122,0.04);border-bottom:1px solid var(--border);}
+.code-lang{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--green);letter-spacing:2px;text-transform:uppercase;}
+.code-dots{display:flex;gap:4px;}
+.code-dot{width:7px;height:7px;border-radius:50%;}
+.code-dot:nth-child(1){background:#ff5f57;}
+.code-dot:nth-child(2){background:#febc2e;}
+.code-dot:nth-child(3){background:#28c840;}
+pre{padding:1.2rem 1.5rem;overflow-x:auto;font-family:'Share Tech Mono',monospace;font-size:12px;line-height:1.8;color:var(--text);}
+.highlight-box{background:rgba(0,232,122,0.04);border-left:3px solid var(--green);padding:1rem 1.5rem;margin:1.5rem 0;font-size:13px;}
+.highlight-box.info{border-left-color:var(--blue);background:rgba(56,189,248,0.04);}
+.highlight-box.warning{border-left-color:var(--orange);background:rgba(251,146,60,0.04);}
+.result-card{background:var(--bg2);border:1px solid var(--border);padding:1.5rem;margin:1.5rem 0;}
+.result-title{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:0.8rem;}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;}
+.result-item{display:flex;flex-direction:column;gap:4px;}
+.result-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:1px;}
+.result-value{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text-bright);}
+.result-value.success{color:var(--green);}
+.result-value.danger{color:var(--red);}
+table{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:13px;}
+th{background:rgba(0,232,122,0.06);color:var(--green);padding:10px 14px;text-align:left;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;border-bottom:2px solid var(--green);}
+td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text);font-size:13px;}
+tr:hover td{background:rgba(0,232,122,0.02);}
+footer{border-top:1px solid var(--border);padding:2rem 3rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;}
+.footer-copy{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);}
+.footer-link{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);text-decoration:none;transition:color 0.2s;}
+.footer-link:hover{color:var(--green);}
+@media(max-width:768px){nav{padding:1rem 1.5rem;}.hero,.main{padding-left:1.5rem;padding-right:1.5rem;}main{padding:2rem 1.5rem;}}
+.shot{margin:1.5rem 0;border:1px solid var(--border);background:var(--bg2);}
+.shot a{display:block;}
+.shot img{width:100%;display:block;border-bottom:1px solid var(--border);}
+.shot figcaption{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;padding:8px 14px;}
+.shot figcaption span{color:var(--green);}
+.shot-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.shot-grid .shot{margin:0;}
+.chain{display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;margin:1.5rem 0;font-family:'Share Tech Mono',monospace;font-size:11px;}
+.chain-node{border:1px solid var(--border);background:var(--bg2);padding:7px 12px;color:var(--text-bright);letter-spacing:1px;}
+.chain-node.g{border-color:rgba(0,232,122,0.4);color:var(--green);}
+.chain-node.b{border-color:rgba(56,189,248,0.4);color:var(--blue);}
+.chain-node.o{border-color:rgba(251,146,60,0.4);color:var(--orange);}
+.chain-arrow{color:var(--text-dim);}
+@media(max-width:768px){.shot-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">DT_SEC</a>
+  <a href="index.html" class="nav-back">← Retour</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <div class="breadcrumb"><a href="index.html">Portfolio</a> / TP & Projets / SOC Detection & SOAR</div>
+    <div class="hero-type"><span class="type-dot"></span>Lab SOC complet — Détection, Enrichissement, Automatisation</div>
+    <h1>SOC Detection & SOAR<br>Wazuh · Shuffle · IRIS</h1>
+    <p class="hero-sub">Construction d'une chaîne SOC de bout en bout : détection avec Wazuh et Suricata, réponse automatique sur l'endpoint, enrichissement et orchestration SOAR via Shuffle et VirusTotal, puis gestion d'incident dans IRIS. Le tout validé en déclenchant des attaques réelles sur des machines surveillées.</p>
+    <div class="meta-row">
+      <div class="meta-item"><span class="meta-label">Type</span><span class="meta-value">Lab personnel</span></div>
+      <div class="meta-item"><span class="meta-label">Domaine</span><span class="meta-value">SOC · SOAR · DFIR</span></div>
+      <div class="meta-item"><span class="meta-label">Année</span><span class="meta-value">2025–2026</span></div>
+      <div class="meta-item"><span class="meta-label">Posture</span><span class="meta-value">Blue team / détection</span></div>
+    </div>
+    <div class="tags">
+      <span class="tag green">Wazuh</span>
+      <span class="tag green">Suricata</span>
+      <span class="tag blue">Shuffle SOAR</span>
+      <span class="tag blue">VirusTotal</span>
+      <span class="tag blue">IRIS DFIR</span>
+      <span class="tag orange">Sysmon</span>
+      <span class="tag orange">MITRE ATT&CK</span>
+      <span class="tag">Active Response</span>
+      <span class="tag">Webhook / API</span>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="toc">
+    <div class="toc-title">// Table des matières</div>
+    <ul class="toc-list">
+      <li><a href="#contexte">01 — Contexte & Objectifs</a></li>
+      <li><a href="#architecture">02 — Architecture du SOC</a></li>
+      <li><a href="#detection">03 — Collecte & détection</a></li>
+      <li><a href="#scenarios">04 — Scénarios de détection</a></li>
+      <li><a href="#response">05 — Réponse automatique</a></li>
+      <li><a href="#soar">06 — Enrichissement & SOAR</a></li>
+      <li><a href="#iris">07 — Gestion d'incident (IRIS)</a></li>
+      <li><a href="#conclusion">08 — Bilan</a></li>
+    </ul>
+  </div>
+
+  <section class="section" id="contexte">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2>Contexte & Objectifs</h2>
+    </div>
+    <p>Un SOC efficace ne se limite pas à lever des alertes : il doit détecter, enrichir automatiquement, répondre et tracer l'incident. L'objectif de ce lab était de bâtir cette chaîne complète avec des outils open source, puis de la mettre à l'épreuve en exécutant de vraies techniques offensives sur des machines surveillées pour vérifier que chaque maillon réagit.</p>
+    <div class="result-card">
+      <div class="result-title">// Les 4 étages du SOC</div>
+      <div class="result-grid">
+        <div class="result-item"><span class="result-label">Détecter</span><span class="result-value">Wazuh + Suricata + Sysmon</span></div>
+        <div class="result-item"><span class="result-label">Répondre</span><span class="result-value">Active Response sur l'endpoint</span></div>
+        <div class="result-item"><span class="result-label">Enrichir / Orchestrer</span><span class="result-value">Shuffle + VirusTotal</span></div>
+        <div class="result-item"><span class="result-label">Investiguer</span><span class="result-value">IRIS (gestion de cas DFIR)</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="architecture">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2>Architecture du SOC</h2>
+    </div>
+    <p>L'infrastructure surveillée (postes Windows et Ubuntu, chacun équipé d'un agent Wazuh) envoie ses logs au manager Wazuh. Suricata analyse le trafic réseau en IDS/IPS. Les alertes critiques déclenchent un webhook vers Shuffle, qui enrichit via VirusTotal et notifie par email, tandis que les incidents sont remontés dans IRIS pour l'analyste.</p>
+    <figure class="shot">
+      <a href="images/soc-soar/00-architecture.jpg" target="_blank"><img src="images/soc-soar/00-architecture.jpg" alt="Architecture du workflow SOC" loading="lazy"></a>
+      <figcaption><span>Fig. 1</span> — Workflow SOC : détection, enrichissement & automatisation</figcaption>
+    </figure>
+    <div class="chain">
+      <span class="chain-node">Endpoints + agents</span>
+      <span class="chain-arrow">▶</span>
+      <span class="chain-node g">Wazuh / Suricata</span>
+      <span class="chain-arrow">▶</span>
+      <span class="chain-node b">Shuffle + VirusTotal</span>
+      <span class="chain-arrow">▶</span>
+      <span class="chain-node o">Email + IRIS</span>
+    </div>
+  </section>
+
+  <section class="section" id="detection">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2>Collecte & détection</h2>
+    </div>
+    <p>Le manager Wazuh centralise les événements de tous les agents et les classe par sévérité. Sysmon enrichit la télémétrie Windows (création de processus, écritures de fichiers), ce qui permet des règles de détection fines mappées sur MITRE ATT&CK.</p>
+    <figure class="shot">
+      <a href="images/soc-soar/01-wazuh-dashboard.jpg" target="_blank"><img src="images/soc-soar/01-wazuh-dashboard.jpg" alt="Tableau de bord Wazuh" loading="lazy"></a>
+      <figcaption><span>Fig. 2</span> — Tableau de bord Wazuh : alertes par sévérité et modules de sécurité</figcaption>
+    </figure>
+  </section>
+
+  <section class="section" id="scenarios">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2>Scénarios de détection</h2>
+    </div>
+    <p>Pour valider la détection, plusieurs techniques offensives connues ont été exécutées sur les machines surveillées, dans un lab isolé. Chaque action devait déclencher la bonne règle Wazuh avec le mapping ATT&CK correspondant.</p>
+
+    <h3>Vol d'identifiants (mimikatz) — T1003</h3>
+    <p>L'exécution de l'outil de credential dumping mimikatz sur un poste surveillé est immédiatement captée : Sysmon journalise la création du processus, et Wazuh lève l'alerte <strong>« Mimikatz Usage Detected »</strong> classée <code style="color:var(--green);background:rgba(0,232,122,0.08);padding:2px 6px;font-family:'Share Tech Mono',monospace">T1003 — OS Credential Dumping</code>.</p>
+    <div class="shot-grid">
+      <figure class="shot">
+        <a href="images/soc-soar/02-mimikatz-detection-trigger.jpg" target="_blank"><img src="images/soc-soar/02-mimikatz-detection-trigger.jpg" alt="Exécution mimikatz sur poste surveillé" loading="lazy"></a>
+        <figcaption><span>Fig. 3</span> — Exécution de l'outil sur le poste surveillé (déclencheur)</figcaption>
+      </figure>
+      <figure class="shot">
+        <a href="images/soc-soar/03-wazuh-mimikatz-t1003.jpg" target="_blank"><img src="images/soc-soar/03-wazuh-mimikatz-t1003.jpg" alt="Alerte Wazuh Mimikatz T1003" loading="lazy"></a>
+        <figcaption><span>Fig. 4</span> — Alerte Wazuh « Mimikatz Usage Detected » (T1003)</figcaption>
+      </figure>
+    </div>
+
+    <h3>Backdoor & exécution — T1105 / T1059 / T1204</h3>
+    <p>Un exécutable malveillant déposé puis lancé dans le répertoire utilisateur déclenche la règle <strong>« Backdoor suspected: EXE dropped in user directory and executed »</strong>, mappée sur Command & Control et Execution.</p>
+    <div class="shot-grid">
+      <figure class="shot">
+        <a href="images/soc-soar/05-backdoor-execution.jpg" target="_blank"><img src="images/soc-soar/05-backdoor-execution.jpg" alt="Exécution du backdoor" loading="lazy"></a>
+        <figcaption><span>Fig. 5</span> — Prise de contrôle du poste surveillé (validation détection)</figcaption>
+      </figure>
+      <figure class="shot">
+        <a href="images/soc-soar/04-wazuh-backdoor-mitre.jpg" target="_blank"><img src="images/soc-soar/04-wazuh-backdoor-mitre.jpg" alt="Alerte backdoor avec mapping MITRE" loading="lazy"></a>
+        <figcaption><span>Fig. 6</span> — Alerte « Backdoor suspected » (T1105, T1059, T1204)</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section" id="response">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2>Réponse automatique</h2>
+    </div>
+    <p>La détection ne suffit pas : une réponse automatique a été mise en place via l'<strong>Active Response</strong> de Wazuh. Un script Python <code style="color:var(--green);background:rgba(0,232,122,0.08);padding:2px 6px;font-family:'Share Tech Mono',monospace">remove-threat</code>, compilé en exécutable et déployé sur l'agent, supprime automatiquement un fichier identifié comme malveillant.</p>
+    <div class="shot-grid">
+      <figure class="shot">
+        <a href="images/soc-soar/06-active-response-build.jpg" target="_blank"><img src="images/soc-soar/06-active-response-build.jpg" alt="Build et déploiement de remove-threat" loading="lazy"></a>
+        <figcaption><span>Fig. 7</span> — Compilation & déploiement de remove-threat sur l'agent</figcaption>
+      </figure>
+      <figure class="shot">
+        <a href="images/soc-soar/07-active-response-logs.jpg" target="_blank"><img src="images/soc-soar/07-active-response-logs.jpg" alt="Logs de l'active response" loading="lazy"></a>
+        <figcaption><span>Fig. 8</span> — Journaux : détection VirusTotal puis suppression automatique</figcaption>
+      </figure>
+    </div>
+    <div class="highlight-box">
+      ✅ Test EICAR : le fichier de test est détecté (67 moteurs VirusTotal) puis supprimé automatiquement par l'Active Response, sans intervention humaine.
+    </div>
+  </section>
+
+  <section class="section" id="soar">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <h2>Enrichissement & SOAR</h2>
+    </div>
+    <p>Le cœur de l'automatisation repose sur <strong style="color:var(--blue)">Shuffle</strong>. À la réception d'une alerte Wazuh via webhook, un workflow extrait le hash SHA256 du fichier, interroge <strong>VirusTotal</strong> pour obtenir un verdict, puis envoie un email d'alerte à l'analyste — le tout en quelques secondes.</p>
+    <div class="chain">
+      <span class="chain-node">Webhook Wazuh</span>
+      <span class="chain-arrow">▶</span>
+      <span class="chain-node b">Extraction SHA256</span>
+      <span class="chain-arrow">▶</span>
+      <span class="chain-node b">VirusTotal</span>
+      <span class="chain-arrow">▶</span>
+      <span class="chain-node o">Email analyste</span>
+    </div>
+    <div class="shot-grid">
+      <figure class="shot">
+        <a href="images/soc-soar/08-shuffle-soar-workflow.jpg" target="_blank"><img src="images/soc-soar/08-shuffle-soar-workflow.jpg" alt="Workflow Shuffle" loading="lazy"></a>
+        <figcaption><span>Fig. 9</span> — Workflow Shuffle : webhook → hash → VirusTotal → email</figcaption>
+      </figure>
+      <figure class="shot">
+        <a href="images/soc-soar/09-shuffle-virustotal-email.jpg" target="_blank"><img src="images/soc-soar/09-shuffle-virustotal-email.jpg" alt="Résultat VirusTotal et email envoyé" loading="lazy"></a>
+        <figcaption><span>Fig. 10</span> — Verdict VirusTotal récupéré et email envoyé avec succès</figcaption>
+      </figure>
+    </div>
+    <figure class="shot">
+      <a href="images/soc-soar/10-shuffle-email-alert.jpg" target="_blank"><img src="images/soc-soar/10-shuffle-email-alert.jpg" alt="Email d'alerte reçu" loading="lazy"></a>
+      <figcaption><span>Fig. 11</span> — Email d'alerte reçu : « Mimikatz usage detected »</figcaption>
+    </figure>
+  </section>
+
+  <section class="section" id="iris">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <h2>Gestion d'incident (IRIS)</h2>
+    </div>
+    <p>Dernier maillon : la plateforme DFIR <strong style="color:var(--blue)">IRIS</strong> centralise les alertes critiques pour l'analyste. Chaque incident y arrive avec son contexte complet — règle déclenchée, niveau, agent concerné, techniques ATT&CK, log brut — prêt à être qualifié et investigué.</p>
+    <figure class="shot">
+      <a href="images/soc-soar/11-iris-incident.jpg" target="_blank"><img src="images/soc-soar/11-iris-incident.jpg" alt="Incident dans IRIS" loading="lazy"></a>
+      <figcaption><span>Fig. 12</span> — Incident « Backdoor suspected » remonté dans IRIS avec son contexte</figcaption>
+    </figure>
+  </section>
+
+  <section class="section" id="conclusion">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <h2>Bilan</h2>
+    </div>
+    <p>Ce lab m'a permis de construire et d'éprouver une chaîne SOC complète, de la détection jusqu'à la gestion d'incident, en reliant plusieurs outils open source via API et webhooks. C'est l'illustration concrète d'un SOC moderne où l'automatisation (SOAR) décharge l'analyste des tâches répétitives pour qu'il se concentre sur l'investigation.</p>
+    <div class="result-card">
+      <div class="result-title">// Résultats</div>
+      <div class="result-grid">
+        <div class="result-item"><span class="result-label">Détection</span><span class="result-value success">✓ Mimikatz · Backdoor · Meterpreter</span></div>
+        <div class="result-item"><span class="result-label">Mapping</span><span class="result-value success">✓ MITRE ATT&CK</span></div>
+        <div class="result-item"><span class="result-label">Réponse auto</span><span class="result-value success">✓ remove-threat</span></div>
+        <div class="result-item"><span class="result-label">SOAR</span><span class="result-value success">✓ Shuffle + VirusTotal</span></div>
+        <div class="result-item"><span class="result-label">Notification</span><span class="result-value success">✓ Email automatique</span></div>
+        <div class="result-item"><span class="result-label">Incident</span><span class="result-value success">✓ IRIS DFIR</span></div>
+      </div>
+    </div>
+    <div class="highlight-box warning">
+      Les techniques offensives (mimikatz, backdoor, meterpreter) ont été exécutées dans un lab isolé et à but pédagogique, sur des machines dont je suis propriétaire. L'intérêt du projet est la détection et la réponse, pas l'attaque.
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-copy">Daouda Togola · Lab SOC Detection & SOAR (Wazuh · Shuffle · IRIS) · 2025–2026</div>
+  <a href="index.html" class="footer-link">← Retour au portfolio</a>
+</footer>
+</body>
+</html>
