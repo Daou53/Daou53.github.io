@@ -71,6 +71,9 @@ td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text);fon
 tr:hover td{background:rgba(0,232,122,0.02);}
 footer{border-top:1px solid var(--border);padding:2rem 3rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;}
 .footer-copy{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);}
+.pdf-btn{display:inline-flex;align-items:center;gap:10px;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:1px;color:var(--bg);background:var(--green);padding:12px 22px;text-decoration:none;text-transform:uppercase;transition:all 0.2s;border:1px solid var(--green);}
+.pdf-btn:hover{background:transparent;color:var(--green);}
+.pdf-btn .ic{font-size:15px;}
 .footer-link{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);text-decoration:none;transition:color 0.2s;}
 .footer-link:hover{color:var(--green);}
 @media(max-width:768px){nav{padding:1rem 1.5rem;}.hero,.main{padding-left:1.5rem;padding-right:1.5rem;}main{padding:2rem 1.5rem;}}
@@ -123,6 +126,13 @@ footer{border-top:1px solid var(--border);padding:2rem 3rem;display:flex;justify
       <li><a href="#web">07 — Détection des Attaques Web</a></li>
       <li><a href="#conclusion">08 — Conclusion</a></li>
     </ul>
+  </div>
+
+  <div class="highlight-box info">
+    <strong>Rapport complet disponible.</strong> Le compte rendu détaillé du projet (25 pages — déploiement, règles, Suricata, VirusTotal, Active Response et détection des attaques web, avec toutes les captures) est téléchargeable ici.
+    <div style="margin-top:1rem">
+      <a class="pdf-btn" href="docs/projet-wazuh-ids-detection.pdf" target="_blank"><span class="ic">⬇</span> Télécharger le rapport (PDF · 25 p.)</a>
+    </div>
   </div>
 
   <section class="section" id="contexte">
